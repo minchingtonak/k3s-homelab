@@ -1,0 +1,7 @@
+config:
+  k3s-homelab:k3sToken:
+    secure: v1:rh9JVy7Y5vhsOL4s:A/jcGRGAWhGtcW71Oqc7SJHjAjNx7DP+S8OV4NnXcugA5lAZHROjRqGDZT4WVf6/NEHJXvg5bTASt6grnzoe+GQfbjI0MJP5iJCAQc2pp3v77aQfe0jBLA4jGTFjC2OI+GLD+Yfa8IhfHnfbGdb3spIuWJWznroT6tgS0IvXZuL0znDs2pVp7hb0KsqmN/pn
+  k3s-homelab:proxmoxPassword:
+    secure: v1:ACVFbRCF2VXgXBu/:iepbO5Ypd7Hh1Db728uTYz1lnvgbhehIIB8=
+  k3s-homelab:proxmoxEndpoint: https://192.168.8.89:8006
+encryptionsalt: v1:QJuJxf3bITM=:v1:iea4k267kn7qsT1/:XNpu3sPtmgcFP8bKDjpCgKInOfh45w==

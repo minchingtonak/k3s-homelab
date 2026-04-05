@@ -1,0 +1,12 @@
+{
+  "name": "k3s-homelab",
+  "main": "index.ts",
+  "devDependencies": {
+    "@types/node": "^18",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@muhlba91/pulumi-proxmoxve": "^7.13.0",
+    "@pulumi/pulumi": "^3.113.0"
+  }
+}
