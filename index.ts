@@ -505,6 +505,36 @@ write_files:
       server: "https://${k3sServerIp}:6443"
       token: "${k3sToken}"
 
+  - path: /etc/sysctl.d/80_tcp_hardening.conf
+    permissions: '0644'
+    content: |
+      ${sysctlTcpHardening.replace(/\n/g, '\n      ')}
+
+  - path: /etc/sysctl.d/85_network_optimizations.conf
+    permissions: '0644'
+    content: |
+      ${sysctlNetworkOptimizations.replace(/\n/g, '\n      ')}
+
+  - path: /etc/sysctl.d/85_memory_optimizations.conf
+    permissions: '0644'
+    content: |
+      ${sysctlMemoryOptimizations.replace(/\n/g, '\n      ')}
+
+  - path: /etc/sysctl.d/85_kernel_optimizations.conf
+    permissions: '0644'
+    content: |
+      ${sysctlKernelOptimizations.replace(/\n/g, '\n      ')}
+
+  - path: /etc/ssh/sshd_config
+    permissions: '0644'
+    content: |
+      ${sshdConfig.replace(/\n/g, '\n      ')}
+
+  - path: /etc/fail2ban/jail.d/01_sshd.conf
+    permissions: '0644'
+    content: |
+      ${fail2banSshdJail.replace(/\n/g, '\n      ')}
+
 runcmd:
   - systemctl enable --now qemu-guest-agent
   # Generate and apply locale (locale module runs before packages, so do it here)
