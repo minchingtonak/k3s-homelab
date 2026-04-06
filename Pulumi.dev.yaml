@@ -4,4 +4,6 @@ config:
   k3s-homelab:proxmoxPassword:
     secure: v1:ACVFbRCF2VXgXBu/:iepbO5Ypd7Hh1Db728uTYz1lnvgbhehIIB8=
   k3s-homelab:proxmoxEndpoint: https://192.168.8.89:8006
+  k3s-homelab:sshPublicKey:
+    secure: v1:/WFJFFRwfDRpTvIv:sKEmgoZe4JXl/hcudtbaUOKtRQCC+XhBgWjtU4FaHgaETZY6yeafv/itV8eNLxEkh9QhyPKNQKYVPl2pOj05YkCeR/fEI92KvVzZpjxW3AslShumn6kYi3CamfwMuJzsO591/ifibgzS42AIaW78y4Fpo3fGNok=
 encryptionsalt: v1:QJuJxf3bITM=:v1:iea4k267kn7qsT1/:XNpu3sPtmgcFP8bKDjpCgKInOfh45w==
