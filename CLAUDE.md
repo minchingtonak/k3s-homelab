@@ -100,11 +100,7 @@ ssh -i ~/.ssh/k3s_ed25519 k3s@192.168.8.100 "sudo cloud-init clean && sudo reboo
 
 ### Known issues
 
-- **Agent cannot reach server node** — `curl https://192.168.8.100:6443` from the agent VM fails. This is currently blocking agent nodes from joining the cluster. The agent cloud-init health-check loop (`until curl -sk https://${k3sServerIp}:6443/healthz`) will spin indefinitely until this is resolved. Both VMs are on `vmbr0` in the same `/24` so routing is not the issue. Likely culprits to investigate:
-  1. **K3s iptables rules** — K3s in `cluster-init` mode can add rules that drop traffic not originating from `127.0.0.1`. Check with `sudo iptables -L -n -v` on the server.
-  2. **Proxmox firewall** — May be enabled on the vmbr0 bridge or the VM's network device. Check in the Proxmox web UI under Datacenter/Node/VM → Firewall.
-  3. **`rp_filter = 1` sysctl** — Enabled in our cloud-init hardening. If the VM's routing table is asymmetric it silently drops packets. Check with `sudo sysctl net.ipv4.conf.all.rp_filter`.
-  - To narrow it down, run `sudo tcpdump -i eth0 host 192.168.8.101` on the server while the agent attempts to connect — if packets arrive but get no response, it's iptables; if packets never arrive, it's Proxmox firewall or a lower-level issue.
+None currently.
 
 ### Clean redeployment
 

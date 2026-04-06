@@ -393,11 +393,11 @@ const k3sServer = new proxmox.vm.VirtualMachine(
       nodeName: nodeName,
     },
 
-    cpu: k3sTemplate.cpu.apply((v) => ({
-      cores: v!.cores,
-      sockets: v!.sockets,
-      type: v!.type,
-    })),
+    cpu: {
+      cores: 2,
+      sockets: 1,
+      type: 'host',
+    },
     memory: {
       dedicated: 4096,
       floating: 2048, // Balloon: allow shrinking to 2 GiB when idle
@@ -415,7 +415,10 @@ const k3sServer = new proxmox.vm.VirtualMachine(
       },
     ],
 
-    networkDevices: k3sTemplate.networkDevices,
+    networkDevices: [
+      { bridge: 'vmbr0', model: 'virtio' },
+      { bridge: 'vmbr1', model: 'virtio', firewall: false },
+    ],
 
     agent: k3sTemplate.agent.apply((v) => v!),
 
@@ -521,12 +524,12 @@ runcmd:
   - systemctl restart fail2ban
   - systemctl restart ssh
   # Wait for K3s server to be ready, then join
-  # - |
-  #   until curl -sk https://${k3sServerIp}:6443/healthz 2>/dev/null; do
-  #     echo "Waiting for K3s server..."
-  #     sleep 10
-  #   done
-  # - curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=${k3sVersion} INSTALL_K3S_EXEC='agent' sh -s -
+  - |
+    until curl -sk https://${k3sServerIp}:6443/healthz 2>/dev/null; do
+      echo "Waiting for K3s server..."
+      sleep 10
+    done
+  - curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=${k3sVersion} INSTALL_K3S_EXEC='agent' sh -s -
 `,
       },
     },
@@ -567,7 +570,10 @@ runcmd:
         },
       ],
 
-      networkDevices: k3sTemplate.networkDevices,
+      networkDevices: [
+        { bridge: 'vmbr0', model: 'virtio' },
+        { bridge: 'vmbr1', model: 'virtio', firewall: false },
+      ],
 
       agent: k3sTemplate.agent.apply((v) => v!),
 
