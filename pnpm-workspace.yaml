@@ -1,5 +1,3 @@
 onlyBuiltDependencies:
-  - '@pulumi/flux'
   - '@pulumi/command'
   - '@pulumi/kubernetes'
-  - '@pulumi/helm'

@@ -1,0 +1,22 @@
+apiVersion: fluxcd.controlplane.io/v1
+kind: FluxInstance
+metadata:
+  name: flux
+  namespace: flux-system
+spec:
+  distribution:
+    version: "2.x"
+    registry: "ghcr.io/fluxcd"
+  components:
+    - source-controller
+    - kustomize-controller
+    - helm-controller
+    - notification-controller
+  cluster:
+    type: kubernetes
+  sync:
+    kind: GitRepository
+    url: "https://forgejo.backup.homelab.akmin.dev/akmin/k3s-homelab.git"
+    ref: "refs/heads/main"
+    path: "clusters/homelab"
+    pullSecret: "flux-git-credentials"

@@ -2,7 +2,6 @@ import * as fs from 'fs';
 import * as pulumi from '@pulumi/pulumi';
 import * as proxmox from '@muhlba91/pulumi-proxmoxve';
 import * as command from '@pulumi/command';
-import * as flux from '@pulumi/flux';
 import * as k8s from '@pulumi/kubernetes';
 
 const config = new pulumi.Config();
@@ -683,33 +682,62 @@ const writeKubeconfig = new command.local.Command(
   { dependsOn: [fetchKubeconfig] },
 );
 
-const fluxProvider = new flux.Provider(
-  'flux-provider',
-  {
-    kubernetes: {
-      configPath: kubeconfigPath,
-    },
-    git: {
-      url: forgejoRepo,
-      http: {
-        username: 'akmin',
-        password: forgejoPassword,
-      },
-    },
-  },
+const k8sProvider = new k8s.Provider(
+  'k8s-provider',
+  { kubeconfig: kubeconfigPath },
   { dependsOn: [writeKubeconfig] },
 );
 
-const fluxBootstrap = new flux.BootstrapGit(
-  'flux-bootstrap',
+const fluxOperator = new k8s.helm.v3.Release(
+  'flux-operator',
   {
-    path: 'clusters/homelab',
-    embeddedManifests: false,
+    chart: 'flux-operator',
+    namespace: 'flux-system',
+    createNamespace: true,
+    repositoryOpts: {
+      repo: 'oci://ghcr.io/controlplaneio-fluxcd/charts',
+    },
   },
+  { provider: k8sProvider, dependsOn: [k3sServer, ...k3sAgents] },
+);
+
+const fluxGitSecret = new k8s.core.v1.Secret(
+  'flux-git-credentials',
   {
-    provider: fluxProvider,
-    dependsOn: [k3sServer, ...k3sAgents],
+    metadata: { name: 'flux-git-credentials', namespace: 'flux-system' },
+    stringData: {
+      username: 'akmin',
+      password: forgejoPassword,
+    },
   },
+  { provider: k8sProvider, dependsOn: [fluxOperator] },
+);
+
+const fluxInstance = new k8s.apiextensions.CustomResource(
+  'flux-instance',
+  {
+    apiVersion: 'fluxcd.controlplane.io/v1',
+    kind: 'FluxInstance',
+    metadata: { name: 'flux', namespace: 'flux-system' },
+    spec: {
+      distribution: { version: '2.x', registry: 'ghcr.io/fluxcd' },
+      components: [
+        'source-controller',
+        'kustomize-controller',
+        'helm-controller',
+        'notification-controller',
+      ],
+      cluster: { type: 'kubernetes' },
+      sync: {
+        kind: 'GitRepository',
+        url: forgejoRepo,
+        ref: 'refs/heads/main',
+        path: 'clusters/homelab',
+        pullSecret: 'flux-git-credentials',
+      },
+    },
+  },
+  { provider: k8sProvider, dependsOn: [fluxGitSecret] },
 );
 
 // =============================================================================
