@@ -1,9 +1,15 @@
+import * as fs from 'fs';
 import * as pulumi from '@pulumi/pulumi';
 import * as proxmox from '@muhlba91/pulumi-proxmoxve';
+import * as command from '@pulumi/command';
+import * as flux from '@pulumi/flux';
+import * as k8s from '@pulumi/kubernetes';
 
 const config = new pulumi.Config();
 const sshPublicKey = config.requireSecret('sshPublicKey');
 const k3sToken = config.requireSecret('k3sToken');
+const forgejoRepo = config.require('forgejoRepo');
+const forgejoPassword = config.requireSecret('forgejoPassword');
 
 const k3sVersion = 'v1.32.3+k3s1';
 
@@ -638,7 +644,76 @@ runcmd:
 }
 
 // =============================================================================
-// 7. EXPORTS
+// 7. BOOTSTRAP FLUX
+// =============================================================================
+
+// Fetch kubeconfig from K3s server and write it locally so the flux provider gets a
+// static configPath string (known at preview time) rather than computed Output values,
+// which the flux provider cannot handle during configuration validation.
+const sshPrivateKey = fs.readFileSync(
+  `${process.env.HOME}/.ssh/k3s_ed25519`,
+  'utf-8',
+);
+
+const kubeconfigPath = `${process.env.HOME}/.kube/k3s-homelab`;
+
+// Fetch kubeconfig with loopback replaced by external IP so it works remotely.
+const fetchKubeconfig = new command.remote.Command(
+  'fetch-kubeconfig',
+  {
+    connection: {
+      host: k3sServerIp,
+      user: 'k3s',
+      privateKey: sshPrivateKey,
+    },
+    create: `sudo cat /etc/rancher/k3s/k3s.yaml | sed 's/127\\.0\\.0\\.1/${k3sServerIp}/g'`,
+    triggers: [k3sServer.id],
+  },
+  { dependsOn: [k3sServer] },
+);
+
+// Write kubeconfig to a local file via stdin to avoid shell quoting issues with cert data.
+const writeKubeconfig = new command.local.Command(
+  'write-kubeconfig',
+  {
+    create: `mkdir -p "$(dirname "${kubeconfigPath}")" && cat > "${kubeconfigPath}" && chmod 600 "${kubeconfigPath}"`,
+    delete: `rm -f "${kubeconfigPath}"`,
+    stdin: fetchKubeconfig.stdout,
+  },
+  { dependsOn: [fetchKubeconfig] },
+);
+
+const fluxProvider = new flux.Provider(
+  'flux-provider',
+  {
+    kubernetes: {
+      configPath: kubeconfigPath,
+    },
+    git: {
+      url: forgejoRepo,
+      http: {
+        username: 'akmin',
+        password: forgejoPassword,
+      },
+    },
+  },
+  { dependsOn: [writeKubeconfig] },
+);
+
+const fluxBootstrap = new flux.BootstrapGit(
+  'flux-bootstrap',
+  {
+    path: 'clusters/homelab',
+    embeddedManifests: false,
+  },
+  {
+    provider: fluxProvider,
+    dependsOn: [k3sServer, ...k3sAgents],
+  },
+);
+
+// =============================================================================
+// 9. EXPORTS
 // =============================================================================
 export const serverIp = k3sServer.ipv4Addresses;
 export const agentIps = k3sAgents.map((a) => a.ipv4Addresses);

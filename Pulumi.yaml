@@ -8,3 +8,14 @@ config:
   pulumi:tags:
     value:
       pulumi:template: typescript
+packages:
+  flux:
+    source: terraform-provider
+    version: 0.12.0
+    parameters:
+      - fluxcd/flux
+  helm:
+    source: terraform-provider
+    version: 0.12.0
+    parameters:
+      - hashicorp/helm

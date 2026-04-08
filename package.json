@@ -7,6 +7,10 @@
   },
   "dependencies": {
     "@muhlba91/pulumi-proxmoxve": "^7.13.0",
+    "@pulumi/command": "^1.0.0",
+    "@pulumi/flux": "file:sdks/flux",
+    "@pulumi/helm": "file:sdks/helm",
+    "@pulumi/kubernetes": "^4.28.0",
     "@pulumi/pulumi": "^3.113.0"
   }
 }

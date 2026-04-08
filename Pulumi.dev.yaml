@@ -6,4 +6,7 @@ config:
   k3s-homelab:proxmoxEndpoint: https://192.168.8.89:8006
   k3s-homelab:sshPublicKey:
     secure: v1:/WFJFFRwfDRpTvIv:sKEmgoZe4JXl/hcudtbaUOKtRQCC+XhBgWjtU4FaHgaETZY6yeafv/itV8eNLxEkh9QhyPKNQKYVPl2pOj05YkCeR/fEI92KvVzZpjxW3AslShumn6kYi3CamfwMuJzsO591/ifibgzS42AIaW78y4Fpo3fGNok=
+  k3s-homelab:forgejoRepo: https://forgejo.backup.homelab.akmin.dev/akmin/k3s-homelab.git
+  k3s-homelab:forgejoPassword:
+    secure: v1:bhZveqge15ZKp6YF:domnNdBj/kjeHJWadRGxOOAI06ng339Rm4nzmAK+dIuFYZf5
 encryptionsalt: v1:QJuJxf3bITM=:v1:iea4k267kn7qsT1/:XNpu3sPtmgcFP8bKDjpCgKInOfh45w==
