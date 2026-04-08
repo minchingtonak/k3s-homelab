@@ -69,14 +69,13 @@ Config and secrets in `Pulumi.dev.yaml` are Pulumi-encrypted:
 - `k3s-homelab:proxmoxPassword` — Proxmox API password
 - `k3s-homelab:k3sToken` — Shared K3s cluster token
 - `k3s-homelab:sshPublicKey` — SSH public key injected into all VMs via cloud-init
+- `k3s-homelab:sshPrivateKey` — SSH private key used to fetch kubeconfig from the server node
 - `k3s-homelab:forgejoRepo` — Forgejo repository URL for Flux GitOps
 - `k3s-homelab:forgejoPassword` — Forgejo password for Flux git access
 
 To set/update secrets: `pulumi config set --secret k3s-homelab:<key> <value>`
 
 ## Remote Debugging
-
-> **Network warning:** SSH connections to VMs from the desktop are intermittently laggy and can freeze for over a minute before recovering. This is a known infrastructure issue. When running remote commands, use `ConnectTimeout` and `ServerAliveInterval` flags, and treat timeouts as transient rather than fatal. Avoid commands that stream output indefinitely (e.g. `tail -f`) unless in an interactive session.
 
 ### Proxmox host (192.168.8.89)
 

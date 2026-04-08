@@ -9,4 +9,6 @@ config:
   k3s-homelab:forgejoRepo: https://forgejo.backup.homelab.akmin.dev/akmin/k3s-homelab.git
   k3s-homelab:forgejoPassword:
     secure: v1:bhZveqge15ZKp6YF:domnNdBj/kjeHJWadRGxOOAI06ng339Rm4nzmAK+dIuFYZf5
+  k3s-homelab:sshPrivateKey:
+    secure: v1:LuOUiQfhocMBg0k7:tcDI+Sg8KBsZoUcC4jq7/vQuVx+mu+DGYJR+1wQFWzd/6sdhuxiR13hKcPyEpuSTIiWPADiwpLmumz5GspGu/iEUT6zpPT1iEDJl/EIoNHKC3OOP+KLljMlEkw75ReJ2z5G6teIRO1Bp0O7Vzkof1EPENw4r/m0tspDmBjhLCl3P1Ae/WcN10wp2UTiR6KDNntP336+49zvYclvND1i96x0R1sHlrNIRMV7moSaIXndu4zxV1Fvp9MoNY2LObbmYDGkTEHyzvJeA48lmIxLnGlv9mv88AONvGIZi0hq/h5YN9eFPvbpk9OsCEqEid49ow79FDebOifxQR/lW7HJgU3qPC7GDJQwWBAr9CTjYLkrlDJauBo+dhA/pRJSshZ3y8aFIkBZAvRo05XFDjv0mZGSfbCHQOC95DBo3jH4YPmkXmm/eCW5TbWS3lWHNr+ypV7mvLF/XYn57xibMKEEMDtyV20nx/uUOhBR8VMtVJGn3877iosjOWX22fluqv54Fg02QvbNnubl3yrAndIMFUfNhMNUPq/ZE+AojC8lizCU4D08gtEURgPrDaeiqMmfYrJI=
 encryptionsalt: v1:QJuJxf3bITM=:v1:iea4k267kn7qsT1/:XNpu3sPtmgcFP8bKDjpCgKInOfh45w==

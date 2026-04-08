@@ -1,4 +1,3 @@
-import * as fs from 'fs';
 import * as pulumi from '@pulumi/pulumi';
 import * as proxmox from '@muhlba91/pulumi-proxmoxve';
 import * as command from '@pulumi/command';
@@ -9,6 +8,7 @@ const sshPublicKey = config.requireSecret('sshPublicKey');
 const k3sToken = config.requireSecret('k3sToken');
 const forgejoRepo = config.require('forgejoRepo');
 const forgejoPassword = config.requireSecret('forgejoPassword');
+const sshPrivateKey = config.requireSecret('sshPrivateKey');
 
 const k3sVersion = 'v1.32.3+k3s1';
 
@@ -646,14 +646,6 @@ runcmd:
 // 7. BOOTSTRAP FLUX
 // =============================================================================
 
-// Fetch kubeconfig from K3s server and write it locally so the flux provider gets a
-// static configPath string (known at preview time) rather than computed Output values,
-// which the flux provider cannot handle during configuration validation.
-const sshPrivateKey = fs.readFileSync(
-  `${process.env.HOME}/.ssh/k3s_ed25519`,
-  'utf-8',
-);
-
 const kubeconfigPath = `${process.env.HOME}/.kube/k3s-homelab`;
 
 // Fetch kubeconfig with loopback replaced by external IP so it works remotely.
@@ -664,8 +656,9 @@ const fetchKubeconfig = new command.remote.Command(
       host: k3sServerIp,
       user: 'k3s',
       privateKey: sshPrivateKey,
+      dialErrorLimit: -1,  // retry indefinitely until SSH is up (cloud-init takes time)
     },
-    create: `sudo cat /etc/rancher/k3s/k3s.yaml | sed 's/127\\.0\\.0\\.1/${k3sServerIp}/g'`,
+    create: `until sudo test -f /etc/rancher/k3s/k3s.yaml; do sleep 5; done && sudo cat /etc/rancher/k3s/k3s.yaml | sed 's/127\\.0\\.0\\.1/${k3sServerIp}/g'`,
     triggers: [k3sServer.id],
   },
   { dependsOn: [k3sServer] },
@@ -682,21 +675,28 @@ const writeKubeconfig = new command.local.Command(
   { dependsOn: [fetchKubeconfig] },
 );
 
+// Wait for the K3s API server to be fully ready before applying any k8s resources.
+const waitForK8s = new command.local.Command(
+  'wait-for-k8s',
+  {
+    create: `until kubectl --kubeconfig "${kubeconfigPath}" get nodes &>/dev/null; do sleep 5; done`,
+    triggers: [writeKubeconfig.id],
+  },
+  { dependsOn: [writeKubeconfig] },
+);
+
 const k8sProvider = new k8s.Provider(
   'k8s-provider',
   { kubeconfig: kubeconfigPath },
-  { dependsOn: [writeKubeconfig] },
+  { dependsOn: [waitForK8s] },
 );
 
 const fluxOperator = new k8s.helm.v3.Release(
   'flux-operator',
   {
-    chart: 'flux-operator',
+    chart: 'oci://ghcr.io/controlplaneio-fluxcd/charts/flux-operator',
     namespace: 'flux-system',
     createNamespace: true,
-    repositoryOpts: {
-      repo: 'oci://ghcr.io/controlplaneio-fluxcd/charts',
-    },
   },
   { provider: k8sProvider, dependsOn: [k3sServer, ...k3sAgents] },
 );
@@ -713,7 +713,7 @@ const fluxGitSecret = new k8s.core.v1.Secret(
   { provider: k8sProvider, dependsOn: [fluxOperator] },
 );
 
-const fluxInstance = new k8s.apiextensions.CustomResource(
+new k8s.apiextensions.CustomResource(
   'flux-instance',
   {
     apiVersion: 'fluxcd.controlplane.io/v1',
