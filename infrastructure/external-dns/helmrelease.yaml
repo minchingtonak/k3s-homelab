@@ -20,6 +20,8 @@ spec:
     remediation:
       retries: 3
   values:
+    extraArgs:
+      - --webhook-provider-url=http://127.0.0.1:8888
     sources:
       - service
     domainFilters:
