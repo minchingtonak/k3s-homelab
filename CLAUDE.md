@@ -62,6 +62,17 @@ All infrastructure is defined in a single `index.ts` with these sections:
 
 7. **Flux bootstrap** — Fetches kubeconfig from the server node via SSH (replacing `127.0.0.1` with the external IP), writes it to `~/.kube/k3s-homelab`, installs the Flux Operator via Helm, then applies a `FluxInstance` CRD that bootstraps Flux against a Forgejo git repository. Flux manages `clusters/homelab` path.
 
+## GitOps Manifest Layout
+
+Flux watches `clusters/homelab` in this repo. The layout uses two layers:
+
+- **`clusters/homelab/`** — Flux `Kustomization` resources (entry points). Each file here points to a path in `infrastructure/` and controls ordering via `dependsOn`.
+- **`infrastructure/<component>/`** — Actual Kubernetes manifests (HelmRepository, HelmRelease, Namespace, CRDs, config resources).
+
+The two-phase pattern is used for operators that install CRDs (e.g. MetalLB): one `Kustomization` installs the operator and waits (`wait: true`), a second `Kustomization` with `dependsOn` applies CRD-backed config resources only after the CRDs exist.
+
+`scratch/` holds WIP manifests not yet wired into Flux. `scripts/get-kubeconfig.sh` is a helper to pull kubeconfig from the server node.
+
 ## Stack Configuration
 
 Config and secrets in `Pulumi.dev.yaml` are Pulumi-encrypted:
