@@ -43,3 +43,5 @@ spec:
                 key: API_SECRET
         args:
           - --domain-filter=item.fyi
+        securityContext:
+          runAsNonRoot: false
