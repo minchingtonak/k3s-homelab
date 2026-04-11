@@ -1,0 +1,45 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: external-dns
+  namespace: external-dns
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: external-dns
+      version: "1.20.0"
+      sourceRef:
+        kind: HelmRepository
+        name: external-dns
+      interval: 1h
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  values:
+    sources:
+      - service
+    domainFilters:
+      - item.fyi
+    provider:
+      name: webhook
+      webhook:
+        image:
+          repository: ghcr.io/konnektr-io/external-dns-porkbun-webhook
+          tag: v0.2.19
+        env:
+          - name: API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: porkbun-api-credentials
+                key: API_KEY
+          - name: API_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: porkbun-api-credentials
+                key: API_SECRET
+        args:
+          - --domain-filter=item.fyi
