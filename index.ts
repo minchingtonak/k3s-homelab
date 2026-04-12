@@ -11,6 +11,9 @@ const forgejoSshKey = config.requireSecret('forgejoSshKey');
 // pulumi config set k3s-homelab:forgejoKnownHosts "$(ssh-keyscan -T 10 -p 222 forgejo.backup.homelab.akmin.dev 2>/dev/null | grep -v '^#')"
 const forgejoKnownHosts = config.require('forgejoKnownHosts');
 const sshPrivateKey = config.requireSecret('sshPrivateKey');
+// Export from cluster: kubectl get secret -n flux-system -l sealedsecrets.bitnami.com/sealed-secrets-key -o jsonpath='{.data.tls\.key}' | base64 -d
+const sealedSecretsKey = config.requireSecret('sealedSecretsKey');
+const sealedSecretsCert = config.require('sealedSecretsCert');
 
 const k3sVersion = 'v1.32.3+k3s1';
 
@@ -703,6 +706,26 @@ const fluxOperator = new k8s.helm.v3.Release(
     createNamespace: true,
   },
   { provider: k8sProvider, dependsOn: [k3sServer, ...k3sAgents] },
+);
+
+// Pre-create the sealing key so the controller uses a stable key across cluster rebuilds.
+// If this Secret exists with the active label when the controller starts, it adopts it
+// instead of generating a new one — keeping existing SealedSecrets decryptable.
+new k8s.core.v1.Secret(
+  'sealed-secrets-key',
+  {
+    metadata: {
+      name: 'sealed-secrets-key',
+      namespace: 'flux-system',
+      labels: { 'sealedsecrets.bitnami.com/sealed-secrets-key': 'active' },
+    },
+    type: 'kubernetes.io/tls',
+    stringData: {
+      'tls.key': sealedSecretsKey,
+      'tls.crt': sealedSecretsCert,
+    },
+  },
+  { provider: k8sProvider, dependsOn: [fluxOperator] },
 );
 
 const fluxGitSecret = new k8s.core.v1.Secret(
