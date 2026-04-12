@@ -7,7 +7,9 @@ const config = new pulumi.Config();
 const sshPublicKey = config.requireSecret('sshPublicKey');
 const k3sToken = config.requireSecret('k3sToken');
 const forgejoRepo = config.require('forgejoRepo');
-const forgejoPassword = config.requireSecret('forgejoPassword');
+const forgejoSshKey = config.requireSecret('forgejoSshKey');
+// pulumi config set k3s-homelab:forgejoKnownHosts "$(ssh-keyscan -T 10 -p 222 forgejo.backup.homelab.akmin.dev 2>/dev/null | grep -v '^#')"
+const forgejoKnownHosts = config.require('forgejoKnownHosts');
 const sshPrivateKey = config.requireSecret('sshPrivateKey');
 
 const k3sVersion = 'v1.32.3+k3s1';
@@ -656,7 +658,7 @@ const fetchKubeconfig = new command.remote.Command(
       host: k3sServerIp,
       user: 'k3s',
       privateKey: sshPrivateKey,
-      dialErrorLimit: -1, // retry indefinitely until SSH is up (cloud-init takes time)
+      dialErrorLimit: 50, // buffer for cloud-init wait time
     },
     create: `until sudo test -f /etc/rancher/k3s/k3s.yaml; do sleep 5; done && sudo cat /etc/rancher/k3s/k3s.yaml | sed 's/127\\.0\\.0\\.1/${k3sServerIp}/g'`,
     triggers: [k3sServer.id],
@@ -694,6 +696,7 @@ const k8sProvider = new k8s.Provider(
 const fluxOperator = new k8s.helm.v3.Release(
   'flux-operator',
   {
+    name: 'flux-operator',
     chart: 'oci://ghcr.io/controlplaneio-fluxcd/charts/flux-operator',
     version: '0.46.0',
     namespace: 'flux-system',
@@ -707,8 +710,8 @@ const fluxGitSecret = new k8s.core.v1.Secret(
   {
     metadata: { name: 'flux-git-credentials', namespace: 'flux-system' },
     stringData: {
-      username: 'akmin',
-      password: forgejoPassword,
+      identity: forgejoSshKey,
+      known_hosts: forgejoKnownHosts,
     },
   },
   { provider: k8sProvider, dependsOn: [fluxOperator] },
@@ -717,8 +720,6 @@ const fluxGitSecret = new k8s.core.v1.Secret(
 // Bootstrap-only FluxInstance: minimal config to get Flux running so it can sync
 // clusters/homelab from git. Once Flux is up, it reconciles the full config from
 // clusters/homelab/flux-system/flux-instance.yaml — that file is the source of truth.
-// TODO test cluster deployment with this
-// TODO use ssh for git sync
 new k8s.apiextensions.CustomResource(
   'flux-instance',
   {
