@@ -3,6 +3,14 @@ kind: IngressRoute
 metadata:
   name: headlamp
   namespace: kube-system
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Headlamp"
+    gethomepage.dev/description: "Kubernetes cluster UI"
+    gethomepage.dev/group: "Infrastructure"
+    gethomepage.dev/icon: "kubernetes.png"
+    gethomepage.dev/href: "https://headlamp.item.fyi"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=headlamp"
 spec:
   entryPoints:
     - websecure

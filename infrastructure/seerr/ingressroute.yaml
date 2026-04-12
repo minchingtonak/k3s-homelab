@@ -3,6 +3,14 @@ kind: IngressRoute
 metadata:
   name: seerr
   namespace: seerr
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Seerr"
+    gethomepage.dev/description: "Media request management"
+    gethomepage.dev/group: "Media"
+    gethomepage.dev/icon: "overseerr.png"
+    gethomepage.dev/href: "https://seerr.item.fyi"
+    gethomepage.dev/pod-selector: "app=seerr"
 spec:
   entryPoints:
     - websecure

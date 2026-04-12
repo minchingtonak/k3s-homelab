@@ -3,6 +3,14 @@ kind: IngressRoute
 metadata:
   name: flux-webui
   namespace: flux-system
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Flux"
+    gethomepage.dev/description: "GitOps dashboard"
+    gethomepage.dev/group: "Infrastructure"
+    gethomepage.dev/icon: "flux.png"
+    gethomepage.dev/href: "https://flux.item.fyi"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=flux-operator"
 spec:
   entryPoints:
     - websecure
