@@ -16,11 +16,11 @@ spec:
   install:
     crds: CreateReplace
     remediation:
-      retries: 3
+      retries: 5
   upgrade:
     crds: CreateReplace
     remediation:
-      retries: 3
+      retries: 5
   values:
     # -------------------------------------------------------
     # K3s-specific: disable scrapers for components that do not
@@ -69,6 +69,8 @@ spec:
     grafana:
       ingress:
         enabled: false  # exposed via IngressRoute instead
+      initChownData:
+        enabled: false  # local-path provisioner sets permissions on creation; chown on upgrade fails
       persistence:
         enabled: true
         size: 2Gi
