@@ -86,6 +86,14 @@ Config and secrets in `Pulumi.dev.yaml` are Pulumi-encrypted:
 
 To set/update secrets: `pulumi config set --secret k3s-homelab:<key> <value>`
 
+## Cluster Access
+
+kubectl is configured locally and can be used directly — no need to SSH into nodes for cluster operations. If the cluster has been redeployed (e.g. after `pulumi destroy && pulumi up`), refresh the local kubeconfig first:
+
+```bash
+./scripts/get-kubeconfig.sh
+```
+
 ## Remote Debugging
 
 ### Proxmox host (192.168.8.89)
