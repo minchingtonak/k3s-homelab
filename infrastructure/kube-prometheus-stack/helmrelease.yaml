@@ -110,6 +110,10 @@ spec:
     # -------------------------------------------------------
     prometheus:
       prometheusSpec:
+        # Discover all ServiceMonitors/PodMonitors in the cluster, not just
+        # those labelled release: kube-prometheus-stack
+        serviceMonitorSelectorNilUsesHelmValues: false
+        podMonitorSelectorNilUsesHelmValues: false
         retention: 15d
         externalUrl: https://prometheus.item.fyi
         storageSpec:
