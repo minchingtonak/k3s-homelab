@@ -1,0 +1,45 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: prometheus-tsdb-storage
+  namespace: monitoring
+spec:
+  groups:
+    - name: prometheus.storage
+      rules:
+        - alert: PrometheusStorageFillingUp
+          # Fires when TSDB blocks are using >80% of the configured retentionSize.
+          # prometheus_tsdb_retention_limit_bytes reflects --storage.tsdb.retention.size.
+          expr: |
+            (
+              prometheus_tsdb_blocks_bytes
+              /
+              prometheus_tsdb_retention_limit_bytes
+            ) > 0.8
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Prometheus TSDB storage is {{ $value | humanizePercentage }} full"
+            description: >
+              Prometheus ({{ $labels.job }}) TSDB blocks are at
+              {{ $value | humanizePercentage }} of the configured retentionSize limit.
+              Oldest blocks will start being dropped soon. Consider increasing
+              retentionSize or reducing the retention period.
+
+        - alert: PrometheusStorageCritical
+          expr: |
+            (
+              prometheus_tsdb_blocks_bytes
+              /
+              prometheus_tsdb_retention_limit_bytes
+            ) > 0.9
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Prometheus TSDB storage is {{ $value | humanizePercentage }} full"
+            description: >
+              Prometheus ({{ $labels.job }}) TSDB blocks are at
+              {{ $value | humanizePercentage }} of the configured retentionSize limit.
+              Active deletion of old data is likely occurring. Investigate immediately.
