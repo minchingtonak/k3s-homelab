@@ -8,7 +8,7 @@ spec:
   chart:
     spec:
       chart: metallb
-      version: "*"
+      version: "0.15.3" # https://github.com/metallb/metallb/releases
       sourceRef:
         kind: HelmRepository
         name: metallb
