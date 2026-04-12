@@ -1,0 +1,26 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: headlamp
+  namespace: kube-system
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: headlamp
+      version: "0.41.0" # https://github.com/kubernetes-sigs/headlamp/releases
+      sourceRef:
+        kind: HelmRepository
+        name: headlamp
+      interval: 1h
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  values:
+    clusterRoleBinding:
+      clusterRoleName: cluster-admin
+    ingress:
+      enabled: false
