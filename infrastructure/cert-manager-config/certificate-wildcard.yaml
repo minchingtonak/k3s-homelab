@@ -6,7 +6,7 @@ metadata:
 spec:
   secretName: wildcard-item-fyi-tls
   issuerRef:
-    name: letsencrypt-staging # Switch to letsencrypt-prod after confirming staging works
+    name: letsencrypt-prod
     kind: ClusterIssuer
   dnsNames:
     - "*.item.fyi"
