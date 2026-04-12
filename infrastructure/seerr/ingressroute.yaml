@@ -1,0 +1,15 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: seerr
+  namespace: seerr
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`seerr.item.fyi`)
+      services:
+        - name: seerr
+          port: 80
+  tls: {}

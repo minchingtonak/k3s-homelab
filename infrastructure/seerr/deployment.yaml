@@ -1,0 +1,75 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: seerr
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: seerr-config
+  namespace: seerr
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 4Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: seerr
+  namespace: seerr
+  labels:
+    app: seerr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: seerr
+  template:
+    metadata:
+      labels:
+        app: seerr
+    spec:
+      containers:
+        - name: seerr
+          image: ghcr.io/seerr-team/seerr:v3.1.0@sha256:b35ba0461c4a1033d117ac1e5968fd4cbe777899e4cbfbdeaf3d10a42a0eb7e9
+          ports:
+            - containerPort: 5055
+              name: http
+          env:
+            - name: LOG_LEVEL
+              value: 'debug'
+            - name: TZ
+              value: 'America/New_York' # Adjust to your timezone
+            - name: PORT
+              value: '5055'
+          volumeMounts:
+            - name: config
+              mountPath: /app/config
+          resources:
+            requests:
+              memory: '256Mi'
+              cpu: '100m'
+            limits:
+              memory: '1Gi'
+              cpu: '1000m'
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: seerr-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: seerr
+  namespace: seerr
+spec:
+  selector:
+    app: seerr
+  ports:
+    - port: 80
+      targetPort: 5055
+      name: http
