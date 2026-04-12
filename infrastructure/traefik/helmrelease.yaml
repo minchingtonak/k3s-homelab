@@ -47,6 +47,5 @@ spec:
         publishedService:
           enabled: true
     ingressRoute:
-      # TODO enable
       dashboard:
-        enabled: false
+        enabled: false  # managed via ingressroute-dashboard.yaml instead
