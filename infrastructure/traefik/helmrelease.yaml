@@ -49,3 +49,9 @@ spec:
     ingressRoute:
       dashboard:
         enabled: false  # managed via ingressroute-dashboard.yaml instead
+    metrics:
+      prometheus:
+        service:
+          enabled: true  # dedicated ClusterIP service for metrics scraping
+        serviceMonitor:
+          enabled: true  # Prometheus Operator ServiceMonitor for kube-prometheus-stack
