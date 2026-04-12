@@ -78,9 +78,12 @@ data:
     - resources:
         cpu: true
         memory: true
-    - search:
-        provider: duckduckgo
-        target: _blank
+    - datetime:
+        text_size: l
+        format:
+          dateStyle: long
+          timeStyle: short
+          hour12: false
   docker.yaml: ""
   bookmarks.yaml: "[]"
 ---
