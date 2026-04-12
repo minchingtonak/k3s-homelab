@@ -51,8 +51,8 @@ metadata:
 data:
   kubernetes.yaml: |
     mode: cluster
-    ingress:
-      traefik: true
+    ingress: true
+    traefik: true
   settings.yaml: |
     title: Homelab
     theme: dark
