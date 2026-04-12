@@ -1,0 +1,23 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: prometheus
+  namespace: monitoring
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Prometheus"
+    gethomepage.dev/description: "Metrics and alerting"
+    gethomepage.dev/group: "Infrastructure"
+    gethomepage.dev/icon: "prometheus.png"
+    gethomepage.dev/href: "https://prometheus.item.fyi"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=prometheus"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`prometheus.item.fyi`)
+      services:
+        - name: kube-prometheus-stack-prometheus
+          port: 9090
+  tls: {}

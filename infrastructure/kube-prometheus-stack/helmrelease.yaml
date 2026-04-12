@@ -1,0 +1,120 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kube-prometheus-stack
+  namespace: monitoring
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: kube-prometheus-stack
+      version: "83.4.0" # https://github.com/prometheus-community/helm-charts/releases
+      sourceRef:
+        kind: HelmRepository
+        name: prometheus-community
+      interval: 1h
+  install:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  upgrade:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  values:
+    # -------------------------------------------------------
+    # K3s-specific: disable scrapers for components that do not
+    # have separate endpoints in k3s. K3s merges apiserver,
+    # controller-manager, scheduler, proxy, and etcd metrics
+    # into the kubelet endpoint on each node.
+    # -------------------------------------------------------
+    kubeApiServer:
+      enabled: false
+    kubeControllerManager:
+      enabled: false
+    kubeScheduler:
+      enabled: false
+    kubeProxy:
+      enabled: false
+    kubeEtcd:
+      enabled: false
+
+    # kubelet scraping stays enabled — this is where k3s exposes
+    # all merged control-plane and node metrics
+    kubelet:
+      enabled: true
+
+    # -------------------------------------------------------
+    # Default dashboards and alert rules
+    # -------------------------------------------------------
+    # Dashboards: keep enabled. Some (apiserver, etcd, scheduler)
+    # will show empty panels, but kubelet, node, pod, and workload
+    # dashboards are immediately useful.
+    defaultDashboardsEnabled: true
+
+    defaultRules:
+      create: true
+      rules:
+        # Disable rule groups for components we don't scrape
+        etcd: false
+        kubeApiserver: false
+        kubeControllerManager: false
+        kubeProxy: false
+        kubeSchedulerAlerting: false
+        kubeSchedulerRecording: false
+
+    # -------------------------------------------------------
+    # Grafana
+    # -------------------------------------------------------
+    grafana:
+      ingress:
+        enabled: false  # exposed via IngressRoute instead
+      persistence:
+        enabled: true
+        size: 2Gi
+      admin:
+        existingSecret: grafana-admin-credentials
+        userKey: admin-user
+        passwordKey: admin-password
+
+    # -------------------------------------------------------
+    # Prometheus
+    # -------------------------------------------------------
+    prometheus:
+      prometheusSpec:
+        retention: 15d
+        externalUrl: https://prometheus.item.fyi
+        storageSpec:
+          volumeClaimTemplate:
+            spec:
+              accessModes: ["ReadWriteOnce"]
+              resources:
+                requests:
+                  storage: 10Gi
+        resources:
+          requests:
+            cpu: 250m
+            memory: 768Mi
+          limits:
+            memory: 2500Mi
+
+    # -------------------------------------------------------
+    # Alertmanager
+    # -------------------------------------------------------
+    alertmanager:
+      enabled: true
+      alertmanagerSpec:
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            memory: 256Mi
+
+    # -------------------------------------------------------
+    # Node exporter and kube-state-metrics
+    # -------------------------------------------------------
+    nodeExporter:
+      enabled: true
+    kubeStateMetrics:
+      enabled: true
