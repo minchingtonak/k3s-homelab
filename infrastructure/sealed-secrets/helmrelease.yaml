@@ -19,3 +19,6 @@ spec:
     crds: Create
   upgrade:
     crds: CreateReplace
+  # https://github.com/bitnami-labs/sealed-secrets/blob/main/helm/sealed-secrets/values.yaml
+  values:
+    keyrenewperiod: "0"
