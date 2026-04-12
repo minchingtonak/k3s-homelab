@@ -25,7 +25,7 @@ spec:
     domain: 'cluster.local'
   sync:
     kind: GitRepository
-    url: 'https://forgejo.backup.homelab.akmin.dev/akmin/k3s-homelab.git'
+    url: 'ssh://git@forgejo.backup.homelab.akmin.dev:222/akmin/k3s-homelab.git'
     ref: 'refs/heads/main'
     path: 'clusters/homelab'
     pullSecret: 'flux-git-credentials'
