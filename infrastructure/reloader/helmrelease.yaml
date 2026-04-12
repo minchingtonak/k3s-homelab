@@ -1,0 +1,21 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: reloader
+  namespace: reloader
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: reloader
+      version: "2.2.9" # https://github.com/stakater/Reloader/releases
+      sourceRef:
+        kind: HelmRepository
+        name: reloader
+      interval: 1h
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
