@@ -656,7 +656,7 @@ const fetchKubeconfig = new command.remote.Command(
       host: k3sServerIp,
       user: 'k3s',
       privateKey: sshPrivateKey,
-      dialErrorLimit: -1,  // retry indefinitely until SSH is up (cloud-init takes time)
+      dialErrorLimit: -1, // retry indefinitely until SSH is up (cloud-init takes time)
     },
     create: `until sudo test -f /etc/rancher/k3s/k3s.yaml; do sleep 5; done && sudo cat /etc/rancher/k3s/k3s.yaml | sed 's/127\\.0\\.0\\.1/${k3sServerIp}/g'`,
     triggers: [k3sServer.id],
@@ -695,6 +695,7 @@ const fluxOperator = new k8s.helm.v3.Release(
   'flux-operator',
   {
     chart: 'oci://ghcr.io/controlplaneio-fluxcd/charts/flux-operator',
+    version: '0.46.0',
     namespace: 'flux-system',
     createNamespace: true,
   },
@@ -713,6 +714,11 @@ const fluxGitSecret = new k8s.core.v1.Secret(
   { provider: k8sProvider, dependsOn: [fluxOperator] },
 );
 
+// Bootstrap-only FluxInstance: minimal config to get Flux running so it can sync
+// clusters/homelab from git. Once Flux is up, it reconciles the full config from
+// clusters/homelab/flux-system/flux-instance.yaml — that file is the source of truth.
+// TODO test cluster deployment with this
+// TODO use ssh for git sync
 new k8s.apiextensions.CustomResource(
   'flux-instance',
   {
@@ -720,14 +726,7 @@ new k8s.apiextensions.CustomResource(
     kind: 'FluxInstance',
     metadata: { name: 'flux', namespace: 'flux-system' },
     spec: {
-      distribution: { version: '2.x', registry: 'ghcr.io/fluxcd' },
-      components: [
-        'source-controller',
-        'kustomize-controller',
-        'helm-controller',
-        'notification-controller',
-      ],
-      cluster: { type: 'kubernetes' },
+      distribution: { version: '2.8.5', registry: 'ghcr.io/fluxcd' },
       sync: {
         kind: 'GitRepository',
         url: forgejoRepo,

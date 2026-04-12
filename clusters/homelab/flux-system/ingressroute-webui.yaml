@@ -1,0 +1,15 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: flux-webui
+  namespace: flux-system
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`flux.item.fyi`)
+      services:
+        - name: flux-operator
+          port: 9080
+  tls: {}
