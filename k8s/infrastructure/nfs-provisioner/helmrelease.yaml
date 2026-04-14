@@ -27,5 +27,5 @@ spec:
       name: nfs-zfs
       defaultClass: false
       reclaimPolicy: Retain
-      archiveOnDelete: true
+      archiveOnDelete: false
       pathPattern: "${.PVC.namespace}-${.PVC.name}"
