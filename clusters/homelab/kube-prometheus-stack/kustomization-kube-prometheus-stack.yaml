@@ -8,6 +8,7 @@ spec:
   retryInterval: 1m
   dependsOn:
     - name: cert-manager
+    - name: nfs-provisioner
   sourceRef:
     kind: GitRepository
     name: flux-system

@@ -69,11 +69,10 @@ spec:
     grafana:
       ingress:
         enabled: false  # exposed via IngressRoute instead
-      initChownData:
-        enabled: false  # local-path provisioner sets permissions on creation; chown on upgrade fails
       persistence:
         enabled: true
         size: 2Gi
+        storageClassName: nfs-zfs
       admin:
         existingSecret: grafana-admin-credentials
         userKey: admin-user
@@ -121,6 +120,7 @@ spec:
         storageSpec:
           volumeClaimTemplate:
             spec:
+              storageClassName: nfs-zfs
               accessModes: ["ReadWriteOnce"]
               resources:
                 requests:

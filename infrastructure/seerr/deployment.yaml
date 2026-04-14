@@ -11,7 +11,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: local-path
+  storageClassName: nfs-zfs
   resources:
     requests:
       storage: 4Gi
