@@ -741,8 +741,8 @@ const fluxGitSecret = new k8s.core.v1.Secret(
 );
 
 // Bootstrap-only FluxInstance: minimal config to get Flux running so it can sync
-// clusters/homelab from git. Once Flux is up, it reconciles the full config from
-// clusters/homelab/flux-system/flux-instance.yaml — that file is the source of truth.
+// k8s/clusters/homelab from git. Once Flux is up, it reconciles the full config from
+// k8s/clusters/homelab/flux-system/flux-instance.yaml — that file is the source of truth.
 new k8s.apiextensions.CustomResource(
   'flux-instance',
   {
@@ -755,12 +755,19 @@ new k8s.apiextensions.CustomResource(
         kind: 'GitRepository',
         url: forgejoRepo,
         ref: 'refs/heads/main',
-        path: 'clusters/homelab',
+        path: 'k8s/clusters/homelab',
         pullSecret: 'flux-git-credentials',
       },
     },
   },
-  { provider: k8sProvider, dependsOn: [fluxGitSecret] },
+  {
+    provider: k8sProvider,
+    dependsOn: [fluxGitSecret],
+    // Flux's kustomize-controller takes ownership of .spec after the initial apply,
+    // reconciling it from k8s/clusters/homelab/flux-system/flux-instance.yaml.
+    // ignoreChanges prevents SSA field conflicts between Pulumi and kustomize-controller.
+    ignoreChanges: ['spec'],
+  },
 );
 
 // =============================================================================
