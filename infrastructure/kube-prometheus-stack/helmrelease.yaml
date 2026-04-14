@@ -69,6 +69,8 @@ spec:
     grafana:
       ingress:
         enabled: false  # exposed via IngressRoute instead
+      initChownData:
+        enabled: false  # provisioner creates 777 dirs; chown is unnecessary and fails on NFS with existing data
       persistence:
         enabled: true
         size: 2Gi
