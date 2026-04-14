@@ -755,6 +755,7 @@ new k8s.apiextensions.CustomResource(
         kind: 'GitRepository',
         url: forgejoRepo,
         ref: 'refs/heads/main',
+        // If this path changes, update k8s/clusters/homelab/flux-system/flux-instance.yaml too.
         path: 'k8s/clusters/homelab',
         pullSecret: 'flux-git-credentials',
       },

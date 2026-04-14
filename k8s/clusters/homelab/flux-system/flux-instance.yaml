@@ -27,5 +27,8 @@ spec:
     kind: GitRepository
     url: 'ssh://git@forgejo.backup.homelab.akmin.dev:222/akmin/k3s-homelab.git'
     ref: 'refs/heads/main'
+    # If this path ever changes (e.g. repo restructure), patch the in-cluster
+    # FluxInstance manually — Flux can't self-bootstrap to a new path.
+    # See docs/runbook-flux-path-migration.md
     path: 'k8s/clusters/homelab'
     pullSecret: 'flux-git-credentials'
