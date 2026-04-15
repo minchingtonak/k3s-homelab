@@ -73,3 +73,10 @@ ssh -i ~/.ssh/lxc_ed25519 root@192.168.8.89 "zfs list fast/k3s-nfs"
 # Set a dataset quota if needed
 ssh -i ~/.ssh/lxc_ed25519 root@192.168.8.89 "zfs set quota=500G fast/k3s-nfs"
 ```
+
+## Backup
+
+`fast/k3s-nfs` is backed up daily to both local and cloud Proxmox Backup Server via a
+Dagu DAG (`k3s-nfs-backup`) in the `hac` repo. A ZFS snapshot is taken before each
+backup run for crash consistency. See [Backup & Restore](./backup-k3s-nfs.md) for setup
+instructions, architecture details, and restore procedures.
