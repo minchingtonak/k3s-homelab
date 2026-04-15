@@ -15,7 +15,7 @@ cert-manager  False   dependency 'flux-system/traefik' is not ready
 
 This is a bootstrapping deadlock. The `flux-system` Kustomization is responsible
 for applying the `FluxInstance` manifest from git — but the `FluxInstance` is also
-what tells `flux-system` *where in git to look*. When the path changes:
+what tells `flux-system` _where in git to look_. When the path changes:
 
 1. `flux-system` tries to fetch content from the **old** path (`clusters/homelab`)
 2. That path no longer exists in git → reconciliation fails

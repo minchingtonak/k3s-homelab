@@ -15,13 +15,13 @@ The Flux Operator automatically installs a `NetworkPolicy` named `allow-egress` 
 ```yaml
 # flux-system/allow-egress (managed by Flux Operator, do not modify)
 spec:
-  podSelector: {}        # applies to ALL pods in flux-system
+  podSelector: {} # applies to ALL pods in flux-system
   policyTypes: [Ingress, Egress]
   ingress:
-  - from:
-    - podSelector: {}    # only allows traffic FROM pods within flux-system
+    - from:
+        - podSelector: {} # only allows traffic FROM pods within flux-system
   egress:
-  - {}                   # egress unrestricted
+    - {} # egress unrestricted
 ```
 
 When kubeseal probes the controller, it uses the Kubernetes API server proxy mechanism:
@@ -50,6 +50,7 @@ Use `scripts/seal-secret.sh`, which handles this automatically:
 ```
 
 The script fetches the cert with:
+
 ```bash
 kubectl get secret -n flux-system -l sealedsecrets.bitnami.com/sealed-secrets-key \
   -o jsonpath='{.items[0].data.tls\.crt}' | base64 -d > /tmp/cert.pem

@@ -46,6 +46,7 @@ flux reconcile helmrelease <name> -n <namespace> --reset
 ### 2. StorageClass parameter change rejected
 
 **Symptom:**
+
 ```
 StorageClass "nfs-zfs" is invalid: parameters: Forbidden: updates to parameters are forbidden.
 ```
@@ -55,19 +56,23 @@ StorageClass "nfs-zfs" is invalid: parameters: Forbidden: updates to parameters 
 **Resolution:**
 
 1. Check what's currently live vs. what Helm is trying to apply:
+
    ```bash
    kubectl get storageclass nfs-zfs -o yaml
    ```
 
 2. Delete the StorageClass. Existing PVs and their data are unaffected — they retain their bindings:
+
    ```bash
    kubectl delete storageclass nfs-zfs
    ```
 
 3. Reset the stalled HelmRelease:
+
    ```bash
    flux reconcile helmrelease nfs-subdir-external-provisioner -n nfs-provisioner --reset
    ```
+
    Helm will recreate the StorageClass with the new parameters.
 
 4. Reconcile any Kustomizations that were blocked:
@@ -84,6 +89,7 @@ StorageClass "nfs-zfs" is invalid: parameters: Forbidden: updates to parameters 
 ### 3. Dependency not ready
 
 **Symptom:**
+
 ```
 dependency 'flux-system/<name>' is not ready
 ```
@@ -106,10 +112,12 @@ kubectl describe helmrepository <name> -n <namespace>
 ```
 
 Common causes:
+
 - Chart version pinned in `helmrelease.yaml` doesn't exist in the repo
 - HelmRepository URL is unreachable (check DNS / network from within the cluster)
 
 Force a repository refresh:
+
 ```bash
 flux reconcile source helm <repo-name> -n <namespace>
 ```
@@ -125,6 +133,7 @@ flux get sources git -A
 ```
 
 Force a fetch:
+
 ```bash
 flux reconcile source git flux-system
 ```
