@@ -644,7 +644,11 @@ runcmd:
       onBoot: true,
       tags: ['k3s', 'agent', 'kubernetes'],
     },
-    { dependsOn: [k3sServer, agentCloudInit], provider, ignoreChanges: ['disks[0].speed'] },
+    {
+      dependsOn: [k3sServer, agentCloudInit],
+      provider,
+      ignoreChanges: ['disks[0].speed'],
+    },
   );
 
   k3sAgents.push(agent);
@@ -777,6 +781,17 @@ new k8s.apiextensions.CustomResource(
 // =============================================================================
 // 9. EXPORTS
 // =============================================================================
-export const serverIp = k3sServer.ipv4Addresses;
-export const agentIps = k3sAgents.map((a) => a.ipv4Addresses);
-export const templateId = k3sTemplate.vmId;
+export const server = {
+  vmId: k3sServer.vmId,
+  ip: k3sServerIp,
+};
+
+export const agents = k3sAgents.map((a, i) => ({
+  vmId: a.vmId,
+  ip: `192.168.8.${101 + i}`,
+}));
+
+export const templateVmId = k3sTemplate.vmId;
+export const gitopsRepo = forgejoRepo;
+export const proxmoxEndpoint = config.require('proxmoxEndpoint');
+export { k3sVersion, kubeconfigPath };
