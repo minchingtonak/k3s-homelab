@@ -384,7 +384,10 @@ const k3sTemplate = new proxmox.vm.VirtualMachine(
 
     started: false,
   },
-  { provider },
+  // ignoreChanges: provider bug muhlba91/pulumi-proxmoxve#664 — speed is always
+  // returned by the provider with zero values regardless of inputs, causing
+  // a perpetual diff. Ignore until the upstream fix lands.
+  { provider, ignoreChanges: ['disks[0].speed'] },
 );
 
 // =============================================================================
@@ -456,7 +459,7 @@ const k3sServer = new proxmox.vm.VirtualMachine(
     onBoot: true,
     tags: ['k3s', 'server', 'kubernetes'],
   },
-  { dependsOn: [k3sTemplate], provider },
+  { dependsOn: [k3sTemplate], provider, ignoreChanges: ['disks[0].speed'] },
 );
 
 // =============================================================================
@@ -641,7 +644,7 @@ runcmd:
       onBoot: true,
       tags: ['k3s', 'agent', 'kubernetes'],
     },
-    { dependsOn: [k3sServer, agentCloudInit], provider },
+    { dependsOn: [k3sServer, agentCloudInit], provider, ignoreChanges: ['disks[0].speed'] },
   );
 
   k3sAgents.push(agent);
