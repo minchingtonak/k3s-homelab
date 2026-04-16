@@ -113,6 +113,10 @@ spec:
             gnetId: 17346     # https://grafana.com/grafana/dashboards/17346
             revision: 9
             datasource: Prometheus
+          loki-logs:
+            gnetId: 24574     # https://grafana.com/grafana/dashboards/24574
+            revision: 1
+            datasource: Loki
 
     # -------------------------------------------------------
     # Prometheus
