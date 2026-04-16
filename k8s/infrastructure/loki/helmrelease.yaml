@@ -89,6 +89,12 @@ spec:
     minio:
       enabled: false
 
+    # Disable memcached caches — not needed for filesystem storage at homelab scale
+    chunksCache:
+      enabled: false
+    resultsCache:
+      enabled: false
+
     # Wire up Prometheus scraping via existing ServiceMonitor CRDs
     monitoring:
       serviceMonitor:
