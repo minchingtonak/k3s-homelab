@@ -409,8 +409,8 @@ const k3sServer = new proxmox.vm.VirtualMachine(
       type: 'host',
     },
     memory: {
-      dedicated: 4096,
-      floating: 2048, // Balloon: allow shrinking to 2 GiB when idle
+      dedicated: 6144,
+      floating: 6144,
     },
 
     // Cannot reference k3sTemplate.disks — the template disk carries fileId pointing
@@ -597,7 +597,7 @@ runcmd:
       },
       memory: {
         dedicated: 8192,
-        floating: 4096, // Balloon: allow shrinking to 4 GiB when idle
+        floating: 8192,
       },
 
       disks: [
