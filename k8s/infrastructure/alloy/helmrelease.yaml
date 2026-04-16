@@ -1,0 +1,93 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: alloy
+  namespace: monitoring
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: alloy
+      version: "1.7.0" # https://github.com/grafana/alloy/blob/main/operations/helm/charts/alloy/CHANGELOG.md
+      sourceRef:
+        kind: HelmRepository
+        name: grafana
+      interval: 1h
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  values:
+    controller:
+      type: daemonset
+
+    alloy:
+      resources:
+        requests:
+          cpu: 50m
+          memory: 64Mi
+        limits:
+          memory: 256Mi
+      configMap:
+        content: |-
+          // Deliver logs to Loki
+          loki.write "default" {
+            endpoint {
+              url = "http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push"
+            }
+          }
+
+          // Discover pods running on this node only
+          discovery.kubernetes "pods" {
+            role = "pod"
+            selectors {
+              role  = "pod"
+              field = "spec.nodeName=" + coalesce(sys.env("HOSTNAME"), constants.hostname)
+            }
+          }
+
+          // Relabel pod metadata into Loki labels
+          discovery.relabel "pod_logs" {
+            targets = discovery.kubernetes.pods.targets
+
+            rule {
+              source_labels = ["__meta_kubernetes_namespace"]
+              action        = "replace"
+              target_label  = "namespace"
+            }
+            rule {
+              source_labels = ["__meta_kubernetes_pod_name"]
+              action        = "replace"
+              target_label  = "pod"
+            }
+            rule {
+              source_labels = ["__meta_kubernetes_pod_container_name"]
+              action        = "replace"
+              target_label  = "container"
+            }
+            rule {
+              source_labels = ["__meta_kubernetes_namespace", "__meta_kubernetes_pod_name"]
+              action        = "replace"
+              target_label  = "job"
+              separator     = "/"
+              replacement   = "$1"
+            }
+          }
+
+          // Tail pod logs via the Kubernetes API (no filesystem access or privileges needed)
+          loki.source.kubernetes "pod_logs" {
+            targets    = discovery.relabel.pod_logs.output
+            forward_to = [loki.process.pod_logs.receiver]
+          }
+
+          // Add cluster label before forwarding to Loki
+          loki.process "pod_logs" {
+            stage.static_labels {
+              values = {
+                cluster = "k3s-homelab",
+              }
+            }
+            forward_to = [loki.write.default.receiver]
+          }

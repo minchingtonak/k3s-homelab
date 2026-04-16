@@ -80,6 +80,14 @@ spec:
         userKey: admin-user
         passwordKey: admin-password
       # -------------------------------------------------------
+      additionalDataSources:
+        - name: Loki
+          type: loki
+          uid: loki
+          url: http://loki.monitoring.svc.cluster.local:3100
+          access: proxy
+          isDefault: false
+
       # Community dashboards — fetched from grafana.com at startup
       # To find revision: https://grafana.com/api/dashboards/<id>
       # -------------------------------------------------------
