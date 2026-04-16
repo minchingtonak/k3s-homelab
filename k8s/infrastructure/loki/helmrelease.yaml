@@ -98,7 +98,11 @@ spec:
     # Disable canary — it exists to measure end-to-end log delivery SLOs in production
     # by writing synthetic log entries and querying them back. Not useful for a homelab
     # and produces noise in the Grafana log explorer under service_name=unknown_service.
+    # test.enabled must also be disabled — the chart validates that tests require the canary
+    # and will refuse to deploy if the canary is off but tests are on.
     lokiCanary:
+      enabled: false
+    test:
       enabled: false
 
     # Wire up Prometheus scraping via existing ServiceMonitor CRDs
