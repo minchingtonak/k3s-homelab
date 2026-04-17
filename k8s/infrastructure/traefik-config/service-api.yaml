@@ -9,5 +9,5 @@ spec:
   ports:
     - name: api
       port: 9000
-      targetPort: 9000
+      targetPort: 8080
   type: ClusterIP
