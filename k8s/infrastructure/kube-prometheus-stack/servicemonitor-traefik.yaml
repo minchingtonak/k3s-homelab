@@ -1,0 +1,11 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: traefik
+  namespace: traefik-system
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: traefik-metrics
+  endpoints:
+    - port: metrics

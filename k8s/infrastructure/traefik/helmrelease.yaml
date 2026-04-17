@@ -54,4 +54,4 @@ spec:
         service:
           enabled: true  # dedicated ClusterIP service for metrics scraping
         serviceMonitor:
-          enabled: true  # Prometheus Operator ServiceMonitor for kube-prometheus-stack
+          enabled: false  # managed via separate manifest after kube-prometheus-stack deploys its CRDs
