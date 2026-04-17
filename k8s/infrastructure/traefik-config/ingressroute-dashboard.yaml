@@ -13,7 +13,7 @@ metadata:
     gethomepage.dev/siteMonitor: "https://traefik.item.fyi"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=traefik"
     gethomepage.dev/widget.type: "traefik"
-    gethomepage.dev/widget.url: "http://traefik.traefik-system.svc.cluster.local:9000"
+    gethomepage.dev/widget.url: "http://traefik-api.traefik-system.svc.cluster.local:9000"
 spec:
   entryPoints:
     - websecure
