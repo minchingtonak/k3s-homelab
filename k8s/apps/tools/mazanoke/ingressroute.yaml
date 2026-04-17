@@ -10,6 +10,7 @@ metadata:
     gethomepage.dev/group: "Tools"
     gethomepage.dev/icon: "image.png"
     gethomepage.dev/href: "https://mazanoke.item.fyi"
+    gethomepage.dev/siteMonitor: "https://mazanoke.item.fyi"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=mazanoke"
 spec:
   entryPoints:

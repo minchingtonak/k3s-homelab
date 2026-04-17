@@ -10,6 +10,7 @@ metadata:
     gethomepage.dev/group: "Tools"
     gethomepage.dev/icon: "pdf.png"
     gethomepage.dev/href: "https://bentopdf.item.fyi"
+    gethomepage.dev/siteMonitor: "https://bentopdf.item.fyi"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=bentopdf"
 spec:
   entryPoints:

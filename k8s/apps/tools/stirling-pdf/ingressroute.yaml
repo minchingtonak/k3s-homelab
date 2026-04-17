@@ -10,6 +10,7 @@ metadata:
     gethomepage.dev/group: "Tools"
     gethomepage.dev/icon: "stirling-pdf.png"
     gethomepage.dev/href: "https://stirling-pdf.item.fyi"
+    gethomepage.dev/siteMonitor: "https://stirling-pdf.item.fyi"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=stirling-pdf"
 spec:
   entryPoints:

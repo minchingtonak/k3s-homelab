@@ -10,6 +10,7 @@ metadata:
     gethomepage.dev/group: "Tools"
     gethomepage.dev/icon: "cyberchef.png"
     gethomepage.dev/href: "https://cyberchef.item.fyi"
+    gethomepage.dev/siteMonitor: "https://cyberchef.item.fyi"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=cyberchef"
 spec:
   entryPoints:

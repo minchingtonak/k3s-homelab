@@ -10,6 +10,7 @@ metadata:
     gethomepage.dev/group: "Tools"
     gethomepage.dev/icon: "wrench.png"
     gethomepage.dev/href: "https://omni-tools.item.fyi"
+    gethomepage.dev/siteMonitor: "https://omni-tools.item.fyi"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=omni-tools"
 spec:
   entryPoints:

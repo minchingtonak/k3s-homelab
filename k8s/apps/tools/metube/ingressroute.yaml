@@ -10,6 +10,7 @@ metadata:
     gethomepage.dev/group: "Media"
     gethomepage.dev/icon: "metube.png"
     gethomepage.dev/href: "https://metube.item.fyi"
+    gethomepage.dev/siteMonitor: "https://metube.item.fyi"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=metube"
 spec:
   entryPoints:
