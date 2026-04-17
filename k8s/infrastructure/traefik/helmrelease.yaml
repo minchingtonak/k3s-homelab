@@ -46,6 +46,8 @@ spec:
         enabled: true
         publishedService:
           enabled: true
+    api:
+      insecure: true  # exposes /api/* on the traefik entrypoint (port 8080) for homepage widget
     ingressRoute:
       dashboard:
         enabled: false  # managed via ingressroute-dashboard.yaml instead
