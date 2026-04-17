@@ -1,0 +1,146 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: coredns
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: system:coredns
+rules:
+  - apiGroups: [""]
+    resources: ["endpoints", "services", "pods", "namespaces"]
+    verbs: ["list", "watch"]
+  - apiGroups: ["discovery.k8s.io"]
+    resources: ["endpointslices"]
+    verbs: ["list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: system:coredns
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:coredns
+subjects:
+  - kind: ServiceAccount
+    name: coredns
+    namespace: kube-system
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coredns
+  namespace: kube-system
+data:
+  Corefile: |
+    .:53 {
+        errors
+        health {
+          lameduck 5s
+        }
+        ready
+        kubernetes cluster.local in-addr.arpa ip6.arpa {
+          pods insecure
+          fallthrough in-addr.arpa ip6.arpa
+        }
+        prometheus 0.0.0.0:9153
+        forward . /etc/resolv.conf
+        cache 30
+        loop
+        reload
+        loadbalance
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: coredns
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/name: coredns
+    app.kubernetes.io/instance: coredns
+    k8s-app: kube-dns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: coredns
+      app.kubernetes.io/instance: coredns
+      k8s-app: coredns
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: coredns
+        app.kubernetes.io/instance: coredns
+        k8s-app: coredns
+    spec:
+      serviceAccountName: coredns
+      containers:
+        - name: coredns
+          image: coredns/coredns:1.13.1
+          args: ["-conf", "/etc/coredns/Corefile"]
+          ports:
+            - containerPort: 53
+              name: udp-53
+              protocol: UDP
+            - containerPort: 53
+              name: tcp-53
+              protocol: TCP
+            - containerPort: 9153
+              name: metrics
+              protocol: TCP
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 60
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8181
+            initialDelaySeconds: 5
+            timeoutSeconds: 5
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/coredns
+      volumes:
+        - name: config-volume
+          configMap:
+            name: coredns
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kube-dns
+  namespace: kube-system
+  labels:
+    k8s-app: kube-dns
+spec:
+  selector:
+    app.kubernetes.io/name: coredns
+    app.kubernetes.io/instance: coredns
+  clusterIP: 10.43.0.10
+  ports:
+    - name: dns
+      port: 53
+      targetPort: 53
+      protocol: UDP
+    - name: dns-tcp
+      port: 53
+      targetPort: 53
+      protocol: TCP
+    - name: metrics
+      port: 9153
+      targetPort: 9153
+      protocol: TCP
