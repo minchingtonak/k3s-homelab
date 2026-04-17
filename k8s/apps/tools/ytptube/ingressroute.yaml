@@ -1,0 +1,23 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: ytptube
+  namespace: ytptube
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "YTPTube"
+    gethomepage.dev/description: "YouTube playlist downloader"
+    gethomepage.dev/group: "Media"
+    gethomepage.dev/icon: "youtube.png"
+    gethomepage.dev/href: "https://ytptube.item.fyi"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=ytptube"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`ytptube.item.fyi`)
+      services:
+        - name: ytptube
+          port: 80
+  tls: {}
