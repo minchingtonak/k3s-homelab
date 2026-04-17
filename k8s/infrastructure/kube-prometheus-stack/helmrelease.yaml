@@ -113,8 +113,12 @@ spec:
             gnetId: 17346     # https://grafana.com/grafana/dashboards/17346
             revision: 9
             datasource: Prometheus
-          loki-logs:
-            gnetId: 24574     # https://grafana.com/grafana/dashboards/24574
+          loki-kubernetes-logs:
+            gnetId: 16976     # https://grafana.com/grafana/dashboards/16976
+            revision: 7
+            datasource: Loki
+          loki-volume:
+            gnetId: 23789     # https://grafana.com/grafana/dashboards/23789
             revision: 1
             datasource: Loki
 
