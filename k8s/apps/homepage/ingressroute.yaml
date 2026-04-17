@@ -10,6 +10,7 @@ metadata:
     gethomepage.dev/group: "Infrastructure"
     gethomepage.dev/icon: "homepage.png"
     gethomepage.dev/href: "https://homepage.item.fyi"
+    gethomepage.dev/siteMonitor: "https://homepage.item.fyi"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=homepage"
 spec:
   entryPoints:
