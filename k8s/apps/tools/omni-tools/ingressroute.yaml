@@ -1,0 +1,23 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: omni-tools
+  namespace: omni-tools
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Omni Tools"
+    gethomepage.dev/description: "All-in-one tools collection"
+    gethomepage.dev/group: "Tools"
+    gethomepage.dev/icon: "wrench.png"
+    gethomepage.dev/href: "https://omni-tools.item.fyi"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=omni-tools"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`omni-tools.item.fyi`)
+      services:
+        - name: omni-tools
+          port: 80
+  tls: {}

@@ -1,0 +1,23 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: mazanoke
+  namespace: mazanoke
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Mazanoke"
+    gethomepage.dev/description: "Simple online image compressor"
+    gethomepage.dev/group: "Tools"
+    gethomepage.dev/icon: "image.png"
+    gethomepage.dev/href: "https://mazanoke.item.fyi"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=mazanoke"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`mazanoke.item.fyi`)
+      services:
+        - name: mazanoke
+          port: 80
+  tls: {}

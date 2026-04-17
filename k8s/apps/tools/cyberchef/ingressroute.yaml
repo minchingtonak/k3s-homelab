@@ -1,0 +1,23 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: cyberchef
+  namespace: cyberchef
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "CyberChef"
+    gethomepage.dev/description: "The Cyber Swiss Army Knife"
+    gethomepage.dev/group: "Tools"
+    gethomepage.dev/icon: "cyberchef.png"
+    gethomepage.dev/href: "https://cyberchef.item.fyi"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=cyberchef"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`cyberchef.item.fyi`)
+      services:
+        - name: cyberchef
+          port: 80
+  tls: {}

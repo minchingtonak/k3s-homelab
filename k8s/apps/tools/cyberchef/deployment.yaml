@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cyberchef
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cyberchef
+  namespace: cyberchef
+  labels:
+    app.kubernetes.io/name: cyberchef
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: cyberchef
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: cyberchef
+    spec:
+      containers:
+        - name: cyberchef
+          image: ghcr.io/gchq/cyberchef:10.23.0@sha256:9a3449fc564dcf86ba0165dadffe0eb95f207bfb1123672ec739eaa99aace050
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "25m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cyberchef
+  namespace: cyberchef
+spec:
+  selector:
+    app.kubernetes.io/name: cyberchef
+  ports:
+    - port: 80
+      targetPort: 80
+      name: http

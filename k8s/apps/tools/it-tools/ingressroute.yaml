@@ -1,0 +1,23 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: it-tools
+  namespace: it-tools
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "IT Tools"
+    gethomepage.dev/description: "Collection of handy online tools"
+    gethomepage.dev/group: "Tools"
+    gethomepage.dev/icon: "it-tools.png"
+    gethomepage.dev/href: "https://it-tools.item.fyi"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=it-tools"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`it-tools.item.fyi`)
+      services:
+        - name: it-tools
+          port: 80
+  tls: {}

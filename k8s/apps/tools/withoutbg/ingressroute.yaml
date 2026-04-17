@@ -1,0 +1,23 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: withoutbg
+  namespace: withoutbg
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "WithoutBG"
+    gethomepage.dev/description: "Background removal tool"
+    gethomepage.dev/group: "Tools"
+    gethomepage.dev/icon: "image.png"
+    gethomepage.dev/href: "https://withoutbg.item.fyi"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=withoutbg"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`withoutbg.item.fyi`)
+      services:
+        - name: withoutbg
+          port: 80
+  tls: {}

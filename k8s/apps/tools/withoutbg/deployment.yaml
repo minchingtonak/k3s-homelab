@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: withoutbg
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: withoutbg
+  namespace: withoutbg
+  labels:
+    app.kubernetes.io/name: withoutbg
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: withoutbg
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: withoutbg
+    spec:
+      containers:
+        - name: withoutbg
+          image: withoutbg/app:1.2.0@sha256:c66cee53fc62fff6d33a84ce0c5e7351d1e5c236b4f0c3f56387f5ea19976ff8
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "25m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: withoutbg
+  namespace: withoutbg
+spec:
+  selector:
+    app.kubernetes.io/name: withoutbg
+  ports:
+    - port: 80
+      targetPort: 80
+      name: http
