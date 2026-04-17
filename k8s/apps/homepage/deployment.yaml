@@ -59,6 +59,7 @@ data:
     theme: dark
     color: slate
     headerStyle: clean
+    useEqualHeights: true
     layout:
       columns: 2
     quicklaunch:
@@ -85,7 +86,17 @@ data:
           timeStyle: short
           hour12: false
   docker.yaml: ""
-  bookmarks.yaml: "[]"
+  bookmarks.yaml: |
+    - Homelab:
+        - Proxmox:
+            - href: "https://192.168.8.89:8006"
+              icon: "proxmox.png"
+        - Forgejo:
+            - href: "https://forgejo.backup.homelab.akmin.dev"
+              icon: "forgejo.png"
+        - k3s-homelab repo:
+            - href: "https://forgejo.backup.homelab.akmin.dev/akmin/k3s-homelab"
+              icon: "github.png"
 ---
 apiVersion: v1
 kind: Service
