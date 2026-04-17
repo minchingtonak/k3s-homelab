@@ -7,5 +7,3 @@ resources:
   - grafana-admin-sealed-secret.yaml
   - ingressroute-grafana.yaml
   - ingressroute-prometheus.yaml
-  - prometheus-storage-alerts.yaml
-  - servicemonitor-traefik.yaml
