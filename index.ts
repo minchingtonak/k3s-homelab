@@ -253,6 +253,7 @@ write_files:
       disable:
         - traefik
         - servicelb
+        - local-storage
 
   - path: /etc/sysctl.d/80_tcp_hardening.conf
     permissions: '0644'
@@ -305,6 +306,8 @@ runcmd:
   # Install K3s server
   - curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=${k3sVersion} sh -s - server
   - until command -v kubectl &>/dev/null; do sleep 2; done
+  # Prevent K3s from reapplying bundled CoreDNS on restart (managed by Flux instead)
+  - touch /var/lib/rancher/k3s/server/manifests/coredns.yaml.skip
   - mkdir -p /home/k3s/.kube
   - cp /etc/rancher/k3s/k3s.yaml /home/k3s/.kube/config
   - chown -R k3s:k3s /home/k3s/.kube
