@@ -59,10 +59,10 @@ spec:
               mountPath: /usr/share/tessdata
           resources:
             requests:
-              memory: "256Mi"
+              memory: "512Mi"
               cpu: "100m"
             limits:
-              memory: "1Gi"
+              memory: "1536Mi"
               cpu: "1000m"
       volumes:
         - name: data
