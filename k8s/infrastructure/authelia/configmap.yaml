@@ -38,14 +38,6 @@ data:
 
     access_control:
       default_policy: one_factor
-      rules:
-        - domain:
-            - traefik.item.fyi
-            - grafana.item.fyi
-            - prometheus.item.fyi
-            - flux.item.fyi
-            - headlamp.item.fyi
-          policy: two_factor
 
     notifier:
       filesystem:
