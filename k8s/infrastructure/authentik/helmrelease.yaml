@@ -48,20 +48,32 @@ spec:
         secret.reloader.stakater.com/reload: authentik-blueprints-secret
       ingress:
         enabled: false # using IngressRoute instead
+      env:
+        - name: AUTHENTIK_WEB__WORKERS
+          value: "1"
+      resources:
+        requests:
+          cpu: 50m
+          memory: 350Mi
+        limits:
+          memory: 600Mi
     worker:
       podAnnotations:
         configmap.reloader.stakater.com/reload: authentik-blueprints
         secret.reloader.stakater.com/reload: authentik-blueprints-secret
+      resources:
+        requests:
+          cpu: 50m
+          memory: 350Mi
+        limits:
+          memory: 600Mi
     postgresql:
       enabled: true
       primary:
         persistence:
           storageClass: nfs-zfs
-    redis:
-      enabled: true
-      master:
-        persistence:
-          storageClass: nfs-zfs
+        extendedConfiguration: |
+          max_connections = 50
     blueprints:
       configMaps:
         - authentik-blueprints
