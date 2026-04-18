@@ -30,7 +30,7 @@ data:
         identifiers:
           slug: forward-auth-domain
         attrs:
-          name: Domain Forward Auth
+          name: Homelab SSO
           provider: !KeyOf forward-auth-provider
           meta_launch_url: https://auth.item.fyi
 
@@ -41,12 +41,15 @@ data:
           name: totp-setup
         attrs:
           digits: 6
+          friendly_name: Authenticator App (TOTP)
 
       # webauthn setup stage (hardware keys, passkeys)
       - model: authentik_stages_authenticator_webauthn.authenticatorwebauthnstage
         id: webauthn-setup-stage
         identifiers:
           name: webauthn-setup
+        attrs:
+          friendly_name: Security Key / Passkey
 
       # enforce mfa on the default authentication flow
       - model: authentik_stages_authenticator_validate.authenticatorvalidatestage
