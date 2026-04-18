@@ -49,6 +49,8 @@ spec:
       ingress:
         enabled: false # using IngressRoute instead
       env:
+        # reduces memory (~150-200MB) but docs recommend min 2 workers for single-replica:
+        # https://docs.goauthentik.io/install-config/configuration/#authentik_web__workers
         - name: AUTHENTIK_WEB__WORKERS
           value: "1"
       resources:
