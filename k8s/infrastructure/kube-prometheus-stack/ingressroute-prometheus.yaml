@@ -7,7 +7,7 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Prometheus"
     gethomepage.dev/description: "Metrics and alerting"
-    gethomepage.dev/group: "Infrastructure"
+    gethomepage.dev/group: "Monitoring"
     gethomepage.dev/icon: "prometheus.png"
     gethomepage.dev/href: "https://prometheus.item.fyi"
     gethomepage.dev/siteMonitor: "https://prometheus.item.fyi"
