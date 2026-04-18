@@ -55,6 +55,8 @@ spec:
       access:
         enabled: true
         format: json
+        filters:
+          statuscodes: "400-599"
     metrics:
       prometheus:
         service:
