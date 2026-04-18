@@ -175,6 +175,7 @@ spec:
         # The sealed-secrets controller decrypts alertmanager-pushover-credentials
         # and makes it available at:
         #   /etc/alertmanager/secrets/alertmanager-pushover-credentials/{userKey,token}
+        externalUrl: https://alertmanager.item.fyi
         secrets:
           - alertmanager-pushover-credentials
         resources:
