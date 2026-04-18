@@ -34,6 +34,33 @@ data:
           provider: !KeyOf forward-auth-provider
           meta_launch_url: https://auth.item.fyi
 
+      # totp setup stage
+      - model: authentik_stages_authenticator_totp.authenticatortotpstage
+        id: totp-setup-stage
+        identifiers:
+          name: totp-setup
+        attrs:
+          digits: 6
+
+      # webauthn setup stage (hardware keys, passkeys)
+      - model: authentik_stages_authenticator_webauthn.authenticatorwebauthnstage
+        id: webauthn-setup-stage
+        identifiers:
+          name: webauthn-setup
+
+      # enforce mfa on the default authentication flow
+      - model: authentik_stages_authenticator_validate.authenticatorvalidatestage
+        identifiers:
+          name: default-authentication-mfa-validation
+        attrs:
+          not_configured_action: configure
+          device_classes:
+            - totp
+            - webauthn
+          configuration_stages:
+            - !KeyOf totp-setup-stage
+            - !KeyOf webauthn-setup-stage
+
       # bind the application to the embedded outpost
       - model: authentik_outposts.outpost
         identifiers:
