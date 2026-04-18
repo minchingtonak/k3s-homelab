@@ -124,7 +124,9 @@ spec:
           zfs-nas:
             gnetId: 19580     # https://grafana.com/grafana/dashboards/19580
             revision: 10
-            datasource: Prometheus
+            datasource:
+              - name: DS_PROMETHEUS
+                value: Prometheus
 
     # -------------------------------------------------------
     # Prometheus
