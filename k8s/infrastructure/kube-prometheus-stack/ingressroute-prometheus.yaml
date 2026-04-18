@@ -21,8 +21,8 @@ spec:
     - kind: Rule
       match: Host(`prometheus.item.fyi`)
       middlewares:
-        - name: authelia
-          namespace: authelia
+        - name: authentik
+          namespace: authentik
       services:
         - name: kube-prometheus-stack-prometheus
           port: 9090
