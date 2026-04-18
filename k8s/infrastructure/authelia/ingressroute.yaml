@@ -1,0 +1,24 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: authelia
+  namespace: authelia
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Authelia"
+    gethomepage.dev/description: "SSO and auth portal"
+    gethomepage.dev/group: "Infrastructure"
+    gethomepage.dev/icon: "authelia.png"
+    gethomepage.dev/href: "https://auth.item.fyi"
+    gethomepage.dev/siteMonitor: "https://auth.item.fyi"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=authelia"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`auth.item.fyi`)
+      services:
+        - name: authelia
+          port: 9091
+  tls: {}
