@@ -19,6 +19,7 @@ data:
           name: forward-auth-domain
         attrs:
           authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
+          invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
           mode: forward_domain
           external_host: https://auth.item.fyi
           cookie_domain: item.fyi
@@ -39,5 +40,7 @@ data:
           name: authentik Embedded Outpost
         attrs:
           type: proxy
+          config:
+            authentik_host: https://auth.item.fyi
           providers:
             - !KeyOf forward-auth-provider
