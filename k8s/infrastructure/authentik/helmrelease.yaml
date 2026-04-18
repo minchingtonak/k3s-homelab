@@ -56,9 +56,9 @@ spec:
       resources:
         requests:
           cpu: 50m
-          memory: 350Mi
+          memory: 400Mi
         limits:
-          memory: 600Mi
+          memory: 900Mi
     worker:
       podAnnotations:
         configmap.reloader.stakater.com/reload: authentik-blueprints
@@ -66,9 +66,9 @@ spec:
       resources:
         requests:
           cpu: 50m
-          memory: 350Mi
+          memory: 500Mi
         limits:
-          memory: 600Mi
+          memory: 1500Mi
     postgresql:
       enabled: true
       primary:
