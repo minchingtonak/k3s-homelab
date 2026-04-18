@@ -18,6 +18,9 @@ spec:
   routes:
     - kind: Rule
       match: Host(`headlamp.item.fyi`)
+      middlewares:
+        - name: authelia
+          namespace: authelia
       services:
         - name: headlamp
           port: 80

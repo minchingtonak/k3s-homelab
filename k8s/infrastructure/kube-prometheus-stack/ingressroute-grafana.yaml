@@ -18,6 +18,9 @@ spec:
   routes:
     - kind: Rule
       match: Host(`grafana.item.fyi`)
+      middlewares:
+        - name: authelia
+          namespace: authelia
       services:
         - name: kube-prometheus-stack-grafana
           port: 80

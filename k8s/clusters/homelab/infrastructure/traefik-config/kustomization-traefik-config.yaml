@@ -8,6 +8,7 @@ spec:
   retryInterval: 1m
   dependsOn:
     - name: traefik
+    - name: authelia-config
   sourceRef:
     kind: GitRepository
     name: flux-system

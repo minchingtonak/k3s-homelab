@@ -17,6 +17,9 @@ spec:
   routes:
     - kind: Rule
       match: Host(`flux.item.fyi`)
+      middlewares:
+        - name: authelia
+          namespace: authelia
       services:
         - name: flux-operator
           port: 9080
