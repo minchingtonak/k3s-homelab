@@ -121,9 +121,9 @@ spec:
             gnetId: 23789     # https://grafana.com/grafana/dashboards/23789
             revision: 1
             datasource: Loki
-          zfs-pool:
-            gnetId: 7845      # https://grafana.com/grafana/dashboards/7845
-            revision: 4
+          zfs-nas:
+            gnetId: 19580     # https://grafana.com/grafana/dashboards/19580
+            revision: 10
             datasource: Prometheus
 
     # -------------------------------------------------------
