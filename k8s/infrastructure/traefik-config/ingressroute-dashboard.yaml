@@ -21,8 +21,8 @@ spec:
     - match: Host(`traefik.item.fyi`)
       kind: Rule
       middlewares:
-        - name: authelia
-          namespace: authelia
+        - name: authentik
+          namespace: authentik
       services:
         - name: api@internal
           kind: TraefikService

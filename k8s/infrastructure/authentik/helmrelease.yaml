@@ -1,0 +1,54 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: authentik
+  namespace: authentik
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: authentik
+      version: "2026.2.2" # https://artifacthub.io/packages/helm/goauthentik/authentik
+      sourceRef:
+        kind: HelmRepository
+        name: authentik
+      interval: 1h
+  install:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  upgrade:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  valuesFrom:
+    - kind: Secret
+      name: authentik
+      valuesKey: AUTHENTIK_SECRET_KEY
+      targetPath: authentik.secret_key
+    - kind: Secret
+      name: authentik
+      valuesKey: AUTHENTIK_POSTGRESQL_PASSWORD
+      targetPath: authentik.postgresql.password
+    - kind: Secret
+      name: authentik
+      valuesKey: AUTHENTIK_POSTGRESQL_PASSWORD
+      targetPath: postgresql.auth.password
+    - kind: Secret
+      name: authentik
+      valuesKey: AUTHENTIK_BOOTSTRAP_PASSWORD
+      targetPath: authentik.bootstrap.password
+  values:
+    authentik:
+      bootstrap:
+        email: ""
+    server:
+      ingress:
+        enabled: false # using IngressRoute instead
+    postgresql:
+      enabled: true
+    redis:
+      enabled: true
+    blueprints:
+      configMaps:
+        - authentik-blueprints

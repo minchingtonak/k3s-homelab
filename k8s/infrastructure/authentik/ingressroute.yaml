@@ -1,0 +1,23 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: authentik
+  namespace: authentik
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Authentik"
+    gethomepage.dev/description: "Identity provider"
+    gethomepage.dev/group: "Infrastructure"
+    gethomepage.dev/icon: "authentik.png"
+    gethomepage.dev/href: "https://auth.item.fyi"
+    gethomepage.dev/siteMonitor: "https://auth.item.fyi"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`auth.item.fyi`)
+      services:
+        - name: authentik-server
+          port: 80
+  tls: {}
