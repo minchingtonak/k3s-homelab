@@ -1,0 +1,27 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: alertmanager
+  namespace: monitoring
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Alertmanager"
+    gethomepage.dev/description: "Alert routing and silences"
+    gethomepage.dev/group: "Infrastructure"
+    gethomepage.dev/icon: "alertmanager.png"
+    gethomepage.dev/href: "https://alertmanager.item.fyi"
+    gethomepage.dev/siteMonitor: "https://alertmanager.item.fyi"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=alertmanager"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`alertmanager.item.fyi`)
+      middlewares:
+        - name: authelia
+          namespace: authelia
+      services:
+        - name: alertmanager-operated
+          port: 9093
+  tls: {}

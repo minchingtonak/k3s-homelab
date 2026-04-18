@@ -8,3 +8,4 @@ resources:
   - alertmanager-pushover-sealed-secret.yaml
   - ingressroute-grafana.yaml
   - ingressroute-prometheus.yaml
+  - ingressroute-alertmanager.yaml
