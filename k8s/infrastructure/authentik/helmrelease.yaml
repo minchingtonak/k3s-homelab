@@ -47,8 +47,14 @@ spec:
         enabled: false # using IngressRoute instead
     postgresql:
       enabled: true
+      primary:
+        persistence:
+          storageClass: nfs-zfs
     redis:
       enabled: true
+      master:
+        persistence:
+          storageClass: nfs-zfs
     blueprints:
       configMaps:
         - authentik-blueprints
