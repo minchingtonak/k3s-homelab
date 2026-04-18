@@ -51,6 +51,10 @@ spec:
     ingressRoute:
       dashboard:
         enabled: false  # managed via ingressroute-dashboard.yaml instead
+    logs:
+      access:
+        enabled: true
+        format: json
     metrics:
       prometheus:
         service:
