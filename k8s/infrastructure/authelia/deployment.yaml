@@ -32,6 +32,8 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: authelia
+      annotations:
+        configmap.reloader.stakater.com/reload: "authelia"
     spec:
       enableServiceLinks: false
       containers:
