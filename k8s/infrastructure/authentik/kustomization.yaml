@@ -6,4 +6,5 @@ resources:
   - helmrelease.yaml
   - authentik-sealed-secret.yaml
   - blueprint-configmap.yaml
+  - blueprint-sealed-secret.yaml
   - ingressroute.yaml

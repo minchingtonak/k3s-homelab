@@ -58,3 +58,5 @@ spec:
     blueprints:
       configMaps:
         - authentik-blueprints
+      secrets:
+        - authentik-blueprints-secret
