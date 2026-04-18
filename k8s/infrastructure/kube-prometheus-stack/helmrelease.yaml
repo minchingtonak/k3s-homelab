@@ -121,6 +121,10 @@ spec:
             gnetId: 23789     # https://grafana.com/grafana/dashboards/23789
             revision: 1
             datasource: Loki
+          zfs-pool:
+            gnetId: 7845      # https://grafana.com/grafana/dashboards/7845
+            revision: 4
+            datasource: Prometheus
 
     # -------------------------------------------------------
     # Prometheus
@@ -149,6 +153,17 @@ spec:
             memory: 768Mi
           limits:
             memory: 2500Mi
+        # Scrape the Proxmox host's node-exporter for ZFS pool metrics.
+        # Requires node-exporter running on 192.168.8.89 with --collector.zfs.
+        # See: docs/zfs-metrics-setup.md for installation instructions.
+        additionalScrapeConfigs:
+          - job_name: proxmox-host
+            static_configs:
+              - targets:
+                  - '192.168.8.89:9100'
+                labels:
+                  instance: proxmox-host
+                  job: node
 
     # -------------------------------------------------------
     # Alertmanager
@@ -156,12 +171,53 @@ spec:
     alertmanager:
       enabled: true
       alertmanagerSpec:
+        # Mount the Pushover credentials secret into the Alertmanager pod.
+        # The sealed-secrets controller decrypts alertmanager-pushover-credentials
+        # and makes it available at:
+        #   /etc/alertmanager/secrets/alertmanager-pushover-credentials/{userKey,token}
+        secrets:
+          - alertmanager-pushover-credentials
         resources:
           requests:
             cpu: 50m
             memory: 64Mi
           limits:
             memory: 256Mi
+      config:
+        global:
+          resolve_timeout: 5m
+        route:
+          group_by: ['alertname', 'namespace']
+          group_wait: 30s
+          group_interval: 5m
+          repeat_interval: 12h
+          receiver: pushover
+          routes:
+            # Watchdog is a synthetic heartbeat alert — always firing, always suppressed
+            - receiver: 'null'
+              matchers:
+                - alertname = Watchdog
+            # InfoInhibitor is a meta-alert used to silence info-level alerts
+            - receiver: 'null'
+              matchers:
+                - alertname = InfoInhibitor
+        receivers:
+          - name: 'null'
+          - name: pushover
+            pushover_configs:
+              - user_key_file: /etc/alertmanager/secrets/alertmanager-pushover-credentials/userKey
+                token_file: /etc/alertmanager/secrets/alertmanager-pushover-credentials/token
+                title: >-
+                  [{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}]
+                  {{ .CommonLabels.alertname }}
+                message: |-
+                  {{ range .Alerts }}{{ .Annotations.summary }}
+                  {{ .Annotations.description }}
+                  {{ end }}
+                # priority: -1 = quiet (resolved), 0 = normal (warning), 1 = high (critical)
+                priority: >-
+                  {{ if eq .Status "resolved" }}-1{{ else if eq .CommonLabels.severity "critical" }}1{{ else }}0{{ end }}
+                send_resolved: true
 
     # -------------------------------------------------------
     # Node exporter and kube-state-metrics
@@ -170,3 +226,4 @@ spec:
       enabled: true
     kubeStateMetrics:
       enabled: true
+
