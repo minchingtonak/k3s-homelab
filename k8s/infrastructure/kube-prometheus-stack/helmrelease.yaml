@@ -79,6 +79,29 @@ spec:
         existingSecret: grafana-admin-credentials
         userKey: admin-user
         passwordKey: admin-password
+      envValueFrom:
+        GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET:
+          secretKeyRef:
+            name: grafana-oauth2-credentials
+            key: client_secret
+      grafana.ini:
+        server:
+          root_url: https://grafana.item.fyi
+        auth.generic_oauth:
+          enabled: true
+          name: authentik
+          client_id: grafana
+          client_secret: "${GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET}"
+          scopes: openid email profile
+          auth_url: https://auth.item.fyi/application/o/authorize/
+          token_url: https://auth.item.fyi/application/o/token/
+          api_url: https://auth.item.fyi/application/o/userinfo/
+          login_attribute_path: preferred_username
+          name_attribute_path: name
+          role_attribute_path: "'Admin'"
+          allow_sign_up: true
+          auto_login: false
+          use_pkce: true
       # -------------------------------------------------------
       additionalDataSources:
         - name: Loki

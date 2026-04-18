@@ -18,9 +18,6 @@ spec:
   routes:
     - kind: Rule
       match: Host(`grafana.item.fyi`)
-      middlewares:
-        - name: authentik
-          namespace: authentik
       services:
         - name: kube-prometheus-stack-grafana
           port: 80

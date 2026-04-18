@@ -5,6 +5,7 @@ resources:
   - helmrepository.yaml
   - helmrelease.yaml
   - grafana-admin-sealed-secret.yaml
+  - grafana-oauth2-sealed-secret.yaml
   - alertmanager-pushover-sealed-secret.yaml
   - ingressroute-grafana.yaml
   - ingressroute-prometheus.yaml
