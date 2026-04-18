@@ -410,13 +410,13 @@ const k3sServer = new proxmox.vm.VirtualMachine(
     },
 
     cpu: {
-      cores: 2,
+      cores: 8,
       sockets: 1,
       type: 'host',
     },
     memory: {
-      dedicated: 6144,
-      floating: 6144,
+      dedicated: 16384,
+      floating: 16384,
     },
 
     // Cannot reference k3sTemplate.disks — the template disk carries fileId pointing
@@ -425,7 +425,7 @@ const k3sServer = new proxmox.vm.VirtualMachine(
       {
         interface: 'scsi0',
         datastoreId: datastoreId,
-        size: 10,
+        size: 64,
         discard: 'on',
         ssd: true,
       },
@@ -468,7 +468,7 @@ const k3sServer = new proxmox.vm.VirtualMachine(
 // =============================================================================
 // 6. DEPLOY K3S AGENT NODES
 // =============================================================================
-const agentCount = 1;
+const agentCount = 0;
 const k3sAgents: proxmox.vm.VirtualMachine[] = [];
 
 for (let i = 0; i < agentCount; i++) {
