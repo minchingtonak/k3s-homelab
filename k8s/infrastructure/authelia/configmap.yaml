@@ -24,7 +24,6 @@ data:
       display_name: item.fyi
 
     session:
-      secret: {{ secret "/app/secrets/SESSION_SECRET" }}
       cookies:
         - name: authelia_session
           domain: item.fyi
@@ -34,13 +33,8 @@ data:
           remember_me: 1M
 
     storage:
-      encryption_key: {{ secret "/app/secrets/STORAGE_ENCRYPTION_KEY" }}
       local:
         path: /data/db.sqlite3
-
-    identity_validation:
-      reset_password:
-        jwt_secret: {{ secret "/app/secrets/JWT_SECRET" }}
 
     access_control:
       default_policy: one_factor
