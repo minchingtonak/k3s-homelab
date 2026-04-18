@@ -112,15 +112,23 @@ spec:
           traefik:
             gnetId: 17346     # https://grafana.com/grafana/dashboards/17346
             revision: 9
-            datasource: Prometheus
+            datasource:
+              - name: DS_PROMETHEUS
+                value: Prometheus
           loki-kubernetes-logs:
             gnetId: 16976     # https://grafana.com/grafana/dashboards/16976
             revision: 7
-            datasource: Loki
+            datasource:
+              - name: DS_LOKI
+                value: Loki
+              - name: DS_PROMETHEUS
+                value: Prometheus
           loki-volume:
             gnetId: 23789     # https://grafana.com/grafana/dashboards/23789
             revision: 1
-            datasource: Loki
+            datasource:
+              - name: DS_LOKI
+                value: Loki
           zfs-nas:
             gnetId: 19580     # https://grafana.com/grafana/dashboards/19580
             revision: 10
