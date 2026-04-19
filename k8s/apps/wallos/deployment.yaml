@@ -1,0 +1,76 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: wallos
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: wallos-data
+  namespace: wallos
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-zfs
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wallos
+  namespace: wallos
+  labels:
+    app.kubernetes.io/name: wallos
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: wallos
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: wallos
+    spec:
+      containers:
+        - name: wallos
+          image: bellamy/wallos:4.8.0@sha256:a1894b1653a7aa9a44e887a06b4db9032c2e61d663fb5b7e7c7ad53f5689c409
+          env:
+            - name: TZ
+              value: America/New_York
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          volumeMounts:
+            - name: data
+              mountPath: /var/www/html/db
+              subPath: db
+            - name: data
+              mountPath: /var/www/html/images/uploads/logos
+              subPath: logos
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "25m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: wallos-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wallos
+  namespace: wallos
+spec:
+  selector:
+    app.kubernetes.io/name: wallos
+  ports:
+    - port: 80
+      targetPort: 80
+      name: http

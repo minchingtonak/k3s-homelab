@@ -1,0 +1,24 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: wallos
+  namespace: wallos
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Wallos"
+    gethomepage.dev/description: "Subscription tracker"
+    gethomepage.dev/group: "Life"
+    gethomepage.dev/icon: "wallos.png"
+    gethomepage.dev/href: "https://wallos.item.fyi"
+    gethomepage.dev/siteMonitor: "https://wallos.item.fyi"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=wallos"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`wallos.item.fyi`)
+      services:
+        - name: wallos
+          port: 80
+  tls: {}
