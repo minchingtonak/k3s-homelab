@@ -1,0 +1,185 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tandoor
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tandoor-postgres
+  namespace: tandoor
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-zfs
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tandoor-data
+  namespace: tandoor
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-zfs
+  resources:
+    requests:
+      storage: 4Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tandoor-postgres
+  namespace: tandoor
+  labels:
+    app.kubernetes.io/name: tandoor-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tandoor-postgres
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: tandoor-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16-alpine3.22@sha256:79c06d285ed9186efbbc45c73413b3c3510c3c94ffede2f25d1e523f74d07f28
+          env:
+            - name: POSTGRES_USER
+              value: djangouser
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: tandoor
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              value: djangodb
+          ports:
+            - name: postgres
+              containerPort: 5432
+              protocol: TCP
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "djangouser"]
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+      volumes:
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: tandoor-postgres
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tandoor-postgres
+  namespace: tandoor
+spec:
+  selector:
+    app.kubernetes.io/name: tandoor-postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+      name: postgres
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tandoor
+  namespace: tandoor
+  labels:
+    app.kubernetes.io/name: tandoor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tandoor
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: tandoor
+    spec:
+      containers:
+        - name: tandoor
+          image: vabene1111/recipes:2.6.4@sha256:8ab96a23f16b80531a82aee6b18d5afb5c6a9adaa09c46c7b832e92f85bb00b8
+          env:
+            - name: TZ
+              value: America/New_York
+            - name: ALLOWED_HOSTS
+              value: tandoor.item.fyi
+            - name: DB_ENGINE
+              value: django.db.backends.postgresql
+            - name: POSTGRES_HOST
+              value: tandoor-postgres
+            - name: POSTGRES_DB
+              value: djangodb
+            - name: POSTGRES_PORT
+              value: "5432"
+            - name: POSTGRES_USER
+              value: djangouser
+            - name: SOCIAL_PROVIDERS
+              value: allauth.socialaccount.providers.openid_connect
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: tandoor
+                  key: SECRET_KEY
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: tandoor
+                  key: POSTGRES_PASSWORD
+            - name: SOCIALACCOUNT_PROVIDERS
+              valueFrom:
+                secretKeyRef:
+                  name: tandoor
+                  key: SOCIALACCOUNT_PROVIDERS
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          volumeMounts:
+            - name: data
+              mountPath: /opt/recipes/staticfiles
+              subPath: staticfiles
+            - name: data
+              mountPath: /opt/recipes/mediafiles
+              subPath: mediafiles
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: tandoor-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tandoor
+  namespace: tandoor
+spec:
+  selector:
+    app.kubernetes.io/name: tandoor
+  ports:
+    - port: 80
+      targetPort: 80
+      name: http

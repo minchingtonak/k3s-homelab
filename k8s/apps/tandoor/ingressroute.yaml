@@ -1,0 +1,24 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: tandoor
+  namespace: tandoor
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Tandoor Recipes"
+    gethomepage.dev/description: "Recipe management"
+    gethomepage.dev/group: "Life"
+    gethomepage.dev/icon: "tandoor.png"
+    gethomepage.dev/href: "https://tandoor.item.fyi"
+    gethomepage.dev/siteMonitor: "https://tandoor.item.fyi"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=tandoor"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`tandoor.item.fyi`)
+      services:
+        - name: tandoor
+          port: 80
+  tls: {}
