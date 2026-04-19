@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: trip
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: trip-data
+  namespace: trip
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-zfs
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trip
+  namespace: trip
+  labels:
+    app.kubernetes.io/name: trip
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: trip
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: trip
+    spec:
+      containers:
+        - name: trip
+          image: ghcr.io/itskovacs/trip:1.43.2@sha256:9e63c48d8c11b681d67e1a4178ca9b1818a2aba53e8541df30fcd8bdb40c3ad5
+          command: ["fastapi", "run", "/app/trip/main.py", "--host", "0.0.0.0"]
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          volumeMounts:
+            - name: data
+              mountPath: /app/storage
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "25m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: trip-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: trip
+  namespace: trip
+spec:
+  selector:
+    app.kubernetes.io/name: trip
+  ports:
+    - port: 80
+      targetPort: 8000
+      name: http

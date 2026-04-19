@@ -1,0 +1,27 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: trip
+  namespace: trip
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Trip"
+    gethomepage.dev/description: "Travel planning"
+    gethomepage.dev/group: "Life"
+    gethomepage.dev/icon: "trip.png"
+    gethomepage.dev/href: "https://trip.item.fyi"
+    gethomepage.dev/siteMonitor: "https://trip.item.fyi"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=trip"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`trip.item.fyi`)
+      middlewares:
+        - name: authentik
+          namespace: authentik
+      services:
+        - name: trip
+          port: 80
+  tls: {}
