@@ -5,6 +5,8 @@ metadata:
   namespace: gatus
 data:
   config.yaml: |
+    metrics: true
+
     storage:
       type: sqlite
       path: /data/gatus.db
