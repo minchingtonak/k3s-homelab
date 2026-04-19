@@ -44,20 +44,15 @@ spec:
     kubelet:
       enabled: true
 
-    # -------------------------------------------------------
-    # Default dashboards and alert rules
-    # -------------------------------------------------------
-    # Dashboards: keep enabled. Some (apiserver, etcd, scheduler)
-    # will show empty panels, but kubelet, node, pod, and workload
-    # dashboards are immediately useful.
-    defaultDashboardsEnabled: true
-
     defaultRules:
       create: true
       rules:
         # Disable rule groups for components we don't scrape
         etcd: false
-        kubeApiserver: false
+        kubeApiserverAvailability: false
+        kubeApiserverBurnrate: false
+        kubeApiserverHistogram: false
+        kubeApiserverSlos: false
         kubeControllerManager: false
         kubeProxy: false
         kubeSchedulerAlerting: false
@@ -170,7 +165,7 @@ spec:
         podMonitorSelectorNilUsesHelmValues: false
         ruleSelectorNilUsesHelmValues: false
         retention: 90d
-        retentionSize: 45GB
+        retentionSize: 45GiB
         externalUrl: https://prometheus.item.fyi
         storageSpec:
           volumeClaimTemplate:

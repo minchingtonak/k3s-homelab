@@ -22,5 +22,4 @@ spec:
   values:
     certManager:
       namespace: cert-manager
-      serviceAccount:
-        name: cert-manager
+      serviceAccountName: cert-manager
