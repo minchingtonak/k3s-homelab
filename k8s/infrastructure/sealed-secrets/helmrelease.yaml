@@ -26,3 +26,7 @@ spec:
   # https://github.com/bitnami-labs/sealed-secrets/blob/main/helm/sealed-secrets/values.yaml
   values:
     keyrenewperiod: "0"
+    metrics:
+      service:
+        annotations:
+          gatus.home-operations.com/enabled: "false"
