@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gatus-base-config
+  namespace: gatus
+data:
+  config.yaml: |
+    storage:
+      type: sqlite
+      path: /data/gatus.db
+
+    ui:
+      title: "Homelab Status"
+      header: "Service Health"
+
+    # Checks internet connectivity via DNS before performing endpoint checks
+    connectivity:
+      checker:
+        target: 1.1.1.1:53
+        interval: 1m
+
+    # Pushover credentials injected via gatus-pushover-credentials Secret.
+    # Endpoints opt into alerts by adding the Service annotation:
+    #   gatus.home-operations.com/endpoint: |
+    #     alerts:
+    #       - type: pushover
+    alerting:
+      pushover:
+        user-key: "${PUSHOVER_USER_KEY}"
+        token: "${PUSHOVER_TOKEN}"
+        default-alert:
+          description: "healthcheck failed"
+          send-on-resolved: true
+          failure-threshold: 2
+          success-threshold: 1
+
+    # No static endpoints — all auto-discovered via gatus-sidecar

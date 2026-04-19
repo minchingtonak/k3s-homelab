@@ -7,7 +7,6 @@ spec:
   interval: 1h
   retryInterval: 1m
   dependsOn:
-    - name: traefik
     - name: authentik-config
   sourceRef:
     kind: GitRepository

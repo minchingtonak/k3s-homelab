@@ -1,0 +1,93 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: gatus
+  namespace: gatus
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: gatus
+      version: "1.5.0" # https://github.com/TwiN/helm-charts/releases
+      sourceRef:
+        kind: HelmRepository
+        name: twin
+      interval: 1h
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  values:
+    serviceAccount:
+      create: false
+      name: gatus
+      autoMount: true
+
+    env:
+      GATUS_CONFIG_PATH: /config-merged
+      # Give gatus-sidecar 10s to write its initial endpoint config before Gatus
+      # reads the directory on startup.
+      GATUS_DELAY_START_SECONDS: "10"
+
+    envFrom:
+      - secretRef:
+          name: gatus-pushover-credentials
+
+    persistence:
+      enabled: true
+      size: 1Gi
+      storageClassName: nfs-zfs
+      mountPath: /data
+
+    # Two extra volumes:
+    #   base-config  — read-only ConfigMap, mounted at /config-static
+    #   config-merged — writable emptyDir that gatus reads from (GATUS_CONFIG_PATH)
+    extraVolumeMounts:
+      - name: base-config
+        existingConfigMap: gatus-base-config
+        mountPath: /config-static
+        readOnly: true
+      - name: config-merged
+        mountPath: /config-merged
+        readOnly: false
+
+    # Copy the base config into the writable emptyDir before Gatus starts.
+    extraInitContainers:
+      - name: copy-config
+        image: busybox:1.37.0
+        command:
+          - sh
+          - -c
+          - cp /config-static/config.yaml /config-merged/base-config.yaml
+        volumeMounts:
+          - name: base-config
+            mountPath: /config-static
+            readOnly: true
+          - name: config-merged
+            mountPath: /config-merged
+
+    # gatus-sidecar watches all Kubernetes Services and writes endpoint configs
+    # to /config-merged/sidecar.yaml, which Gatus auto-reloads.
+    sidecarContainers:
+      gatus-sidecar:
+        image: ghcr.io/home-operations/gatus-sidecar:0.0.13
+        args:
+          - --auto-service
+          - --output=/config-merged/sidecar.yaml
+          - --default-interval=5m
+        volumeMounts:
+          - name: config-merged
+            mountPath: /config-merged
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            memory: 64Mi
+
+    serviceMonitor:
+      enabled: true
+      labels:
+        release: kube-prometheus-stack

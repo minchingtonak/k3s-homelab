@@ -8,8 +8,6 @@ spec:
   retryInterval: 1m
   dependsOn:
     - name: cert-manager
-    - name: nfs-provisioner
-    - name: sealed-secrets
     - name: authentik-config
   sourceRef:
     kind: GitRepository

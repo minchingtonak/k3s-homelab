@@ -1,7 +1,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: kube-prometheus-stack
+  name: gatus
   namespace: flux-system
 spec:
   interval: 1h
@@ -12,7 +12,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
-  path: k8s/infrastructure/kube-prometheus-stack
+  path: k8s/infrastructure/gatus
   prune: true
   wait: true
-  timeout: 10m
+  timeout: 5m
