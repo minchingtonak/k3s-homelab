@@ -25,6 +25,9 @@ spec:
       name: gatus
       autoMount: true
 
+    podAnnotations:
+      reloader.stakater.com/auto: "true"
+
     env:
       GATUS_CONFIG_PATH: /config-merged
       # Give gatus-sidecar 10s to write its initial endpoint config before Gatus
