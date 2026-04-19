@@ -19,6 +19,15 @@ spec:
     - kustomize-controller
     - helm-controller
     - notification-controller
+  kustomize:
+    patches:
+      - target:
+          kind: Service
+          name: source-controller
+        patch: |
+          - op: add
+            path: /metadata/annotations/gatus.home-operations.com~1enabled
+            value: "false"
   cluster:
     type: kubernetes
     size: small
