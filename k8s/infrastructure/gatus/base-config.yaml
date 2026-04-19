@@ -37,15 +37,3 @@ data:
           success-threshold: 1
 
     # No static endpoints — all auto-discovered via gatus-sidecar
-
-    # TEMP: notification test — remove after confirming Pushover alert fires
-    endpoints:
-      - name: notification-test
-        url: https://httpstat.us/503
-        interval: 30s
-        conditions:
-          - "[STATUS] == 200"
-        alerts:
-          - type: pushover
-            failure-threshold: 1
-            send-on-resolved: true
