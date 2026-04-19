@@ -29,7 +29,7 @@ data:
     alerting:
       pushover:
         user-key: "${PUSHOVER_USER_KEY}"
-        token: "${PUSHOVER_TOKEN}"
+        application-token: "${PUSHOVER_TOKEN}"
         default-alert:
           description: "healthcheck failed"
           send-on-resolved: true
