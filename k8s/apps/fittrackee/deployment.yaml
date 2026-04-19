@@ -1,0 +1,195 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: fittrackee
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: fittrackee-postgres
+  namespace: fittrackee
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-zfs
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: fittrackee-data
+  namespace: fittrackee
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-zfs
+  resources:
+    requests:
+      storage: 4Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fittrackee-postgres
+  namespace: fittrackee
+  labels:
+    app.kubernetes.io/name: fittrackee-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: fittrackee-postgres
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: fittrackee-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgis/postgis:17-3.5-alpine@sha256:e3bcf545d181218c2feb97b00f9eba645558fd11406f66ab98bad3883daa608e
+          env:
+            - name: POSTGRES_USER
+              value: fittrackee
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: fittrackee
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              value: fittrackee
+          ports:
+            - name: postgres
+              containerPort: 5432
+              protocol: TCP
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "fittrackee"]
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+      volumes:
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: fittrackee-postgres
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fittrackee-postgres
+  namespace: fittrackee
+spec:
+  selector:
+    app.kubernetes.io/name: fittrackee-postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+      name: postgres
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fittrackee
+  namespace: fittrackee
+  labels:
+    app.kubernetes.io/name: fittrackee
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: fittrackee
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: fittrackee
+    spec:
+      containers:
+        - name: fittrackee
+          image: fittrackee/fittrackee:v1.2.1@sha256:cf250d7ac5e44f0ae77690f34e67782732a37d22796ce0c2e5eb30a6d1466f47
+          command: ["sh", "docker-entrypoint.sh"]
+          env:
+            - name: UI_URL
+              value: "https://fittrackee.item.fyi"
+            - name: FLASK_APP
+              value: fittrackee
+            - name: FLASK_SKIP_DOTENV
+              value: "1"
+            - name: APP_LOG
+              value: /usr/src/app/logs/fittrackee.log
+            - name: UPLOAD_FOLDER
+              value: /usr/src/app/uploads
+            - name: ENABLE_GEOSPATIAL_FEATURES
+              value: "True"
+            - name: POSTGRES_USER
+              value: fittrackee
+            - name: POSTGRES_DB
+              value: fittrackee
+            - name: APP_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: fittrackee
+                  key: APP_SECRET_KEY
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: fittrackee
+                  key: POSTGRES_PASSWORD
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: fittrackee
+                  key: DATABASE_URL
+          ports:
+            - name: http
+              containerPort: 5000
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /api/ping
+              port: 5000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          volumeMounts:
+            - name: data
+              mountPath: /usr/src/app/uploads
+              subPath: uploads
+            - name: data
+              mountPath: /usr/src/app/logs
+              subPath: logs
+            - name: data
+              mountPath: /usr/src/app/.staticmap_cache
+              subPath: staticmap_cache
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: fittrackee-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fittrackee
+  namespace: fittrackee
+spec:
+  selector:
+    app.kubernetes.io/name: fittrackee
+  ports:
+    - port: 80
+      targetPort: 5000
+      name: http

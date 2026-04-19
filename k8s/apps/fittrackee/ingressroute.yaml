@@ -1,0 +1,27 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: fittrackee
+  namespace: fittrackee
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "FitTrackee"
+    gethomepage.dev/description: "Fitness tracking"
+    gethomepage.dev/group: "Life"
+    gethomepage.dev/icon: "fittrackee.png"
+    gethomepage.dev/href: "https://fittrackee.item.fyi"
+    gethomepage.dev/siteMonitor: "https://fittrackee.item.fyi"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=fittrackee"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`fittrackee.item.fyi`)
+      middlewares:
+        - name: authentik
+          namespace: authentik
+      services:
+        - name: fittrackee
+          port: 80
+  tls: {}
