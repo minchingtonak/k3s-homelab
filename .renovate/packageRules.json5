@@ -1,0 +1,15 @@
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  packageRules: [
+    // helm chart versions don't use digests
+    { matchManagers: ["flux"], pinDigests: false },
+    // dawarich
+    { matchPackageNames: ["postgis/postgis"], matchCurrentVersion: "17-3.5-alpine", enabled: false },
+    { matchPackageNames: ["redis"], matchCurrentVersion: "7.4-alpine", enabled: false },
+    // docuseal
+    { matchPackageNames: ["postgres"], matchCurrentVersion: "15", enabled: false },
+    // tandoor
+    { matchPackageNames: ["postgres"], matchCurrentVersion: "16-alpine3.22", enabled: false },
+    // fittrackee uses the same postgis version as dawarich (covered above)
+  ],
+}
