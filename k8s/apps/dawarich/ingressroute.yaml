@@ -1,0 +1,24 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: dawarich
+  namespace: dawarich
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Dawarich"
+    gethomepage.dev/description: "Location history tracking"
+    gethomepage.dev/group: "Life"
+    gethomepage.dev/icon: "dawarich.png"
+    gethomepage.dev/href: "https://dawarich.item.fyi"
+    gethomepage.dev/siteMonitor: "https://dawarich.item.fyi"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=dawarich-app"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`dawarich.item.fyi`)
+      services:
+        - name: dawarich
+          port: 80
+  tls: {}
