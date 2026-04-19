@@ -138,7 +138,7 @@ Force a fetch:
 flux reconcile source git flux-system
 ```
 
-If it fails, check the Forgejo repo is reachable and the credentials in the `flux-system` secret are valid.
+If it fails, check the repo is reachable.
 
 ---
 

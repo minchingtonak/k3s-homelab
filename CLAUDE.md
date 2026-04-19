@@ -60,7 +60,7 @@ All infrastructure is defined in a single `index.ts` with these sections:
 
 6. **K3s agent nodes** (vmId 101+) — Worker nodes. 4 CPU / 8GB RAM / 50GB disk. Health-check loop waits for server at `192.168.8.100:6443` before joining. Currently `agentCount = 1`.
 
-7. **Flux bootstrap** — Fetches kubeconfig from the server node via SSH (replacing `127.0.0.1` with the external IP), writes it to `~/.kube/k3s-homelab`, installs the Flux Operator via Helm, then applies a `FluxInstance` CRD that bootstraps Flux against a Forgejo git repository. Flux manages `clusters/homelab` path.
+7. **Flux bootstrap** — Fetches kubeconfig from the server node via SSH (replacing `127.0.0.1` with the external IP), writes it to `~/.kube/k3s-homelab`, installs the Flux Operator via Helm, then applies a `FluxInstance` CRD that bootstraps Flux against the git repository. Flux manages `clusters/homelab` path.
 
 ## GitOps Manifest Layout
 
@@ -81,8 +81,7 @@ Config and secrets in `Pulumi.dev.yaml` are Pulumi-encrypted:
 - `k3s-homelab:k3sToken` — Shared K3s cluster token
 - `k3s-homelab:sshPublicKey` — SSH public key injected into all VMs via cloud-init
 - `k3s-homelab:sshPrivateKey` — SSH private key used to fetch kubeconfig from the server node
-- `k3s-homelab:forgejoRepo` — Forgejo repository URL for Flux GitOps
-- `k3s-homelab:forgejoPassword` — Forgejo password for Flux git access
+- `k3s-homelab:gitRepo` — Git repository HTTPS URL for Flux GitOps
 
 To set/update secrets: `pulumi config set --secret k3s-homelab:<key> <value>`
 

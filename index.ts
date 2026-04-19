@@ -6,10 +6,7 @@ import * as k8s from '@pulumi/kubernetes';
 const config = new pulumi.Config();
 const sshPublicKey = config.requireSecret('sshPublicKey');
 const k3sToken = config.requireSecret('k3sToken');
-const forgejoRepo = config.require('forgejoRepo');
-const forgejoSshKey = config.requireSecret('forgejoSshKey');
-// pulumi config set k3s-homelab:forgejoKnownHosts "$(ssh-keyscan -T 10 -p 222 forgejo.backup.homelab.akmin.dev 2>/dev/null | grep -v '^#')"
-const forgejoKnownHosts = config.require('forgejoKnownHosts');
+const gitRepo = config.require('gitRepo');
 const sshPrivateKey = config.requireSecret('sshPrivateKey');
 // Export from cluster: kubectl get secret -n flux-system -l sealedsecrets.bitnami.com/sealed-secrets-key -o jsonpath='{.data.tls\.key}' | base64 -d
 const sealedSecretsKey = config.requireSecret('sealedSecretsKey');
@@ -738,18 +735,6 @@ new k8s.core.v1.Secret(
   { provider: k8sProvider, dependsOn: [fluxOperator] },
 );
 
-const fluxGitSecret = new k8s.core.v1.Secret(
-  'flux-git-credentials',
-  {
-    metadata: { name: 'flux-git-credentials', namespace: 'flux-system' },
-    stringData: {
-      identity: forgejoSshKey,
-      known_hosts: forgejoKnownHosts,
-    },
-  },
-  { provider: k8sProvider, dependsOn: [fluxOperator] },
-);
-
 // Bootstrap-only FluxInstance: minimal config to get Flux running so it can sync
 // k8s/clusters/homelab from git. Once Flux is up, it reconciles the full config from
 // k8s/clusters/homelab/flux-system/flux-instance.yaml — that file is the source of truth.
@@ -763,17 +748,16 @@ new k8s.apiextensions.CustomResource(
       distribution: { version: '2.8.5', registry: 'ghcr.io/fluxcd' },
       sync: {
         kind: 'GitRepository',
-        url: forgejoRepo,
+        url: gitRepo,
         ref: 'refs/heads/main',
         // If this path changes, update k8s/clusters/homelab/flux-system/flux-instance.yaml too.
         path: 'k8s/clusters/homelab',
-        pullSecret: 'flux-git-credentials',
       },
     },
   },
   {
     provider: k8sProvider,
-    dependsOn: [fluxGitSecret],
+    dependsOn: [fluxOperator],
     // Flux's kustomize-controller takes ownership of .spec after the initial apply,
     // reconciling it from k8s/clusters/homelab/flux-system/flux-instance.yaml.
     // ignoreChanges prevents SSA field conflicts between Pulumi and kustomize-controller.
@@ -795,6 +779,5 @@ export const agents = k3sAgents.map((a, i) => ({
 }));
 
 export const templateVmId = k3sTemplate.vmId;
-export const gitopsRepo = forgejoRepo;
 export const proxmoxEndpoint = config.require('proxmoxEndpoint');
 export { k3sVersion, kubeconfigPath };
