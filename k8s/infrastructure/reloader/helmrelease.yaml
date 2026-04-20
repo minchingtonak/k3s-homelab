@@ -8,7 +8,7 @@ spec:
   chart:
     spec:
       chart: reloader
-      version: "2.2.9" # https://github.com/stakater/Reloader/releases
+      version: "2.2.11" # https://github.com/stakater/Reloader/releases
       sourceRef:
         kind: HelmRepository
         name: reloader
