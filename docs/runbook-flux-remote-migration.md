@@ -19,6 +19,11 @@ resource in the cluster still points at the old remote. Flux can't fetch from th
 remote to pick up the `flux-instance.yaml` change that would tell it about the new
 remote. It must be patched manually.
 
+**Important:** The `GitRepository` is owned by the flux-operator via `FluxInstance`.
+Patching the `GitRepository` directly will be overwritten on the next reconciliation.
+Patch the `FluxInstance` instead — the operator will propagate the change to the
+`GitRepository` immediately.
+
 ## Resolution
 
 ### 1. Push to both remotes before making the switch
@@ -35,38 +40,40 @@ git push origin main          # new remote (e.g. GitHub)
 git push old-remote main      # old remote (e.g. Forgejo)
 ```
 
-### 2. Patch the in-cluster GitRepository URL
+### 2. Patch the FluxInstance sync URL
 
 ```bash
-kubectl patch gitrepository flux-system -n flux-system \
+kubectl patch fluxinstance flux -n flux-system \
   --type=merge \
-  -p '{"spec":{"url":"https://github.com/<owner>/<repo>.git"}}'
+  -p '{"spec":{"sync":{"url":"https://github.com/<owner>/<repo>.git"}}}'
 ```
 
-### 3. Remove the secretRef if switching to a public HTTPS remote
+### 3. Remove pullSecret if switching to a public HTTPS remote
 
-SSH remotes require a `secretRef` pointing to a credentials secret. HTTPS on a public
-repo needs none. The merge patch above won't remove an existing `secretRef` — use a
-JSON patch to delete it:
+If the old remote required authentication, the `FluxInstance` may have a `pullSecret`
+field that no longer applies. Remove it with a JSON patch:
 
 ```bash
-kubectl patch gitrepository flux-system -n flux-system \
+kubectl patch fluxinstance flux -n flux-system \
   --type=json \
-  -p '[{"op":"remove","path":"/spec/secretRef"}]'
+  -p '[{"op":"remove","path":"/spec/sync/pullSecret"}]'
 ```
 
-If the `secretRef` field doesn't exist, this will error — that's fine, skip it.
+If the field doesn't exist, this will error — that's fine, skip it.
 
-If you're switching to a **private** repo over HTTPS, create a new secret instead:
+If you're switching to a **private** repo over HTTPS, create a credentials secret and
+set `pullSecret` to point to it instead of removing it:
 
 ```bash
 kubectl create secret generic flux-git-credentials \
   -n flux-system \
   --from-literal=username=git \
   --from-literal=password=<github-pat>
-```
 
-Then patch the `secretRef` to point to it rather than removing it.
+kubectl patch fluxinstance flux -n flux-system \
+  --type=merge \
+  -p '{"spec":{"sync":{"pullSecret":"flux-git-credentials"}}}'
+```
 
 ### 4. Verify the source is fetching
 
@@ -100,12 +107,7 @@ The dependency chain will propagate automatically. If any Kustomization stalls
 
 ## Prevention
 
-Update `flux-instance.yaml` (the in-repo manifest) and the Pulumi `index.ts` bootstrap
-config at the same time, then push to both remotes before Flux loses access to the old
-one. This ensures the new remote already has the correct config waiting when Flux
-switches over.
-
-The in-cluster `GitRepository` is owned by the flux-operator (via `FluxInstance`) —
-any manual patches will be overwritten on the next `FluxInstance` reconciliation. This
-is fine: the `FluxInstance` will have already been updated via the new commit, so it
-will reconcile to the correct state.
+Update `flux-instance.yaml` (the in-repo manifest) and the Pulumi `pulumi/index.ts`
+bootstrap config at the same time, then push to both remotes before Flux loses access
+to the old one. This ensures the new remote already has the correct config waiting when
+Flux switches over.
