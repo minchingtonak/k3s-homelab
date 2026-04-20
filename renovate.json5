@@ -5,6 +5,7 @@
     "config:recommended",
     "github>minchingtonak/k3s-homelab//.renovate/customManagers.json5",
     "github>minchingtonak/k3s-homelab//.renovate/packageRules.json5",
+    "github>minchingtonak/k3s-homelab//.renovate/labels.json5",
   ],
   dependencyDashboard: true,
   dependencyDashboardTitle: "Renovate Dashboard",

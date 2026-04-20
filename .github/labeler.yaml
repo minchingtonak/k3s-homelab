@@ -1,0 +1,27 @@
+area/pulumi:
+  - changed-files:
+      - any-glob-to-any-file:
+          - pulumi/**/*
+
+area/kubernetes:
+  - changed-files:
+      - any-glob-to-any-file:
+          - k8s/**/*
+
+area/github:
+  - changed-files:
+      - any-glob-to-any-file:
+          - .github/**/*
+
+area/docs:
+  - changed-files:
+      - any-glob-to-any-file:
+          - docs/**/*
+          - README.md
+          - CLAUDE.md
+
+area/renovate:
+  - changed-files:
+      - any-glob-to-any-file:
+          - renovate.json5
+          - .renovate/**/*

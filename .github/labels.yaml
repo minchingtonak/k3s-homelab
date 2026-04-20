@@ -1,0 +1,49 @@
+# Area labels
+- name: area/docs
+  color: "0e8a16"
+  description: Changes to documentation
+- name: area/github
+  color: "0e8a16"
+  description: Changes to GitHub Actions workflows or repo config
+- name: area/kubernetes
+  color: "0e8a16"
+  description: Changes to Kubernetes manifests
+- name: area/pulumi
+  color: "0e8a16"
+  description: Changes to Pulumi infrastructure code
+- name: area/renovate
+  color: "0e8a16"
+  description: Changes to Renovate config
+
+# Renovate dependency type labels (applied by Renovate bot)
+- name: renovate/container
+  color: "027fa0"
+  description: Container image update
+- name: renovate/github-action
+  color: "027fa0"
+  description: GitHub Action update
+- name: renovate/helm
+  color: "027fa0"
+  description: Helm chart update
+- name: renovate/npm
+  color: "027fa0"
+  description: npm package update
+
+# Version bump severity labels (applied by Renovate bot)
+- name: type/digest
+  color: "ffc300"
+  description: Image digest-only update
+- name: type/patch
+  color: "e4b400"
+  description: Patch version bump
+- name: type/minor
+  color: "d09000"
+  description: Minor version bump
+- name: type/major
+  color: "ee0701"
+  description: Major version bump
+
+# Manual labels
+- name: hold
+  color: "ee0701"
+  description: Do not merge
