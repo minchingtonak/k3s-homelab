@@ -3,8 +3,8 @@
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   extends: [
     "config:recommended",
-    "local>.renovate/customManagers.json5",
-    "local>.renovate/packageRules.json5",
+    "github>minchingtonak/k3s-homelab//.renovate/customManagers.json5",
+    "github>minchingtonak/k3s-homelab//.renovate/packageRules.json5",
   ],
   dependencyDashboard: true,
   dependencyDashboardTitle: "Renovate Dashboard",
