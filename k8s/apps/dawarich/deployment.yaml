@@ -224,7 +224,7 @@ spec:
             - name: PROMETHEUS_EXPORTER_ENABLED
               value: "false"
             - name: OIDC_PROVIDER_NAME
-              value: Pocket ID
+              value: authentik
             - name: OIDC_AUTO_REGISTER
               value: "false"
             - name: ALLOW_EMAIL_PASSWORD_REGISTRATION
@@ -232,7 +232,7 @@ spec:
             - name: OIDC_REDIRECT_URI
               value: https://dawarich.item.fyi/users/auth/openid_connect/callback
             - name: OIDC_ISSUER
-              value: https://pocket-id.admin.homelab.akmin.dev
+              value: https://auth.item.fyi/application/o/dawarich/
             - name: DATABASE_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -332,11 +332,31 @@ spec:
               value: "true"
             - name: PROMETHEUS_EXPORTER_ENABLED
               value: "false"
+            - name: OIDC_PROVIDER_NAME
+              value: authentik
+            - name: OIDC_AUTO_REGISTER
+              value: "false"
+            - name: ALLOW_EMAIL_PASSWORD_REGISTRATION
+              value: "true"
+            - name: OIDC_REDIRECT_URI
+              value: https://dawarich.item.fyi/users/auth/openid_connect/callback
+            - name: OIDC_ISSUER
+              value: https://auth.item.fyi/application/o/dawarich/
             - name: DATABASE_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: dawarich
                   key: DATABASE_PASSWORD
+            - name: OIDC_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: dawarich
+                  key: OIDC_CLIENT_ID
+            - name: OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: dawarich
+                  key: OIDC_CLIENT_SECRET
           volumeMounts:
             - name: data
               mountPath: /var/app/public
