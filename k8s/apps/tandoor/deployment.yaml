@@ -112,6 +112,8 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: tandoor
+      annotations:
+        secret.reloader.stakater.com/reload: tandoor
     spec:
       enableServiceLinks: false
       containers:
