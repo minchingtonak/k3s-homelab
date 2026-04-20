@@ -14,11 +14,15 @@ Do not rely solely on built-in knowledge for questions about K3s, Kubernetes, Pr
 
 ## Project Overview
 
-TypeScript + Pulumi Infrastructure-as-Code project that provisions a K3s (lightweight Kubernetes) cluster on Proxmox VE, bootstrapped with Flux for GitOps. All infrastructure is defined in `index.ts`.
+TypeScript + Pulumi Infrastructure-as-Code project that provisions a K3s (lightweight Kubernetes) cluster on Proxmox VE, bootstrapped with Flux for GitOps. All infrastructure is defined in `pulumi/index.ts`.
 
 ## Commands
 
+Pulumi commands must be run from the `pulumi/` directory:
+
 ```bash
+cd pulumi/
+
 # Preview changes before applying
 pulumi preview
 
@@ -40,7 +44,7 @@ pnpm typecheck
 
 ## Architecture
 
-All infrastructure is defined in a single `index.ts` with these sections:
+All infrastructure is defined in a single `pulumi/index.ts` with these sections:
 
 1. **Network bridge** — Creates `vmbr1`, a Linux bridge for inter-node cluster traffic (layer 2, no IP). Nodes use `vmbr0` (host LAN) + `vmbr1` (cluster-internal).
 
@@ -75,7 +79,7 @@ The two-phase pattern is used for operators that install CRDs (e.g. MetalLB): on
 
 ## Stack Configuration
 
-Config and secrets in `Pulumi.dev.yaml` are Pulumi-encrypted:
+Config and secrets in `pulumi/Pulumi.dev.yaml` are Pulumi-encrypted:
 - `k3s-homelab:proxmoxEndpoint` — Proxmox API URL (`https://192.168.8.89:8006`)
 - `k3s-homelab:proxmoxPassword` — Proxmox API password
 - `k3s-homelab:k3sToken` — Shared K3s cluster token
