@@ -1,0 +1,24 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: watcharr
+  namespace: watcharr
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Watcharr"
+    gethomepage.dev/description: "Media watch tracking"
+    gethomepage.dev/group: "Media"
+    gethomepage.dev/icon: "watcharr.png"
+    gethomepage.dev/href: "https://watcharr.item.fyi"
+    gethomepage.dev/siteMonitor: "https://watcharr.item.fyi"
+    gethomepage.dev/pod-selector: "app=watcharr"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`watcharr.item.fyi`)
+      services:
+        - name: watcharr
+          port: 80
+  tls: {}

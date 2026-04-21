@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: watcharr
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: watcharr-data
+  namespace: watcharr
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-zfs
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: watcharr
+  namespace: watcharr
+  labels:
+    app: watcharr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: watcharr
+  template:
+    metadata:
+      labels:
+        app: watcharr
+    spec:
+      containers:
+        - name: watcharr
+          image: ghcr.io/sbondco/watcharr:v3.0.1@sha256:bb0dfac200afa822bc4692a0cee4b36716f099034340eb96505da0c6bb0c10a0
+          ports:
+            - containerPort: 3080
+              name: http
+          env:
+            - name: TZ
+              value: 'America/New_York'
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          resources:
+            requests:
+              memory: '128Mi'
+              cpu: '100m'
+            limits:
+              memory: '512Mi'
+              cpu: '1000m'
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: watcharr-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: watcharr
+  namespace: watcharr
+spec:
+  selector:
+    app: watcharr
+  ports:
+    - port: 80
+      targetPort: 3080
+      name: http
