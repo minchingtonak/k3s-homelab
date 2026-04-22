@@ -1,0 +1,313 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: forgejo
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: forgejo-postgres
+  namespace: forgejo
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-zfs
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: forgejo-data
+  namespace: forgejo
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-zfs
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: forgejo-config
+  namespace: forgejo
+data:
+  app.ini: |
+    APP_NAME = Forgejo
+    RUN_MODE = prod
+    RUN_USER = git
+    WORK_PATH = /data/gitea
+
+    [repository]
+    ROOT = /data/git/repositories
+
+    [repository.local]
+    LOCAL_COPY_PATH = /data/gitea/tmp/local-repo
+
+    [repository.upload]
+    TEMP_PATH = /data/gitea/uploads
+
+    [server]
+    APP_DATA_PATH = /data/gitea
+    DOMAIN = forgejo.item.fyi
+    SSH_DOMAIN = forgejo.item.fyi
+    HTTP_PORT = 3000
+    ROOT_URL = https://forgejo.item.fyi/
+    DISABLE_SSH = false
+    SSH_PORT = 22
+    SSH_LISTEN_PORT = 22
+    LFS_START_SERVER = true
+    OFFLINE_MODE = true
+
+    [database]
+    DB_TYPE = postgres
+    HOST = forgejo-postgres:5432
+    NAME = forgejo
+    USER = forgejo
+    LOG_SQL = false
+    SSL_MODE = disable
+
+    [indexer]
+    ISSUE_INDEXER_PATH = /data/gitea/indexers/issues.bleve
+
+    [session]
+    PROVIDER = file
+    PROVIDER_CONFIG = /data/gitea/sessions
+
+    [picture]
+    AVATAR_UPLOAD_PATH = /data/gitea/avatars
+    REPOSITORY_AVATAR_UPLOAD_PATH = /data/gitea/repo-avatars
+
+    [attachment]
+    PATH = /data/gitea/attachments
+
+    [log]
+    MODE = console
+    LEVEL = info
+    ROOT_PATH = /data/gitea/log
+
+    [security]
+    INSTALL_LOCK = true
+    REVERSE_PROXY_LIMIT = 1
+    REVERSE_PROXY_TRUSTED_PROXIES = *
+    PASSWORD_HASH_ALGO = pbkdf2_hi
+
+    [service]
+    DISABLE_REGISTRATION = true
+    REQUIRE_SIGNIN_VIEW = false
+    REGISTER_EMAIL_CONFIRM = false
+    ENABLE_NOTIFY_MAIL = false
+    ALLOW_ONLY_EXTERNAL_REGISTRATION = false
+    ENABLE_CAPTCHA = false
+    DEFAULT_KEEP_EMAIL_PRIVATE = false
+    DEFAULT_ALLOW_CREATE_ORGANIZATION = true
+    DEFAULT_ENABLE_TIMETRACKING = true
+    NO_REPLY_ADDRESS = noreply.localhost
+
+    [lfs]
+    PATH = /data/git/lfs
+
+    [mailer]
+    ENABLED = false
+
+    [openid]
+    ENABLE_OPENID_SIGNIN = true
+    ENABLE_OPENID_SIGNUP = true
+
+    [cron.update_checker]
+    ENABLED = true
+
+    [repository.pull-request]
+    DEFAULT_MERGE_STYLE = merge
+
+    [repository.signing]
+    DEFAULT_TRUST_MODEL = committer
+
+    [git.timeout]
+    MIGRATE = 3600
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: forgejo-postgres
+  namespace: forgejo
+  labels:
+    app.kubernetes.io/name: forgejo-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: forgejo-postgres
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: forgejo-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: docker.io/library/postgres:16@sha256:fd4208c8aadb92850e7e86a584fe8b1f2a6af8949feeb1ac8e12e72324573676
+          env:
+            - name: POSTGRES_DB
+              value: forgejo
+            - name: POSTGRES_USER
+              value: forgejo
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: forgejo
+                  key: FORGEJO__database__PASSWD
+          ports:
+            - name: postgres
+              containerPort: 5432
+              protocol: TCP
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "forgejo", "-d", "forgejo"]
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+            - name: shared-mem
+              mountPath: /dev/shm
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+      volumes:
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: forgejo-postgres
+        - name: shared-mem
+          emptyDir:
+            medium: Memory
+            sizeLimit: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: forgejo-postgres
+  namespace: forgejo
+spec:
+  selector:
+    app.kubernetes.io/name: forgejo-postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+      name: postgres
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: forgejo
+  namespace: forgejo
+  labels:
+    app.kubernetes.io/name: forgejo
+  annotations:
+    reloader.stakater.com/auto: "true"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: forgejo
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: forgejo
+      annotations:
+        secret.reloader.stakater.com/reload: forgejo
+    spec:
+      securityContext:
+        fsGroup: 1000
+      containers:
+        - name: forgejo
+          image: codeberg.org/forgejo/forgejo:14.0.4@sha256:f33e1b5087b7dc3bdbb60ceb0e6f32bf0ce06376328d17c7db86fba62b673f6f
+          env:
+            - name: USER_UID
+              value: "1000"
+            - name: USER_GID
+              value: "1000"
+            - name: FORGEJO__database__PASSWD
+              valueFrom:
+                secretKeyRef:
+                  name: forgejo
+                  key: FORGEJO__database__PASSWD
+            - name: FORGEJO__server__LFS_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: forgejo
+                  key: FORGEJO__server__LFS_JWT_SECRET
+            - name: FORGEJO__security__INTERNAL_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: forgejo
+                  key: FORGEJO__security__INTERNAL_TOKEN
+            - name: FORGEJO__security__SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: forgejo
+                  key: FORGEJO__security__SECRET_KEY
+            - name: FORGEJO__oauth2__JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: forgejo
+                  key: FORGEJO__oauth2__JWT_SECRET
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+            - name: ssh
+              containerPort: 22
+              protocol: TCP
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: config
+              mountPath: /data/gitea/conf/app.ini
+              subPath: app.ini
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              memory: "1536Mi"
+              cpu: "1000m"
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: forgejo-data
+        - name: config
+          configMap:
+            name: forgejo-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: forgejo
+  namespace: forgejo
+spec:
+  selector:
+    app.kubernetes.io/name: forgejo
+  ports:
+    - port: 80
+      targetPort: 3000
+      name: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: forgejo-ssh
+  namespace: forgejo
+spec:
+  selector:
+    app.kubernetes.io/name: forgejo
+  ports:
+    - port: 22
+      targetPort: 22
+      name: ssh
