@@ -27,6 +27,12 @@ spec:
       annotations:
         external-dns.alpha.kubernetes.io/hostname: "*.item.fyi,item.fyi"
     ports:
+      ssh:
+        port: 22
+        expose:
+          default: true
+        exposedPort: 22
+        protocol: TCP
       web:
         http:
           redirections:
