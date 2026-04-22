@@ -350,6 +350,8 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: paperless-ngx
+      annotations:
+        secret.reloader.stakater.com/reload: paperless-ngx
     spec:
       containers:
         - name: paperless-ngx
