@@ -228,9 +228,8 @@ spec:
         app.kubernetes.io/name: syncthing
     spec:
       securityContext:
-        runAsUser: 1000
-        runAsGroup: 1000
-        fsGroup: 1000
+        runAsUser: 0
+        runAsGroup: 0
       containers:
         - name: syncthing
           image: docker.io/syncthing/syncthing:2.0.16@sha256:dc80aea826fe71d9da24b36772535a25010b74ee0eee3bcd39a9ff2ac5bb03b5
