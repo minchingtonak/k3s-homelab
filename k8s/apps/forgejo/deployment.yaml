@@ -196,6 +196,9 @@ spec:
                 secretKeyRef:
                   name: forgejo
                   key: OAUTH_CLIENT_SECRET
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
           volumeMounts:
             - name: data
               mountPath: /data
