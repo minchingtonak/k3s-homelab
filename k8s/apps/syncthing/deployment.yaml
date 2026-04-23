@@ -1,0 +1,303 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: syncthing
+---
+# Dynamic PVC — nfs-zfs provisioner for syncthing config/db
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: syncthing-config
+  namespace: syncthing
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-zfs
+  resources:
+    requests:
+      storage: 1Gi
+---
+# Static PV/PVC pairs — direct NFS mounts to existing Proxmox paths on void pool
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: syncthing-backups
+spec:
+  capacity:
+    storage: 500Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  claimRef:
+    name: syncthing-backups
+    namespace: syncthing
+  nfs:
+    server: 192.168.8.89
+    path: /void/backups
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: syncthing-backups
+  namespace: syncthing
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ""
+  volumeName: syncthing-backups
+  resources:
+    requests:
+      storage: 500Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: syncthing-documents
+spec:
+  capacity:
+    storage: 500Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  claimRef:
+    name: syncthing-documents
+    namespace: syncthing
+  nfs:
+    server: 192.168.8.89
+    path: /void/documents
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: syncthing-documents
+  namespace: syncthing
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ""
+  volumeName: syncthing-documents
+  resources:
+    requests:
+      storage: 500Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: syncthing-drive
+spec:
+  capacity:
+    storage: 500Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  claimRef:
+    name: syncthing-drive
+    namespace: syncthing
+  nfs:
+    server: 192.168.8.89
+    path: /void/drive
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: syncthing-drive
+  namespace: syncthing
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ""
+  volumeName: syncthing-drive
+  resources:
+    requests:
+      storage: 500Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: syncthing-photos
+spec:
+  capacity:
+    storage: 500Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  claimRef:
+    name: syncthing-photos
+    namespace: syncthing
+  nfs:
+    server: 192.168.8.89
+    path: /void/photos
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: syncthing-photos
+  namespace: syncthing
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ""
+  volumeName: syncthing-photos
+  resources:
+    requests:
+      storage: 500Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: syncthing-media
+spec:
+  capacity:
+    storage: 500Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  claimRef:
+    name: syncthing-media
+    namespace: syncthing
+  nfs:
+    server: 192.168.8.89
+    path: /void/media
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: syncthing-media
+  namespace: syncthing
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ""
+  volumeName: syncthing-media
+  resources:
+    requests:
+      storage: 500Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: syncthing-repos
+spec:
+  capacity:
+    storage: 500Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  claimRef:
+    name: syncthing-repos
+    namespace: syncthing
+  nfs:
+    server: 192.168.8.89
+    path: /void/restic/repos
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: syncthing-repos
+  namespace: syncthing
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ""
+  volumeName: syncthing-repos
+  resources:
+    requests:
+      storage: 500Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: syncthing
+  namespace: syncthing
+  labels:
+    app.kubernetes.io/name: syncthing
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: syncthing
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: syncthing
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+        - name: syncthing
+          image: docker.io/syncthing/syncthing:2.0.16@sha256:dc80aea826fe71d9da24b36772535a25010b74ee0eee3bcd39a9ff2ac5bb03b5
+          ports:
+            - name: web-ui
+              containerPort: 8384
+              protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: /var/syncthing
+            - name: backups
+              mountPath: /mnt/backup-data/backups
+            - name: documents
+              mountPath: /mnt/documents
+            - name: documents
+              mountPath: /mnt/backup-data/documents
+            - name: drive
+              mountPath: /mnt/drive
+            - name: drive
+              mountPath: /mnt/backup-data/drive
+            - name: photos
+              mountPath: /mnt/photos
+            - name: photos
+              mountPath: /mnt/backup-data/photos
+            - name: media
+              mountPath: /mnt/media
+            - name: repos
+              mountPath: /mnt/repos
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: syncthing-config
+        - name: backups
+          persistentVolumeClaim:
+            claimName: syncthing-backups
+        - name: documents
+          persistentVolumeClaim:
+            claimName: syncthing-documents
+        - name: drive
+          persistentVolumeClaim:
+            claimName: syncthing-drive
+        - name: photos
+          persistentVolumeClaim:
+            claimName: syncthing-photos
+        - name: media
+          persistentVolumeClaim:
+            claimName: syncthing-media
+        - name: repos
+          persistentVolumeClaim:
+            claimName: syncthing-repos
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: syncthing
+  namespace: syncthing
+spec:
+  selector:
+    app.kubernetes.io/name: syncthing
+  ports:
+    - port: 80
+      targetPort: 8384
+      name: http
