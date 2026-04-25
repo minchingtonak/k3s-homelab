@@ -85,6 +85,12 @@ data:
           dateStyle: long
           timeStyle: short
           hour12: false
+    - openmeteo:
+        label: Detroit
+        latitude: 42.491943
+        longitude: -83.023888
+        units: imperial
+        cache: 5
   docker.yaml: ""
   bookmarks.yaml: |
     - Homelab:
