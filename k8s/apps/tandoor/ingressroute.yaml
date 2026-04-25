@@ -8,7 +8,7 @@ metadata:
     gethomepage.dev/name: "Tandoor Recipes"
     gethomepage.dev/description: "Recipe management"
     gethomepage.dev/group: "Life"
-    gethomepage.dev/icon: "tandoor.png"
+    gethomepage.dev/icon: "tandoor-recipes.svg"
     gethomepage.dev/href: "https://tandoor.item.fyi"
     gethomepage.dev/siteMonitor: "https://tandoor.item.fyi"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=tandoor"
