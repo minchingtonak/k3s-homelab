@@ -8,7 +8,7 @@ metadata:
     gethomepage.dev/name: "Archive Team Warrior"
     gethomepage.dev/description: "Distributed web archiving"
     gethomepage.dev/group: "Tools"
-    gethomepage.dev/icon: "archiveteam.png"
+    gethomepage.dev/icon: "sh-archiveteam-warrior.png"
     gethomepage.dev/href: "https://archiveteam-warrior.item.fyi"
     gethomepage.dev/siteMonitor: "https://archiveteam-warrior.item.fyi"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=archiveteam-warrior"

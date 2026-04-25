@@ -8,7 +8,7 @@ metadata:
     gethomepage.dev/name: "BentoPDF"
     gethomepage.dev/description: "PDF tools"
     gethomepage.dev/group: "Tools"
-    gethomepage.dev/icon: "pdf.png"
+    gethomepage.dev/icon: "sh-bentopdf.png"
     gethomepage.dev/href: "https://bentopdf.item.fyi"
     gethomepage.dev/siteMonitor: "https://bentopdf.item.fyi"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=bentopdf"

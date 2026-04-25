@@ -8,7 +8,7 @@ metadata:
     gethomepage.dev/name: "Omni Tools"
     gethomepage.dev/description: "All-in-one tools collection"
     gethomepage.dev/group: "Tools"
-    gethomepage.dev/icon: "wrench.png"
+    gethomepage.dev/icon: "sh-omnitools.webp"
     gethomepage.dev/href: "https://omni-tools.item.fyi"
     gethomepage.dev/siteMonitor: "https://omni-tools.item.fyi"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=omni-tools"

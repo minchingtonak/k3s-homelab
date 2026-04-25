@@ -8,7 +8,7 @@ metadata:
     gethomepage.dev/name: "WithoutBG"
     gethomepage.dev/description: "Background removal tool"
     gethomepage.dev/group: "Tools"
-    gethomepage.dev/icon: "image.png"
+    gethomepage.dev/icon: "sh-withoutbg.svg"
     gethomepage.dev/href: "https://withoutbg.item.fyi"
     gethomepage.dev/siteMonitor: "https://withoutbg.item.fyi"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=withoutbg"

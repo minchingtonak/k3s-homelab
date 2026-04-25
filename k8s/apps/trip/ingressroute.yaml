@@ -8,7 +8,7 @@ metadata:
     gethomepage.dev/name: "Trip"
     gethomepage.dev/description: "Travel planning"
     gethomepage.dev/group: "Life"
-    gethomepage.dev/icon: "trip.png"
+    gethomepage.dev/icon: "sh-trip.webp"
     gethomepage.dev/href: "https://trip.item.fyi"
     gethomepage.dev/siteMonitor: "https://trip.item.fyi"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=trip"

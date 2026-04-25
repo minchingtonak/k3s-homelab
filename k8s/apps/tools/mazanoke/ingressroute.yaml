@@ -8,7 +8,7 @@ metadata:
     gethomepage.dev/name: "Mazanoke"
     gethomepage.dev/description: "Simple online image compressor"
     gethomepage.dev/group: "Tools"
-    gethomepage.dev/icon: "image.png"
+    gethomepage.dev/icon: "sh-mazanoke.svg"
     gethomepage.dev/href: "https://mazanoke.item.fyi"
     gethomepage.dev/siteMonitor: "https://mazanoke.item.fyi"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=mazanoke"
