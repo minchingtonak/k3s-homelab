@@ -12,6 +12,9 @@ metadata:
     gethomepage.dev/href: "https://syncthing.item.fyi"
     gethomepage.dev/siteMonitor: "https://syncthing.item.fyi"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=syncthing"
+    gethomepage.dev/widget.type: "syncthing"
+    gethomepage.dev/widget.url: "http://syncthing.syncthing.svc.cluster.local"
+    gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_SYNCTHING_API_KEY}}"
 spec:
   entryPoints:
     - websecure

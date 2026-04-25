@@ -12,6 +12,9 @@ metadata:
     gethomepage.dev/href: "https://paperless.item.fyi"
     gethomepage.dev/siteMonitor: "https://paperless.item.fyi"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=paperless-ngx"
+    gethomepage.dev/widget.type: "paperlessngx"
+    gethomepage.dev/widget.url: "http://paperless-ngx.paperless-ngx.svc.cluster.local"
+    gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_PAPERLESS_TOKEN}}"
 spec:
   entryPoints:
     - websecure

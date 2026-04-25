@@ -12,6 +12,9 @@ metadata:
     gethomepage.dev/href: "https://forgejo.item.fyi"
     gethomepage.dev/siteMonitor: "https://forgejo.item.fyi"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=forgejo"
+    gethomepage.dev/widget.type: "gitea"
+    gethomepage.dev/widget.url: "http://forgejo.forgejo.svc.cluster.local"
+    gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_FORGEJO_TOKEN}}"
 spec:
   entryPoints:
     - websecure

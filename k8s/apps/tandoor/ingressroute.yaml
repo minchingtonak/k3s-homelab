@@ -12,6 +12,9 @@ metadata:
     gethomepage.dev/href: "https://tandoor.item.fyi"
     gethomepage.dev/siteMonitor: "https://tandoor.item.fyi"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=tandoor"
+    gethomepage.dev/widget.type: "tandoor"
+    gethomepage.dev/widget.url: "http://tandoor.tandoor.svc.cluster.local"
+    gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_TANDOOR_TOKEN}}"
 spec:
   entryPoints:
     - websecure
