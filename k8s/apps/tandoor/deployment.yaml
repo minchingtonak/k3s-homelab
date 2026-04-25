@@ -123,7 +123,7 @@ spec:
             - name: TZ
               value: America/New_York
             - name: ALLOWED_HOSTS
-              value: tandoor.item.fyi
+              value: tandoor.item.fyi,tandoor.tandoor.svc.cluster.local
             - name: DB_ENGINE
               value: django.db.backends.postgresql
             - name: POSTGRES_HOST
