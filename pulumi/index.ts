@@ -251,6 +251,8 @@ write_files:
         - traefik
         - servicelb
         - local-storage
+      node-label:
+        - "k3s-upgrade=true"
 
   - path: /etc/sysctl.d/80_tcp_hardening.conf
     permissions: '0644'
@@ -517,6 +519,8 @@ write_files:
     content: |
       server: "https://${k3sServerIp}:6443"
       token: "${k3sToken}"
+      node-label:
+        - "k3s-upgrade=true"
 
   - path: /etc/sysctl.d/80_tcp_hardening.conf
     permissions: '0644'

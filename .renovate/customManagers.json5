@@ -9,5 +9,21 @@
       depNameTemplate: "fluxcd/flux2",
       datasourceTemplate: "github-releases",
     },
+    // track k3s version in system-upgrade-controller Plans
+    {
+      customType: "regex",
+      managerFilePatterns: ["/k3s-(server|agent)-plan\\.yaml$/"],
+      matchStrings: ["version:\\s*(?<currentValue>v[^\\s]+)"],
+      depNameTemplate: "k3s-io/k3s",
+      datasourceTemplate: "github-releases",
+    },
+    // track k3s version in pulumi IaC (kept in sync with Plans)
+    {
+      customType: "regex",
+      managerFilePatterns: ["/pulumi/index\\.ts$/"],
+      matchStrings: ["k3sVersion\\s*=\\s*'(?<currentValue>[^']+)'"],
+      depNameTemplate: "k3s-io/k3s",
+      datasourceTemplate: "github-releases",
+    },
   ],
 }
