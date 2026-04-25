@@ -75,7 +75,7 @@ spec:
     # to /config-merged/sidecar.yaml, which Gatus auto-reloads.
     sidecarContainers:
       gatus-sidecar:
-        image: ghcr.io/home-operations/gatus-sidecar:0.0.13
+        image: ghcr.io/home-operations/gatus-sidecar:0.0.14
         args:
           - --auto-service
           - --output=/config-merged/sidecar.yaml
