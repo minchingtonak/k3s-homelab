@@ -8,7 +8,7 @@ spec:
   chart:
     spec:
       chart: traefik
-      version: "39.0.7" # https://github.com/traefik/traefik-helm-chart/releases
+      version: "39.0.8" # https://github.com/traefik/traefik-helm-chart/releases
       sourceRef:
         kind: HelmRepository
         name: traefik
