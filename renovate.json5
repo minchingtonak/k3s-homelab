@@ -1,24 +1,29 @@
 {
   // https://docs.renovatebot.com/configuration-options
-  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
   extends: [
-    "config:recommended",
-    "github>minchingtonak/k3s-homelab//.renovate/customManagers.json5",
-    "github>minchingtonak/k3s-homelab//.renovate/packageRules.json5",
-    "github>minchingtonak/k3s-homelab//.renovate/labels.json5",
+    'config:recommended',
+    'github>minchingtonak/k3s-homelab//.renovate/customManagers.json5',
+    'github>minchingtonak/k3s-homelab//.renovate/packageRules.json5',
+    'github>minchingtonak/k3s-homelab//.renovate/labels.json5',
   ],
+
   dependencyDashboard: true,
-  dependencyDashboardTitle: "Renovate Dashboard",
+  dependencyDashboardTitle: 'Renovate Dashboard',
 
-  schedule: "every saturday",
-  timezone: "America/New_York",
+  schedule: 'on saturday',
+  timezone: 'America/New_York',
+
   // always open vulnerability-fixing pull requests immediately
-  vulnerabilityAlerts: { labels: ["security"], schedule: "at any time" },
-
+  vulnerabilityAlerts: {
+    labels: [
+      'security',
+    ],
+    schedule: 'at any time',
+  },
   ignoreUnstable: true,
-  minimumReleaseAge: "4 days",
-  minimumReleaseAgeBehaviour: "timestamp-optional",
-
+  minimumReleaseAge: '4 days',
+  minimumReleaseAgeBehaviour: 'timestamp-optional',
   prHourlyLimit: 0,
   prConcurrentLimit: 0,
 
@@ -26,16 +31,27 @@
   // prBodyTemplate: "{{{header}}}{{{table}}}{{{warnings}}}{{{notes}}}{{{configDescription}}}{{{controls}}}{{{footer}}}",
 
   pruneStaleBranches: false,
-  rangeStrategy: "bump",
+  rangeStrategy: 'bump',
 
   // flux manager default only scans gotk-components.yaml; expand to all k8s manifests
   flux: {
-    managerFilePatterns: ["/k8s/.+\\.ya?ml$/"],
+    managerFilePatterns: [
+      '/k8s/.+\\.ya?ml$/',
+    ],
   },
   // kubernetes manager has no default file patterns; enable for k8s manifests
   kubernetes: {
-    managerFilePatterns: ["/k8s/.+\\.ya?ml$/"],
+    managerFilePatterns: [
+      '/k8s/.+\\.ya?ml$/',
+    ],
   },
 
-  docker: { pinDigests: true },
+  packageRules: [
+    {
+      matchCategories: [
+        'docker',
+      ],
+      pinDigests: true,
+    },
+  ],
 }
