@@ -24,3 +24,8 @@ spec:
       clusterRoleName: cluster-admin
     ingress:
       enabled: false
+    service:
+      annotations:
+        gatus.home-operations.com/endpoint: |
+          alerts:
+            - type: pushover

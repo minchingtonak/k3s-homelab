@@ -40,6 +40,10 @@ kind: Service
 metadata:
   name: omni-tools
   namespace: omni-tools
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
 spec:
   selector:
     app.kubernetes.io/name: omni-tools

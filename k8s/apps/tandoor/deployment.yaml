@@ -179,6 +179,10 @@ kind: Service
 metadata:
   name: tandoor
   namespace: tandoor
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
 spec:
   selector:
     app.kubernetes.io/name: tandoor

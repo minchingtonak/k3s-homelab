@@ -62,6 +62,10 @@ kind: Service
 metadata:
   name: watcharr
   namespace: watcharr
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
 spec:
   selector:
     app: watcharr

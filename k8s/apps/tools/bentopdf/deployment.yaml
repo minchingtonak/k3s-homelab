@@ -40,6 +40,10 @@ kind: Service
 metadata:
   name: bentopdf
   namespace: bentopdf
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
 spec:
   selector:
     app.kubernetes.io/name: bentopdf

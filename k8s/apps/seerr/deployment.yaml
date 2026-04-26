@@ -66,6 +66,10 @@ kind: Service
 metadata:
   name: seerr
   namespace: seerr
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
 spec:
   selector:
     app: seerr

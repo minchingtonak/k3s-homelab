@@ -47,6 +47,10 @@ kind: Service
 metadata:
   name: archiveteam-warrior
   namespace: archiveteam-warrior
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
 spec:
   selector:
     app.kubernetes.io/name: archiveteam-warrior

@@ -186,6 +186,10 @@ kind: Service
 metadata:
   name: fittrackee
   namespace: fittrackee
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
 spec:
   selector:
     app.kubernetes.io/name: fittrackee

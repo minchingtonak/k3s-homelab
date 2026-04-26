@@ -60,6 +60,10 @@ kind: Service
 metadata:
   name: metube
   namespace: metube
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
 spec:
   selector:
     app.kubernetes.io/name: metube

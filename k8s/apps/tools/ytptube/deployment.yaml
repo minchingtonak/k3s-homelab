@@ -85,6 +85,10 @@ kind: Service
 metadata:
   name: ytptube
   namespace: ytptube
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
 spec:
   selector:
     app.kubernetes.io/name: ytptube

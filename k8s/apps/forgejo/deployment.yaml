@@ -361,6 +361,10 @@ kind: Service
 metadata:
   name: forgejo
   namespace: forgejo
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
 spec:
   selector:
     app.kubernetes.io/name: forgejo

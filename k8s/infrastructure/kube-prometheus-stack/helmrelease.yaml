@@ -62,6 +62,11 @@ spec:
     # Grafana
     # -------------------------------------------------------
     grafana:
+      service:
+        annotations:
+          gatus.home-operations.com/endpoint: |
+            alerts:
+              - type: pushover
       ingress:
         enabled: false  # exposed via IngressRoute instead
       initChownData:
@@ -160,6 +165,11 @@ spec:
     # Prometheus
     # -------------------------------------------------------
     prometheus:
+      service:
+        annotations:
+          gatus.home-operations.com/endpoint: |
+            alerts:
+              - type: pushover
       prometheusSpec:
         # Discover all ServiceMonitors/PodMonitors in the cluster, not just
         # those labelled release: kube-prometheus-stack
@@ -200,6 +210,11 @@ spec:
     # -------------------------------------------------------
     alertmanager:
       enabled: true
+      service:
+        annotations:
+          gatus.home-operations.com/endpoint: |
+            alerts:
+              - type: pushover
       alertmanagerSpec:
         # Mount the Pushover credentials secret into the Alertmanager pod.
         # The sealed-secrets controller decrypts alertmanager-pushover-credentials

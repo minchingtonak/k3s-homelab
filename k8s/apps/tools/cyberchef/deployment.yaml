@@ -40,6 +40,10 @@ kind: Service
 metadata:
   name: cyberchef
   namespace: cyberchef
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
 spec:
   selector:
     app.kubernetes.io/name: cyberchef

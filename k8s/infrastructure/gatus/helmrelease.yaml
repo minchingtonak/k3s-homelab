@@ -90,6 +90,12 @@ spec:
           limits:
             memory: 64Mi
 
+    service:
+      annotations:
+        gatus.home-operations.com/endpoint: |
+          alerts:
+            - type: pushover
+
     serviceMonitor:
       enabled: true
       labels:

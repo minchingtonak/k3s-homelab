@@ -106,6 +106,10 @@ kind: Service
 metadata:
   name: homepage
   namespace: homepage
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
 spec:
   selector:
     app.kubernetes.io/name: homepage

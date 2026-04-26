@@ -94,6 +94,10 @@ kind: Service
 metadata:
   name: authelia
   namespace: authelia
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
 spec:
   selector:
     app.kubernetes.io/name: authelia
