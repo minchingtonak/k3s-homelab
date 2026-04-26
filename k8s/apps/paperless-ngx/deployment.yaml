@@ -127,7 +127,8 @@ spec:
     spec:
       containers:
         - name: postgres
-          image: docker.io/library/postgres:16@sha256:fd4208c8aadb92850e7e86a584fe8b1f2a6af8949feeb1ac8e12e72324573676
+          # https://github.com/paperless-ngx/paperless-ngx/blob/dev/docker/compose/docker-compose.postgres-tika.yml
+          image: docker.io/library/postgres:18.3@sha256:78481659c47e862334611ccdaf7c369c986b3046da9857112f3b309114a65fb4
           env:
             - name: POSTGRES_DB
               value: paperless
