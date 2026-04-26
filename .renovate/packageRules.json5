@@ -5,6 +5,8 @@
     { matchManagers: ["flux"], pinDigests: false },
     // group all k3s version bumps (Plans + pulumi IaC) into one PR
     { matchDepNames: ["k3s-io/k3s"], groupName: "k3s version" },
+    // group all node version bumps (CI node-version + @types/node) into one PR
+    { matchDepNames: ["node", "@types/node"], groupName: "node version" },
     // paperless-ngx
     // https://github.com/paperless-ngx/paperless-ngx/blob/dev/docker/compose/docker-compose.postgres-tika.yml
     { matchPackageNames: ["gotenberg/gotenberg"], matchCurrentVersion: "8.27", enabled: false },
