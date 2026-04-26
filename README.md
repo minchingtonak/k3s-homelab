@@ -24,6 +24,7 @@ flux `Kustomization` entrypoints for the homelab cluster. defines the reconcilia
 - [Grafana Alloy](https://github.com/grafana/alloy) for log collection and forwarding
 - [FluxCD](https://github.com/fluxcd/flux2) for GitOps continuous delivery
 - [sealed-secrets](https://github.com/bitnami-labs/sealed-secrets) for encrypted secret management in Git
+- [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller) for automated k3s node upgrades via GitOps
 - [reloader](https://github.com/stakater/Reloader) to restart pods when config changes
 - [nfs-subdir-external-provisioner](https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner) for simple distributed storage
 

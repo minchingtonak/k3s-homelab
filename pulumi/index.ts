@@ -12,7 +12,7 @@ const sshPrivateKey = config.requireSecret('sshPrivateKey');
 const sealedSecretsKey = config.requireSecret('sealedSecretsKey');
 const sealedSecretsCert = config.require('sealedSecretsCert');
 
-const k3sVersion = 'v1.35.0+k3s1';
+const k3sVersion = 'v1.35.1+k3s1';
 
 const nodeName = 'homelab';
 const datastoreId = 'fast';
