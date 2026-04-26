@@ -235,6 +235,7 @@ spec:
       containers:
         - name: syncthing
           image: docker.io/syncthing/syncthing:2.0.16@sha256:dc80aea826fe71d9da24b36772535a25010b74ee0eee3bcd39a9ff2ac5bb03b5
+          args: ["--debug-reset-delta-idxs"]
           ports:
             - name: web-ui
               containerPort: 8384
