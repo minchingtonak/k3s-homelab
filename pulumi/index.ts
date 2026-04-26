@@ -414,8 +414,8 @@ const k3sServer = new proxmox.vm.VirtualMachine(
       type: 'host',
     },
     memory: {
-      dedicated: 16384,
-      floating: 16384,
+      dedicated: 24576, // ~30.77 GiB (31500) is total available on proxmox host
+      floating: 24576,
     },
 
     // Cannot reference k3sTemplate.disks — the template disk carries fileId pointing
@@ -424,7 +424,7 @@ const k3sServer = new proxmox.vm.VirtualMachine(
       {
         interface: 'scsi0',
         datastoreId: datastoreId,
-        size: 64,
+        size: 128,
         discard: 'on',
         ssd: true,
       },
@@ -461,7 +461,15 @@ const k3sServer = new proxmox.vm.VirtualMachine(
     onBoot: true,
     tags: ['k3s', 'server', 'kubernetes'],
   },
-  { dependsOn: [k3sTemplate], provider, ignoreChanges: ['disks[0].speed'] },
+  {
+    dependsOn: [k3sTemplate],
+    provider,
+    ignoreChanges: [
+      'disks[0].speed',
+      // Prevent k3sVersion or any other cloud-init edit from triggering VM replacement
+      'initialization',
+    ],
+  },
 );
 
 // =============================================================================
@@ -651,7 +659,7 @@ runcmd:
     {
       dependsOn: [k3sServer, agentCloudInit],
       provider,
-      ignoreChanges: ['disks[0].speed'],
+      ignoreChanges: ['disks[0].speed', 'initialization'],
     },
   );
 
