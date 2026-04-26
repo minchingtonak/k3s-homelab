@@ -58,7 +58,7 @@ jobs:
         uses: pulumi/actions@8582a9e8cc630786854029b4e09281acd6794b58 # v6.6.1
         with:
           command: preview
-          stack-name: minchingtonak/k3s-homelab/dev
+          stack-name: dev
           work-dir: pulumi
           comment-on-pr: true
           edit-pr-comment: true
