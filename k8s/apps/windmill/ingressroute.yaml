@@ -1,0 +1,29 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: windmill
+  namespace: windmill
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Windmill"
+    gethomepage.dev/description: "Developer platform and script runner"
+    gethomepage.dev/group: "Development"
+    gethomepage.dev/icon: "sh-windmill.svg"
+    gethomepage.dev/href: "https://windmill.item.fyi"
+    gethomepage.dev/siteMonitor: "http://windmill.windmill.svc.cluster.local"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=windmill-server"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`windmill.item.fyi`) && PathPrefix(`/ws/`)
+      services:
+        - name: windmill-lsp
+          port: 80
+    - kind: Rule
+      match: Host(`windmill.item.fyi`)
+      services:
+        - name: windmill
+          port: 80
+  tls: {}
