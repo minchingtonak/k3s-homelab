@@ -76,7 +76,7 @@ spec:
       serviceAccountName: coredns
       containers:
         - name: coredns
-          image: coredns/coredns:1.13.1
+          image: coredns/coredns:1.14.2
           args: ["-conf", "/etc/coredns/Corefile"]
           ports:
             - containerPort: 53
