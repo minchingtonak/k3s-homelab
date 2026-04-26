@@ -258,7 +258,8 @@ spec:
     spec:
       containers:
         - name: gotenberg
-          image: docker.io/gotenberg/gotenberg:8.20@sha256:cda4386c7ed38f18bc6897828be01ba7361c99929a5c84ec5e293d7916e29bac
+          # pinned
+          image: docker.io/gotenberg/gotenberg:8.27@sha256:d71ab8c13b6bd47c7bc81195082005dfb17eaa75e8b1fadd347a64ee66ed98d5
           command:
             - gotenberg
             - --api-timeout=600s
