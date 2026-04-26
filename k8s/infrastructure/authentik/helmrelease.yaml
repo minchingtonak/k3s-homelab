@@ -13,6 +13,8 @@ spec:
         kind: HelmRepository
         name: authentik
       interval: 1h
+  driftDetection:
+    mode: enabled
   install:
     crds: CreateReplace
     remediation:
