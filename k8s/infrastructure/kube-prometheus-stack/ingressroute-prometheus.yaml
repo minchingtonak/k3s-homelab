@@ -10,7 +10,7 @@ metadata:
     gethomepage.dev/group: "Monitoring"
     gethomepage.dev/icon: "prometheus.png"
     gethomepage.dev/href: "https://prometheus.item.fyi"
-    gethomepage.dev/siteMonitor: "https://prometheus.item.fyi"
+    gethomepage.dev/siteMonitor: "http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=prometheus"
     gethomepage.dev/widget.type: "prometheus"
     gethomepage.dev/widget.url: "http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090"

@@ -10,7 +10,7 @@ metadata:
     gethomepage.dev/group: "Life"
     gethomepage.dev/icon: "fittrackee.png"
     gethomepage.dev/href: "https://fittrackee.item.fyi"
-    gethomepage.dev/siteMonitor: "https://fittrackee.item.fyi"
+    gethomepage.dev/siteMonitor: "http://fittrackee.fittrackee.svc.cluster.local"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=fittrackee"
 spec:
   entryPoints:

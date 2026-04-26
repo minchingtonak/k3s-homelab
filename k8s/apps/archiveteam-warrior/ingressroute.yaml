@@ -10,7 +10,7 @@ metadata:
     gethomepage.dev/group: "Tools"
     gethomepage.dev/icon: "sh-archiveteam-warrior.png"
     gethomepage.dev/href: "https://archiveteam-warrior.item.fyi"
-    gethomepage.dev/siteMonitor: "https://archiveteam-warrior.item.fyi"
+    gethomepage.dev/siteMonitor: "http://archiveteam-warrior.archiveteam-warrior.svc.cluster.local"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=archiveteam-warrior"
 spec:
   entryPoints:

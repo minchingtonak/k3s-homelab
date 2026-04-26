@@ -10,7 +10,7 @@ metadata:
     gethomepage.dev/group: "Media"
     gethomepage.dev/icon: "overseerr.png"
     gethomepage.dev/href: "https://seerr.item.fyi"
-    gethomepage.dev/siteMonitor: "https://seerr.item.fyi"
+    gethomepage.dev/siteMonitor: "http://seerr.seerr.svc.cluster.local"
     gethomepage.dev/pod-selector: "app=seerr"
 spec:
   entryPoints:

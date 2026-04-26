@@ -10,7 +10,7 @@ metadata:
     gethomepage.dev/group: "Life"
     gethomepage.dev/icon: "tandoor-recipes.svg"
     gethomepage.dev/href: "https://tandoor.item.fyi"
-    gethomepage.dev/siteMonitor: "https://tandoor.item.fyi"
+    gethomepage.dev/siteMonitor: "http://tandoor.tandoor.svc.cluster.local"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=tandoor"
     gethomepage.dev/widget.type: "tandoor"
     gethomepage.dev/widget.url: "http://tandoor.tandoor.svc.cluster.local"

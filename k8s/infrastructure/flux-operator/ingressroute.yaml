@@ -10,7 +10,7 @@ metadata:
     gethomepage.dev/group: "Infrastructure"
     gethomepage.dev/icon: "flux-cd.svg"
     gethomepage.dev/href: "https://flux.item.fyi"
-    gethomepage.dev/siteMonitor: "https://flux.item.fyi"
+    gethomepage.dev/siteMonitor: "http://flux-operator.flux-system.svc.cluster.local:9080"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=flux-operator"
 spec:
   entryPoints:

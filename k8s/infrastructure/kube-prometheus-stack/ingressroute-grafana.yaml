@@ -10,7 +10,7 @@ metadata:
     gethomepage.dev/group: "Monitoring"
     gethomepage.dev/icon: "grafana.png"
     gethomepage.dev/href: "https://grafana.item.fyi"
-    gethomepage.dev/siteMonitor: "https://grafana.item.fyi"
+    gethomepage.dev/siteMonitor: "http://kube-prometheus-stack-grafana.monitoring.svc.cluster.local"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=grafana"
     gethomepage.dev/widget.type: "grafana"
     gethomepage.dev/widget.url: "http://kube-prometheus-stack-grafana.monitoring.svc.cluster.local"

@@ -10,7 +10,7 @@ metadata:
     gethomepage.dev/group: "Life"
     gethomepage.dev/icon: "wallos.png"
     gethomepage.dev/href: "https://wallos.item.fyi"
-    gethomepage.dev/siteMonitor: "https://wallos.item.fyi"
+    gethomepage.dev/siteMonitor: "http://wallos.wallos.svc.cluster.local"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=wallos"
 spec:
   entryPoints:

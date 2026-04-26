@@ -10,7 +10,7 @@ metadata:
     gethomepage.dev/group: "Life"
     gethomepage.dev/icon: "sh-trip.webp"
     gethomepage.dev/href: "https://trip.item.fyi"
-    gethomepage.dev/siteMonitor: "https://trip.item.fyi"
+    gethomepage.dev/siteMonitor: "http://trip.trip.svc.cluster.local"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=trip"
 spec:
   entryPoints:

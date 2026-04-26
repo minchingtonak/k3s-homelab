@@ -10,7 +10,7 @@ metadata:
     gethomepage.dev/group: "Infrastructure"
     gethomepage.dev/icon: "sh-headlamp.svg"
     gethomepage.dev/href: "https://headlamp.item.fyi"
-    gethomepage.dev/siteMonitor: "https://headlamp.item.fyi"
+    gethomepage.dev/siteMonitor: "http://headlamp.kube-system.svc.cluster.local"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=headlamp"
 spec:
   entryPoints:

@@ -10,7 +10,7 @@ metadata:
     gethomepage.dev/group: "Infrastructure"
     gethomepage.dev/icon: "authentik.png"
     gethomepage.dev/href: "https://auth.item.fyi"
-    gethomepage.dev/siteMonitor: "https://auth.item.fyi"
+    gethomepage.dev/siteMonitor: "http://authentik-server.authentik.svc.cluster.local"
     gethomepage.dev/widget.type: "authentik"
     gethomepage.dev/widget.url: "http://authentik-server.authentik.svc.cluster.local"
     gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_AUTHENTIK_TOKEN}}"

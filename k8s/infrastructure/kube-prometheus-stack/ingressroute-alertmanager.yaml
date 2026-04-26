@@ -10,7 +10,7 @@ metadata:
     gethomepage.dev/group: "Monitoring"
     gethomepage.dev/icon: "alertmanager.png"
     gethomepage.dev/href: "https://alertmanager.item.fyi"
-    gethomepage.dev/siteMonitor: "https://alertmanager.item.fyi"
+    gethomepage.dev/siteMonitor: "http://alertmanager-operated.monitoring.svc.cluster.local:9093"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=alertmanager"
 spec:
   entryPoints:

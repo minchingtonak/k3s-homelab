@@ -10,7 +10,7 @@ metadata:
     gethomepage.dev/group: "Tools"
     gethomepage.dev/icon: "sh-omnitools.webp"
     gethomepage.dev/href: "https://omni-tools.item.fyi"
-    gethomepage.dev/siteMonitor: "https://omni-tools.item.fyi"
+    gethomepage.dev/siteMonitor: "http://omni-tools.omni-tools.svc.cluster.local"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=omni-tools"
 spec:
   entryPoints:

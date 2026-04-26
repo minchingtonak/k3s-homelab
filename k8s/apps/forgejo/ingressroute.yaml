@@ -10,7 +10,7 @@ metadata:
     gethomepage.dev/group: "Development"
     gethomepage.dev/icon: "forgejo.png"
     gethomepage.dev/href: "https://forgejo.item.fyi"
-    gethomepage.dev/siteMonitor: "https://forgejo.item.fyi"
+    gethomepage.dev/siteMonitor: "http://forgejo.forgejo.svc.cluster.local"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=forgejo"
     gethomepage.dev/widget.type: "gitea"
     gethomepage.dev/widget.url: "http://forgejo.forgejo.svc.cluster.local"

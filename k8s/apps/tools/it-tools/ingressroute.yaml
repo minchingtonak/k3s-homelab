@@ -10,7 +10,7 @@ metadata:
     gethomepage.dev/group: "Tools"
     gethomepage.dev/icon: "it-tools.png"
     gethomepage.dev/href: "https://it-tools.item.fyi"
-    gethomepage.dev/siteMonitor: "https://it-tools.item.fyi"
+    gethomepage.dev/siteMonitor: "http://it-tools.it-tools.svc.cluster.local"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=it-tools"
 spec:
   entryPoints:

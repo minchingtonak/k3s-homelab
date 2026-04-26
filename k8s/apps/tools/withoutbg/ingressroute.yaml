@@ -10,7 +10,7 @@ metadata:
     gethomepage.dev/group: "Tools"
     gethomepage.dev/icon: "sh-withoutbg.svg"
     gethomepage.dev/href: "https://withoutbg.item.fyi"
-    gethomepage.dev/siteMonitor: "https://withoutbg.item.fyi"
+    gethomepage.dev/siteMonitor: "http://withoutbg.withoutbg.svc.cluster.local"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=withoutbg"
 spec:
   entryPoints:
