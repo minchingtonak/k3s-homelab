@@ -1,6 +1,9 @@
 {
   "name": "k3s-homelab",
   "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": "22.22.2"
+  },
   "main": "index.ts",
   "scripts": {
     "typecheck": "tsc --noEmit"
