@@ -48,7 +48,7 @@ spec:
     spec:
       containers:
         - name: postgres
-          image: docker.io/library/postgres:16@sha256:fd4208c8aadb92850e7e86a584fe8b1f2a6af8949feeb1ac8e12e72324573676
+          image: docker.io/library/postgres:16@sha256:71e27bf60b70bded003791b5573f8b808365613f341df20ffcf0c1ed7bc13ddf
           env:
             - name: POSTGRES_DB
               value: forgejo
