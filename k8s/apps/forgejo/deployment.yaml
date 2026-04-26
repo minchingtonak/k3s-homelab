@@ -145,7 +145,7 @@ spec:
 
               # upsert oauth source
               AUTH_ID=$(forgejo admin auth list --vertical-bars 2>/dev/null \
-                | awk -F'|' 'tolower($3) ~ /oauth2/ && tolower($2) ~ /authentik/ {gsub(/ /,"",$1); print $1}' \
+                | awk -F'|' 'tolower($3) ~ /oauth2/ && tolower($2) ~ /authentik/ {gsub(/[[:space:]]/,"",$1); print $1}' \
                 | head -1)
 
               if [ -z "$AUTH_ID" ]; then
