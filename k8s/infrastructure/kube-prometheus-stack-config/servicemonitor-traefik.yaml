@@ -10,3 +10,4 @@ spec:
       app.kubernetes.io/component: metrics
   endpoints:
     - port: metrics
+      honorLabels: true  # preserve traefik's own 'service' label; without this, k8s service name overwrites it
