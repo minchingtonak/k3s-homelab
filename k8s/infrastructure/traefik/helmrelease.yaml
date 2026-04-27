@@ -65,6 +65,9 @@ spec:
           statuscodes: "400-599"
     metrics:
       prometheus:
+        addEntryPointsLabels: true
+        addRoutersLabels: true
+        addServicesLabels: true
         service:
           enabled: true  # dedicated ClusterIP service for metrics scraping
         serviceMonitor:
