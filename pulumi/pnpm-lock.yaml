@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@muhlba91/pulumi-proxmoxve':
-        specifier: ^7.13.0
-        version: 7.13.0(typescript@5.9.3)
+        specifier: ^8.0.0
+        version: 8.0.0(typescript@5.9.3)
       '@pulumi/command':
         specifier: ^1.2.1
         version: 1.2.1(typescript@5.9.3)
@@ -61,8 +61,8 @@ packages:
     resolution: {integrity: sha512-XGSsWDweP80Fks16lwkAUIr54ICyBs6PsI4mpfTLQaWgEJRtY9xEV+PeyDpJ+sJEGZxqINlpmAwe/6tS1pP8Ng==}
     engines: {node: '>=10.3.0'}
 
-  '@muhlba91/pulumi-proxmoxve@7.13.0':
-    resolution: {integrity: sha512-gpnwSK1v8Ji1J5lWuz+fZtH+78GlIQbg6+PGBruk5phVkkndW4gj5YSP4PzKEjVYdg34Lt9BO2dRFsv3nSv9Gw==}
+  '@muhlba91/pulumi-proxmoxve@8.0.0':
+    resolution: {integrity: sha512-F1Ez2e+5+jkLVo3pQ8Fx20iqxlodssSZ82NO9kQIzya1u1HuF8HecoMI4FSDGsQRBQyiFK9FNYImNEECN5USrg==}
 
   '@npmcli/agent@4.0.0':
     resolution: {integrity: sha512-kAQTcEN9E8ERLVg5AsGwLNoFb+oEG6engbqAU2P43gD4JEIkNGMHdVQ096FsOAAYpZPB0RSt0zgInKIAS1l5QA==}
@@ -976,7 +976,7 @@ snapshots:
 
   '@logdna/tail-file@2.2.0': {}
 
-  '@muhlba91/pulumi-proxmoxve@7.13.0(typescript@5.9.3)':
+  '@muhlba91/pulumi-proxmoxve@8.0.0(typescript@5.9.3)':
     dependencies:
       '@pulumi/pulumi': 3.231.0(typescript@5.9.3)
     transitivePeerDependencies:
