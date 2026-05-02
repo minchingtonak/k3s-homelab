@@ -35,7 +35,7 @@ spec:
     spec:
       containers:
         - name: postgres
-          image: docker.io/library/postgres:16@sha256:46b64df84f4c8c5bd586952eb8ff813f1ce12f1bc36eb12af678894b6a66ab89
+          image: docker.io/library/postgres:16@sha256:71e27bf60b70bded003791b5573f8b808365613f341df20ffcf0c1ed7bc13ddf
           env:
             - name: POSTGRES_DB
               value: windmill
