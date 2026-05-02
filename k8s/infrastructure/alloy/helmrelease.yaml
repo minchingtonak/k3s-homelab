@@ -8,7 +8,7 @@ spec:
   chart:
     spec:
       chart: alloy
-      version: "1.7.0" # https://github.com/grafana/alloy/blob/main/operations/helm/charts/alloy/CHANGELOG.md
+      version: "1.8.0" # https://github.com/grafana/alloy/blob/main/operations/helm/charts/alloy/CHANGELOG.md
       sourceRef:
         kind: HelmRepository
         name: grafana
