@@ -35,7 +35,7 @@ spec:
     spec:
       containers:
         - name: wallos
-          image: bellamy/wallos:4.8.2@sha256:3a0dd22338ab5edcaddbc12af711807fd57e0457aecbe7b6ec5f72a142718149
+          image: bellamy/wallos:4.8.4@sha256:e4ca23a5b56d3f3e36987db9e38faa2b88adb0df0453852346689e6397daac83
           env:
             - name: TZ
               value: America/New_York
