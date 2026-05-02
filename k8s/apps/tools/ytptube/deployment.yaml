@@ -51,7 +51,7 @@ spec:
         runAsGroup: 0
       containers:
         - name: ytptube
-          image: ghcr.io/arabcoders/ytptube:v2.1.0@sha256:21bac83322f64577006169326756f3b84dba09076d59cd7b1c6a974d4333470a
+          image: ghcr.io/arabcoders/ytptube:v2.1.2@sha256:393d83f21618f5416e04b7900869de16e57e4c72a34692c1ed92147ea2d0b793
           ports:
             - name: http
               containerPort: 8081
