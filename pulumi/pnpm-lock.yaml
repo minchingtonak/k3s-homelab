@@ -18,8 +18,8 @@ importers:
         specifier: ^4.29.0
         version: 4.30.0(typescript@5.9.3)
       '@pulumi/pulumi':
-        specifier: ^3.231.0
-        version: 3.231.0(typescript@5.9.3)
+        specifier: ^3.232.0
+        version: 3.234.0(typescript@5.9.3)
     devDependencies:
       '@types/node':
         specifier: ^24.12.2
@@ -266,8 +266,8 @@ packages:
   '@pulumi/kubernetes@4.30.0':
     resolution: {integrity: sha512-ZCS4HwBvcxfdPDw44L1/SCqoIttCVugx/FZzqRFRq+leKRIfigAYt4sILXlqulNtX6XjlWVzZO8zva3Ygk7hGA==}
 
-  '@pulumi/pulumi@3.231.0':
-    resolution: {integrity: sha512-aAIMkMkbxjGRZ8ldvvm2BPd5JwmJ23QM/vS8iMNpxf8wSDJcIUqx6AtAw2TKTeXlRL4iUMh1xvrXf7APRUwnMg==}
+  '@pulumi/pulumi@3.234.0':
+    resolution: {integrity: sha512-g9tXFsk0gGkZUV1fjy45b+yRRr2ydSzyt0ZcnUjOzG8K4A0d/gzP82Og6IAcifU5Lv6InyDdONw4nRrJrTj+5Q==}
     engines: {node: '>=20'}
     peerDependencies:
       ts-node: '>= 7.0.1 < 12'
@@ -978,7 +978,7 @@ snapshots:
 
   '@muhlba91/pulumi-proxmoxve@7.13.0(typescript@5.9.3)':
     dependencies:
-      '@pulumi/pulumi': 3.231.0(typescript@5.9.3)
+      '@pulumi/pulumi': 3.234.0(typescript@5.9.3)
     transitivePeerDependencies:
       - supports-color
       - ts-node
@@ -1256,7 +1256,7 @@ snapshots:
 
   '@pulumi/command@1.2.1(typescript@5.9.3)':
     dependencies:
-      '@pulumi/pulumi': 3.231.0(typescript@5.9.3)
+      '@pulumi/pulumi': 3.234.0(typescript@5.9.3)
     transitivePeerDependencies:
       - supports-color
       - ts-node
@@ -1264,7 +1264,7 @@ snapshots:
 
   '@pulumi/kubernetes@4.30.0(typescript@5.9.3)':
     dependencies:
-      '@pulumi/pulumi': 3.231.0(typescript@5.9.3)
+      '@pulumi/pulumi': 3.234.0(typescript@5.9.3)
       glob: 12.0.0
       shell-quote: 1.8.3
     transitivePeerDependencies:
@@ -1272,7 +1272,7 @@ snapshots:
       - ts-node
       - typescript
 
-  '@pulumi/pulumi@3.231.0(typescript@5.9.3)':
+  '@pulumi/pulumi@3.234.0(typescript@5.9.3)':
     dependencies:
       '@grpc/grpc-js': 1.14.3
       '@logdna/tail-file': 2.2.0
