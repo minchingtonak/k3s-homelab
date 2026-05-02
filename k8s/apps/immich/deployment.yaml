@@ -220,7 +220,7 @@ spec:
       containers:
         - name: redis
           # pinned — same digest as hac compose
-          image: docker.io/redis:6.2-alpine@sha256:148bb5411c184abd288d9aaed139c98123eeb8824c5d3fce03cf721db58066d8
+          image: docker.io/redis:8.6-alpine@sha256:c5e375abb885e6b2021c0377879e4890bf76f9065b8922ffc113f2b226b9fc17
           command: ["redis-server"]
           ports:
             - name: redis
