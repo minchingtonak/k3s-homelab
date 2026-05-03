@@ -7,7 +7,7 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "MeTube"
     gethomepage.dev/description: "YouTube downloader"
-    gethomepage.dev/group: "Media"
+    gethomepage.dev/group: "Tools"
     gethomepage.dev/icon: "metube.png"
     gethomepage.dev/href: "https://metube.item.fyi"
     gethomepage.dev/siteMonitor: "http://metube.metube.svc.cluster.local"

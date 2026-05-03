@@ -7,7 +7,7 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Immich"
     gethomepage.dev/description: "Photo and video management"
-    gethomepage.dev/group: "Media"
+    gethomepage.dev/group: "Life"
     gethomepage.dev/icon: "immich.png"
     gethomepage.dev/href: "https://immich.item.fyi"
     gethomepage.dev/siteMonitor: "http://immich-server.immich.svc.cluster.local"
