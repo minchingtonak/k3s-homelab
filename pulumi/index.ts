@@ -670,8 +670,6 @@ runcmd:
 // 7. BOOTSTRAP FLUX
 // =============================================================================
 
-const kubeconfigPath = `${process.env.HOME}/.kube/k3s-homelab`;
-
 // Fetch kubeconfig with loopback replaced by external IP so it works remotely.
 const fetchKubeconfig = new command.remote.Command(
   'fetch-kubeconfig',
@@ -685,33 +683,23 @@ const fetchKubeconfig = new command.remote.Command(
     create: `until sudo test -f /etc/rancher/k3s/k3s.yaml; do sleep 5; done && sudo cat /etc/rancher/k3s/k3s.yaml | sed 's/127\\.0\\.0\\.1/${k3sServerIp}/g'`,
     triggers: [k3sServer.id],
   },
-  { dependsOn: [k3sServer] },
+  { dependsOn: [k3sServer], additionalSecretOutputs: ['stdout'] },
 );
 
-// Write kubeconfig to a local file via stdin to avoid shell quoting issues with cert data.
-const writeKubeconfig = new command.local.Command(
-  'write-kubeconfig',
+// Wait for the K3s API server to be fully ready
+const waitForK8s = new command.local.Command(
+  'wait-for-k8s',
   {
-    create: `mkdir -p "$(dirname "${kubeconfigPath}")" && cat > "${kubeconfigPath}" && chmod 600 "${kubeconfigPath}"`,
-    delete: `rm -f "${kubeconfigPath}"`,
+    create: `KCFG=$(mktemp) && trap 'rm -f "$KCFG"' EXIT && cat > "$KCFG" && until kubectl --kubeconfig "$KCFG" get nodes &>/dev/null; do sleep 5; done`,
     stdin: fetchKubeconfig.stdout,
+    triggers: [fetchKubeconfig.stdout],
   },
   { dependsOn: [fetchKubeconfig] },
 );
 
-// Wait for the K3s API server to be fully ready before applying any k8s resources.
-const waitForK8s = new command.local.Command(
-  'wait-for-k8s',
-  {
-    create: `until kubectl --kubeconfig "${kubeconfigPath}" get nodes &>/dev/null; do sleep 5; done`,
-    triggers: [writeKubeconfig.id],
-  },
-  { dependsOn: [writeKubeconfig] },
-);
-
 const k8sProvider = new k8s.Provider(
   'k8s-provider',
-  { kubeconfig: kubeconfigPath },
+  { kubeconfig: fetchKubeconfig.stdout },
   { dependsOn: [waitForK8s] },
 );
 
@@ -792,4 +780,4 @@ export const agents = k3sAgents.map((a, i) => ({
 
 export const templateVmId = k3sTemplate.vmId;
 export const proxmoxEndpoint = config.require('proxmoxEndpoint');
-export { k3sVersion, kubeconfigPath };
+export { k3sVersion };
