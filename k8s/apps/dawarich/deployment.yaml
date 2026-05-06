@@ -193,7 +193,7 @@ spec:
       enableServiceLinks: false
       containers:
         - name: dawarich
-          image: freikin/dawarich:1.6.0@sha256:5cba4d96fb57976fb6a956b8622365789d74a1178cc3ada1cb7541a4473993a9
+          image: freikin/dawarich:1.7.0@sha256:7d5f99c61121fcfa4cbdd6a153392630d9f059ffb0156759278d3e049085ec62
           stdin: true
           tty: true
           command: ["web-entrypoint.sh"]
@@ -308,7 +308,7 @@ spec:
       enableServiceLinks: false
       containers:
         - name: sidekiq
-          image: freikin/dawarich:1.6.0@sha256:5cba4d96fb57976fb6a956b8622365789d74a1178cc3ada1cb7541a4473993a9
+          image: freikin/dawarich:1.7.0@sha256:7d5f99c61121fcfa4cbdd6a153392630d9f059ffb0156759278d3e049085ec62
           stdin: true
           tty: true
           command: ["sidekiq-entrypoint.sh"]
