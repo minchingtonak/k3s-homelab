@@ -1,0 +1,149 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: crafty-controller
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: crafty-controller-backups
+  namespace: crafty-controller
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-zfs
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: crafty-controller-logs
+  namespace: crafty-controller
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-zfs
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: crafty-controller-servers
+  namespace: crafty-controller
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-zfs
+  resources:
+    requests:
+      storage: 50Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: crafty-controller-config
+  namespace: crafty-controller
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-zfs
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: crafty-controller-import
+  namespace: crafty-controller
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-zfs
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crafty-controller
+  namespace: crafty-controller
+  labels:
+    app.kubernetes.io/name: crafty-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: crafty-controller
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: crafty-controller
+    spec:
+      containers:
+        - name: crafty-controller
+          image: registry.gitlab.com/crafty-controller/crafty-4:4.10.2@sha256:914ccf8232ba591db3d9c3f97bac368ae1e6dd8218f4618e2b4699e05018acfd
+          env:
+            - name: TZ
+              value: America/New_York
+          ports:
+            - name: https
+              containerPort: 8443
+              protocol: TCP
+          volumeMounts:
+            - name: backups
+              mountPath: /crafty/backups
+            - name: logs
+              mountPath: /crafty/logs
+            - name: servers
+              mountPath: /crafty/servers
+            - name: config
+              mountPath: /crafty/app/config
+            - name: import
+              mountPath: /crafty/import
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "4Gi"
+              cpu: "2000m"
+      volumes:
+        - name: backups
+          persistentVolumeClaim:
+            claimName: crafty-controller-backups
+        - name: logs
+          persistentVolumeClaim:
+            claimName: crafty-controller-logs
+        - name: servers
+          persistentVolumeClaim:
+            claimName: crafty-controller-servers
+        - name: config
+          persistentVolumeClaim:
+            claimName: crafty-controller-config
+        - name: import
+          persistentVolumeClaim:
+            claimName: crafty-controller-import
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: crafty-controller
+  namespace: crafty-controller
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
+spec:
+  selector:
+    app.kubernetes.io/name: crafty-controller
+  ports:
+    - name: https
+      port: 8443
+      targetPort: 8443
+      protocol: TCP
