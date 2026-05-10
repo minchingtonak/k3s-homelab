@@ -1,0 +1,43 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: your-spotify-server
+  namespace: your-spotify
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`your-spotify-api.item.fyi`)
+      services:
+        - name: your-spotify-server
+          port: 8080
+  tls: {}
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: your-spotify-web
+  namespace: your-spotify
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Your Spotify"
+    gethomepage.dev/description: "Spotify stats"
+    gethomepage.dev/group: "Media"
+    gethomepage.dev/icon: "your-spotify.png"
+    gethomepage.dev/href: "https://your-spotify.item.fyi"
+    gethomepage.dev/siteMonitor: "http://your-spotify-web.your-spotify.svc.cluster.local:3000"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=your-spotify-web"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`your-spotify.item.fyi`)
+      middlewares:
+        - name: authentik
+          namespace: authentik
+      services:
+        - name: your-spotify-web
+          port: 3000
+  tls: {}

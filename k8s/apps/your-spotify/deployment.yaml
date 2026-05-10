@@ -1,0 +1,186 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: your-spotify
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: your-spotify-mongo
+  namespace: your-spotify
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-zfs
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: your-spotify-mongo
+  namespace: your-spotify
+  labels:
+    app.kubernetes.io/name: your-spotify-mongo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: your-spotify-mongo
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: your-spotify-mongo
+    spec:
+      containers:
+        - name: mongo
+          image: mongo:6@sha256:16118486b1c7e672a0d9a1e7f59e3a510eeb0038629ceb678eb43f8029eb77d6
+          ports:
+            - name: mongo
+              containerPort: 27017
+              protocol: TCP
+          livenessProbe:
+            exec:
+              command: ["mongosh", "--eval", "db.adminCommand('ping')"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          volumeMounts:
+            - name: mongo-data
+              mountPath: /data/db
+          resources:
+            requests:
+              memory: 128Mi
+              cpu: 100m
+            limits:
+              memory: 512Mi
+              cpu: 500m
+      volumes:
+        - name: mongo-data
+          persistentVolumeClaim:
+            claimName: your-spotify-mongo
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: your-spotify-mongo
+  namespace: your-spotify
+spec:
+  selector:
+    app.kubernetes.io/name: your-spotify-mongo
+  ports:
+    - port: 27017
+      targetPort: 27017
+      name: mongo
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: your-spotify-server
+  namespace: your-spotify
+  labels:
+    app.kubernetes.io/name: your-spotify-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: your-spotify-server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: your-spotify-server
+    spec:
+      containers:
+        - name: server
+          image: yooooomi/your_spotify_server:1.19.0@sha256:a45776f2c1c24ebcd957f18de4432263907d6f0031c9b25fab3e95f25d15da0d
+          env:
+            - name: API_ENDPOINT
+              value: "https://your-spotify-api.item.fyi"
+            - name: CLIENT_ENDPOINT
+              value: "https://your-spotify.item.fyi"
+            - name: CORS
+              value: "https://your-spotify.item.fyi"
+            - name: MONGO_ENDPOINT
+              value: "mongodb://your-spotify-mongo:27017/your_spotify"
+            - name: SPOTIFY_PUBLIC
+              valueFrom:
+                secretKeyRef:
+                  name: your-spotify
+                  key: SPOTIFY_PUBLIC
+            - name: SPOTIFY_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: your-spotify
+                  key: SPOTIFY_SECRET
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          resources:
+            requests:
+              memory: 128Mi
+              cpu: 50m
+            limits:
+              memory: 512Mi
+              cpu: 500m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: your-spotify-server
+  namespace: your-spotify
+spec:
+  selector:
+    app.kubernetes.io/name: your-spotify-server
+  ports:
+    - port: 8080
+      targetPort: 8080
+      name: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: your-spotify-web
+  namespace: your-spotify
+  labels:
+    app.kubernetes.io/name: your-spotify-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: your-spotify-web
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: your-spotify-web
+    spec:
+      containers:
+        - name: web
+          image: yooooomi/your_spotify_client:1.19.0@sha256:935717b748f56536bd1f4e3bd2c83b71efbcdfb419fbda0345e7a17099a8d30e
+          env:
+            - name: API_ENDPOINT
+              value: "https://your-spotify-api.item.fyi"
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          resources:
+            requests:
+              memory: 64Mi
+              cpu: 50m
+            limits:
+              memory: 256Mi
+              cpu: 200m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: your-spotify-web
+  namespace: your-spotify
+spec:
+  selector:
+    app.kubernetes.io/name: your-spotify-web
+  ports:
+    - port: 3000
+      targetPort: 3000
+      name: http
