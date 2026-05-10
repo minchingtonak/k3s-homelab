@@ -111,7 +111,7 @@ spec:
               memory: "256Mi"
               cpu: "100m"
             limits:
-              memory: "4Gi"
+              memory: "10Gi"
               cpu: "2000m"
       volumes:
         - name: backups
