@@ -20,7 +20,19 @@ REQUIRED_RE = re.compile(
     rf'^\s+{re.escape(REQUIRED)}:',
     re.MULTILINE,
 )
+PUSHOVER_RE = re.compile(r'^\s+-\s+type:\s+pushover\s*$', re.MULTILINE)
 KIND_SERVICE_RE = re.compile(r'^kind:\s+Service\s*$', re.MULTILINE)
+
+FULL_BLOCK = (
+    f"  annotations:\n"
+    f"    {REQUIRED}: |\n"
+    f"      alerts:\n"
+    f"        - type: pushover"
+)
+OPT_OUT_BLOCK = (
+    f"  annotations:\n"
+    f"    {OPT_OUT}: \"false\""
+)
 # metadata.name and metadata.namespace are at 2-space indent
 NAME_RE = re.compile(r'^\s{2}name:\s+(\S+)', re.MULTILINE)
 NS_RE = re.compile(r'^\s{2}namespace:\s+(\S+)', re.MULTILINE)
@@ -50,10 +62,9 @@ def check_file(path):
             continue
 
         if not REQUIRED_RE.search(doc):
-            violations.append(
-                f"{path}: Service '{name}' (ns: {ns}) missing '{REQUIRED}'. "
-                f"Add it or set '{OPT_OUT}: \"false\"' to opt out."
-            )
+            violations.append(f"{path}: Service '{name}' (ns: {ns}) missing '{REQUIRED}'.")
+        elif not PUSHOVER_RE.search(doc):
+            violations.append(f"{path}: Service '{name}' (ns: {ns}) has '{REQUIRED}' but is missing '- type: pushover'.")
 
     return violations
 
@@ -65,4 +76,10 @@ if __name__ == "__main__":
     if violations:
         for v in violations:
             print(f"  [FAIL] {v}", file=sys.stderr)
+        print(file=sys.stderr)
+        print("  Fix: add to metadata:", file=sys.stderr)
+        print(f"{FULL_BLOCK}", file=sys.stderr)
+        print(file=sys.stderr)
+        print("  Or opt out internal services with:", file=sys.stderr)
+        print(f"{OPT_OUT_BLOCK}", file=sys.stderr)
         sys.exit(1)
