@@ -66,6 +66,10 @@ kind: Service
 metadata:
   name: your-spotify-mongo
   namespace: your-spotify
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
 spec:
   selector:
     app.kubernetes.io/name: your-spotify-mongo
@@ -130,6 +134,10 @@ kind: Service
 metadata:
   name: your-spotify-server
   namespace: your-spotify
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
 spec:
   selector:
     app.kubernetes.io/name: your-spotify-server
@@ -178,6 +186,10 @@ kind: Service
 metadata:
   name: your-spotify-web
   namespace: your-spotify
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
 spec:
   selector:
     app.kubernetes.io/name: your-spotify-web

@@ -192,6 +192,10 @@ kind: Service
 metadata:
   name: immich-postgres
   namespace: immich
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
 spec:
   selector:
     app.kubernetes.io/name: immich-postgres
@@ -251,6 +255,10 @@ kind: Service
 metadata:
   name: immich-redis
   namespace: immich
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
 spec:
   selector:
     app.kubernetes.io/name: immich-redis
@@ -309,6 +317,10 @@ kind: Service
 metadata:
   name: immich-ml
   namespace: immich
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
 spec:
   selector:
     app.kubernetes.io/name: immich-ml

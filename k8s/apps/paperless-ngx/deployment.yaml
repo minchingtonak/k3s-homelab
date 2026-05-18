@@ -174,6 +174,10 @@ kind: Service
 metadata:
   name: paperless-ngx-postgres
   namespace: paperless-ngx
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
 spec:
   selector:
     app.kubernetes.io/name: paperless-ngx-postgres
@@ -233,6 +237,10 @@ kind: Service
 metadata:
   name: paperless-ngx-redis
   namespace: paperless-ngx
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
 spec:
   selector:
     app.kubernetes.io/name: paperless-ngx-redis
@@ -284,6 +292,10 @@ kind: Service
 metadata:
   name: paperless-ngx-gotenberg
   namespace: paperless-ngx
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
 spec:
   selector:
     app.kubernetes.io/name: paperless-ngx-gotenberg
@@ -329,6 +341,10 @@ kind: Service
 metadata:
   name: paperless-ngx-tika
   namespace: paperless-ngx
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
 spec:
   selector:
     app.kubernetes.io/name: paperless-ngx-tika

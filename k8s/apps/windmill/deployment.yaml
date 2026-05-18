@@ -81,6 +81,10 @@ kind: Service
 metadata:
   name: windmill-postgres
   namespace: windmill
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
 spec:
   selector:
     app.kubernetes.io/name: windmill-postgres
@@ -337,6 +341,10 @@ kind: Service
 metadata:
   name: windmill-lsp
   namespace: windmill
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
 spec:
   selector:
     app.kubernetes.io/name: windmill-lsp

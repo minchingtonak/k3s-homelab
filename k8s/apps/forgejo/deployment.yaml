@@ -95,6 +95,10 @@ kind: Service
 metadata:
   name: forgejo-postgres
   namespace: forgejo
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
 spec:
   selector:
     app.kubernetes.io/name: forgejo-postgres
@@ -378,6 +382,10 @@ kind: Service
 metadata:
   name: forgejo-ssh
   namespace: forgejo
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
 spec:
   selector:
     app.kubernetes.io/name: forgejo

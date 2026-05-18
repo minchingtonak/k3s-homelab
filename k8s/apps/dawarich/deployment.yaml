@@ -107,6 +107,10 @@ kind: Service
 metadata:
   name: dawarich-postgres
   namespace: dawarich
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
 spec:
   selector:
     app.kubernetes.io/name: dawarich-postgres
@@ -165,6 +169,10 @@ kind: Service
 metadata:
   name: dawarich-redis
   namespace: dawarich
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
 spec:
   selector:
     app.kubernetes.io/name: dawarich-redis

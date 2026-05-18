@@ -417,6 +417,10 @@ kind: Service
 metadata:
   name: copyparty
   namespace: copyparty
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
 spec:
   selector:
     app: copyparty

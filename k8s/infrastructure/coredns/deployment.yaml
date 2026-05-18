@@ -122,6 +122,10 @@ metadata:
   namespace: kube-system
   labels:
     k8s-app: kube-dns
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
 spec:
   selector:
     k8s-app: kube-dns
