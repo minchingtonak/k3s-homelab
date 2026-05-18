@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: newt
-          image: fosrl/newt:1.10.3@sha256:41a269865ed59dc16a8412b292380b15bf506d2a3a386eca024ffb29e0d18cd5
+          image: fosrl/newt:1.12.5@sha256:3c009663332145cae39b940b07857469038d5e9d71aacb1497e78795ba4e3b9b
           env:
             - name: PANGOLIN_ENDPOINT
               valueFrom:
