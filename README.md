@@ -35,7 +35,7 @@ user-facing applications deployed to the cluster. see manifests for details
 
 ## development
 
-after cloning, activate configure git hooks:
+after cloning, configure git hooks:
 
 ```bash
 make setup
