@@ -1,0 +1,425 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: copyparty
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: copyparty-config
+  namespace: copyparty
+data:
+  copyparty.conf: |
+    # https://github.com/9001/copyparty/blob/hovudstraum/docs/example.conf
+    # append some arguments to the commandline;
+    # accepts anything listed in --help (leading dashes are optional)
+    # and inline comments are OK if there is 2 spaces before the '#'
+    [global]
+      p: 3939  # listen on 3939
+      e2dsa  # enable file indexing and filesystem scanning
+      e2ts   # and enable multimedia indexing
+      z  # and zeroconf
+      hist: /cfg/hists/  # store histories in cfg dir instead of in each volume
+      xff-src: lan  # reverse proxy configuration
+      xff-hdr: x-forwarded-for
+      rproxy: 1
+
+    [/mnt]
+      /mnt
+      accs:
+        rw: *
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: copyparty-cfg
+  namespace: copyparty
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-zfs
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: copyparty-audiobooks
+spec:
+  capacity:
+    storage: 500Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  claimRef:
+    name: copyparty-audiobooks
+    namespace: copyparty
+  nfs:
+    server: 192.168.8.89
+    path: /void/audiobooks
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: copyparty-audiobooks
+  namespace: copyparty
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ""
+  volumeName: copyparty-audiobooks
+  resources:
+    requests:
+      storage: 500Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: copyparty-backups
+spec:
+  capacity:
+    storage: 500Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  claimRef:
+    name: copyparty-backups
+    namespace: copyparty
+  nfs:
+    server: 192.168.8.89
+    path: /void/backups
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: copyparty-backups
+  namespace: copyparty
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ""
+  volumeName: copyparty-backups
+  resources:
+    requests:
+      storage: 500Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: copyparty-documents
+spec:
+  capacity:
+    storage: 500Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  claimRef:
+    name: copyparty-documents
+    namespace: copyparty
+  nfs:
+    server: 192.168.8.89
+    path: /void/documents
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: copyparty-documents
+  namespace: copyparty
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ""
+  volumeName: copyparty-documents
+  resources:
+    requests:
+      storage: 500Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: copyparty-drive
+spec:
+  capacity:
+    storage: 500Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  claimRef:
+    name: copyparty-drive
+    namespace: copyparty
+  nfs:
+    server: 192.168.8.89
+    path: /void/drive
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: copyparty-drive
+  namespace: copyparty
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ""
+  volumeName: copyparty-drive
+  resources:
+    requests:
+      storage: 500Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: copyparty-media
+spec:
+  capacity:
+    storage: 500Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  claimRef:
+    name: copyparty-media
+    namespace: copyparty
+  nfs:
+    server: 192.168.8.89
+    path: /void/media
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: copyparty-media
+  namespace: copyparty
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ""
+  volumeName: copyparty-media
+  resources:
+    requests:
+      storage: 500Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: copyparty-photos
+spec:
+  capacity:
+    storage: 500Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  claimRef:
+    name: copyparty-photos
+    namespace: copyparty
+  nfs:
+    server: 192.168.8.89
+    path: /void/photos
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: copyparty-photos
+  namespace: copyparty
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ""
+  volumeName: copyparty-photos
+  resources:
+    requests:
+      storage: 500Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: copyparty-podcasts
+spec:
+  capacity:
+    storage: 500Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  claimRef:
+    name: copyparty-podcasts
+    namespace: copyparty
+  nfs:
+    server: 192.168.8.89
+    path: /void/podcasts
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: copyparty-podcasts
+  namespace: copyparty
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ""
+  volumeName: copyparty-podcasts
+  resources:
+    requests:
+      storage: 500Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: copyparty-restic
+spec:
+  capacity:
+    storage: 500Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  claimRef:
+    name: copyparty-restic
+    namespace: copyparty
+  nfs:
+    server: 192.168.8.89
+    path: /void/restic
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: copyparty-restic
+  namespace: copyparty
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ""
+  volumeName: copyparty-restic
+  resources:
+    requests:
+      storage: 500Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: copyparty-appdata
+spec:
+  capacity:
+    storage: 500Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  claimRef:
+    name: copyparty-appdata
+    namespace: copyparty
+  nfs:
+    server: 192.168.8.89
+    path: /fast/appdata
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: copyparty-appdata
+  namespace: copyparty
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ""
+  volumeName: copyparty-appdata
+  resources:
+    requests:
+      storage: 500Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: copyparty
+  namespace: copyparty
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: copyparty
+  template:
+    metadata:
+      labels:
+        app: copyparty
+    spec:
+      securityContext:
+        runAsUser: 100000
+        runAsGroup: 100000
+      containers:
+        - name: copyparty
+          image: copyparty/ac:1.20.13@sha256:a998d481993a41786c48d5514d2ebf91764311cdcd86118d077818c20b81d788
+          ports:
+            - containerPort: 3939
+          volumeMounts:
+            - name: cfg
+              mountPath: /cfg
+            - name: config
+              mountPath: /cfg/copyparty.conf
+              subPath: copyparty.conf
+            - name: audiobooks
+              mountPath: /mnt/audiobooks
+            - name: backups
+              mountPath: /mnt/backups
+            - name: documents
+              mountPath: /mnt/documents
+            - name: drive
+              mountPath: /mnt/drive
+            - name: media
+              mountPath: /mnt/media
+            - name: photos
+              mountPath: /mnt/photos
+            - name: podcasts
+              mountPath: /mnt/podcasts
+            - name: restic
+              mountPath: /mnt/restic
+            - name: appdata
+              mountPath: /mnt/appdata
+      volumes:
+        - name: cfg
+          persistentVolumeClaim:
+            claimName: copyparty-cfg
+        - name: config
+          configMap:
+            name: copyparty-config
+        - name: audiobooks
+          persistentVolumeClaim:
+            claimName: copyparty-audiobooks
+        - name: backups
+          persistentVolumeClaim:
+            claimName: copyparty-backups
+        - name: documents
+          persistentVolumeClaim:
+            claimName: copyparty-documents
+        - name: drive
+          persistentVolumeClaim:
+            claimName: copyparty-drive
+        - name: media
+          persistentVolumeClaim:
+            claimName: copyparty-media
+        - name: photos
+          persistentVolumeClaim:
+            claimName: copyparty-photos
+        - name: podcasts
+          persistentVolumeClaim:
+            claimName: copyparty-podcasts
+        - name: restic
+          persistentVolumeClaim:
+            claimName: copyparty-restic
+        - name: appdata
+          persistentVolumeClaim:
+            claimName: copyparty-appdata
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: copyparty
+  namespace: copyparty
+spec:
+  selector:
+    app: copyparty
+  ports:
+    - port: 3939
+      targetPort: 3939
