@@ -8,7 +8,7 @@ spec:
   chart:
     spec:
       chart: headlamp
-      version: "0.41.0" # https://github.com/kubernetes-sigs/headlamp/releases
+      version: "0.42.0" # https://github.com/kubernetes-sigs/headlamp/releases
       sourceRef:
         kind: HelmRepository
         name: headlamp
