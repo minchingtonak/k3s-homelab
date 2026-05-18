@@ -11,6 +11,7 @@ metadata:
     gethomepage.dev/icon: "sh-copyparty.svg"
     gethomepage.dev/href: "https://copyparty.item.fyi"
     gethomepage.dev/siteMonitor: "http://copyparty.copyparty.svc.cluster.local:3939"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=copyparty"
 spec:
   entryPoints:
     - websecure
