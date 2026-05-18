@@ -33,6 +33,14 @@ flux `Kustomization` entrypoints for the homelab cluster. defines the reconcilia
 
 user-facing applications deployed to the cluster. see manifests for details
 
+## development
+
+after cloning, activate configure git hooks:
+
+```bash
+make setup
+```
+
 ## credits
 
 - https://github.com/ahgraber/homelab-gitops-k3s

@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Collect staged YAML files under k8s/
+mapfile -t files < <(
+    git diff --cached --name-only --diff-filter=ACM \
+    | grep -E '^k8s/.*\.ya?ml$' \
+    || true
+)
+
+if [ "${#files[@]}" -eq 0 ]; then
+    exit 0
+fi
+
+exec python3 scripts/check-gatus-annotation.py "${files[@]}"
