@@ -23,7 +23,8 @@ spec:
       retries: 3
   values:
     service:
-      type: LoadBalancer
+      spec:
+        type: LoadBalancer
       annotations:
         external-dns.alpha.kubernetes.io/hostname: "*.item.fyi,item.fyi"
     ports:
