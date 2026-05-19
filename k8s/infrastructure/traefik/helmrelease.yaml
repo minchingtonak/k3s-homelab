@@ -8,7 +8,7 @@ spec:
   chart:
     spec:
       chart: traefik
-      version: "39.0.9" # https://github.com/traefik/traefik-helm-chart/releases
+      version: "40.2.0" # https://github.com/traefik/traefik-helm-chart/releases
       sourceRef:
         kind: HelmRepository
         name: traefik
@@ -23,7 +23,8 @@ spec:
       retries: 3
   values:
     service:
-      type: LoadBalancer
+      spec:
+        type: LoadBalancer
       annotations:
         external-dns.alpha.kubernetes.io/hostname: "*.item.fyi,item.fyi"
     ports:
