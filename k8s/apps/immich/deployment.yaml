@@ -142,7 +142,7 @@ spec:
         - name: postgres
           # immich-specific postgres image with vectorchord/pgvecto.rs extensions
           # https://github.com/immich-app/immich/blob/main/docker/docker-compose.yml
-          image: ghcr.io/immich-app/postgres:14-vectorchord0.3.0-pgvectors0.2.0@sha256:dc9a4dc44b228aba661f76ead06ef142a16c4f57ae9d77cdb9d50f6667e3065c
+          image: ghcr.io/immich-app/postgres:16-vectorchord0.3.0-pgvectors0.2.0@sha256:5b434f184ec644c4e1a4076e2e7d4bee45631646a52e956b5ff74ac51e79cc00
           env:
             - name: POSTGRES_USER
               value: postgres
