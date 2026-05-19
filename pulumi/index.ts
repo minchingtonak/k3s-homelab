@@ -409,7 +409,7 @@ const k3sServer = new proxmox.vm.VirtualMachine(
     },
 
     cpu: {
-      cores: 8,
+      cores: 12,
       sockets: 1,
       type: 'host',
     },
@@ -424,7 +424,7 @@ const k3sServer = new proxmox.vm.VirtualMachine(
       {
         interface: 'scsi0',
         datastoreId: datastoreId,
-        size: 128,
+        size: 256,
         discard: 'on',
         ssd: true,
       },
