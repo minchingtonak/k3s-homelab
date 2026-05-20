@@ -11,7 +11,7 @@ metadata:
     gethomepage.dev/icon: "overseerr.png"
     gethomepage.dev/href: "https://seerr.item.fyi"
     gethomepage.dev/siteMonitor: "http://seerr.seerr.svc.cluster.local"
-    gethomepage.dev/pod-selector: "app=seerr"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=seerr"
 spec:
   entryPoints:
     - websecure

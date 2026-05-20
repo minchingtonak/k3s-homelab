@@ -22,16 +22,16 @@ metadata:
   name: watcharr
   namespace: watcharr
   labels:
-    app: watcharr
+    app.kubernetes.io/name: watcharr
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: watcharr
+      app.kubernetes.io/name: watcharr
   template:
     metadata:
       labels:
-        app: watcharr
+        app.kubernetes.io/name: watcharr
     spec:
       containers:
         - name: watcharr
@@ -68,7 +68,7 @@ metadata:
         - type: pushover
 spec:
   selector:
-    app: watcharr
+    app.kubernetes.io/name: watcharr
   ports:
     - port: 80
       targetPort: 3080

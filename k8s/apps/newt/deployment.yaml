@@ -9,16 +9,16 @@ metadata:
   name: newt
   namespace: newt
   labels:
-    app: newt
+    app.kubernetes.io/name: newt
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: newt
+      app.kubernetes.io/name: newt
   template:
     metadata:
       labels:
-        app: newt
+        app.kubernetes.io/name: newt
     spec:
       containers:
         - name: newt

@@ -22,16 +22,16 @@ metadata:
   name: seerr
   namespace: seerr
   labels:
-    app: seerr
+    app.kubernetes.io/name: seerr
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: seerr
+      app.kubernetes.io/name: seerr
   template:
     metadata:
       labels:
-        app: seerr
+        app.kubernetes.io/name: seerr
     spec:
       containers:
         - name: seerr
@@ -72,7 +72,7 @@ metadata:
         - type: pushover
 spec:
   selector:
-    app: seerr
+    app.kubernetes.io/name: seerr
   ports:
     - port: 80
       targetPort: 5055

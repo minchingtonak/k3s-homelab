@@ -335,15 +335,17 @@ kind: Deployment
 metadata:
   name: copyparty
   namespace: copyparty
+  labels:
+    app.kubernetes.io/name: copyparty
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: copyparty
+      app.kubernetes.io/name: copyparty
   template:
     metadata:
       labels:
-        app: copyparty
+        app.kubernetes.io/name: copyparty
     spec:
       securityContext:
         runAsUser: 100000
@@ -423,7 +425,7 @@ metadata:
         - type: pushover
 spec:
   selector:
-    app: copyparty
+    app.kubernetes.io/name: copyparty
   ports:
     - port: 3939
       targetPort: 3939
