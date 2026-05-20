@@ -1,6 +1,6 @@
-import re
+import yaml
 
-from checks import Violation
+from checks import Violation, resource_id
 
 NAME = "gatus-annotation"
 DESCRIPTION = "every kind:Service must have the gatus endpoint annotation (or opt out)"
@@ -8,16 +8,6 @@ PATHS = ["k8s/**/*.yaml", "k8s/**/*.yml"]
 
 OPT_OUT = "gatus.home-operations.com/enabled"
 REQUIRED = "gatus.home-operations.com/endpoint"
-
-OPT_OUT_RE = re.compile(
-    rf'^\s+{re.escape(OPT_OUT)}:\s*["\']?false["\']?\s*$',
-    re.MULTILINE | re.IGNORECASE,
-)
-REQUIRED_RE = re.compile(rf'^\s+{re.escape(REQUIRED)}:', re.MULTILINE)
-PUSHOVER_RE = re.compile(r'^\s+-\s+type:\s+pushover\s*$', re.MULTILINE)
-KIND_SERVICE_RE = re.compile(r'^kind:\s+Service\s*$', re.MULTILINE)
-NAME_RE = re.compile(r'^\s{2}name:\s+(\S+)', re.MULTILINE)
-NS_RE = re.compile(r'^\s{2}namespace:\s+(\S+)', re.MULTILINE)
 
 FIX_HINT = (
     f"  annotations:\n"
@@ -31,32 +21,40 @@ FIX_HINT = (
 )
 
 
-def check(path: str, content: str) -> list[Violation]:
+def _has_pushover(endpoint_value: str) -> bool:
+    try:
+        body = yaml.safe_load(endpoint_value)
+    except yaml.YAMLError:
+        return False
+    alerts = (body or {}).get("alerts") if isinstance(body, dict) else None
+    if not isinstance(alerts, list):
+        return False
+    return any(isinstance(a, dict) and a.get("type") == "pushover" for a in alerts)
+
+
+def check(path: str, docs: list[dict]) -> list[Violation]:
     violations = []
-    docs = re.split(r'^---\s*$', content, flags=re.MULTILINE)
-
     for doc in docs:
-        if not KIND_SERVICE_RE.search(doc):
+        if doc.get("kind") != "Service":
             continue
 
-        m = NAME_RE.search(doc)
-        name = m.group(1) if m else "<unnamed>"
-        m = NS_RE.search(doc)
-        ns = m.group(1) if m else "<no-namespace>"
+        annotations = (doc.get("metadata") or {}).get("annotations") or {}
 
-        if OPT_OUT_RE.search(doc):
+        opt_out = annotations.get(OPT_OUT)
+        if str(opt_out).lower() == "false" or opt_out is False:
             continue
 
-        if not REQUIRED_RE.search(doc):
+        endpoint = annotations.get(REQUIRED)
+        if endpoint is None:
             violations.append(Violation(
                 path=path,
-                message=f"Service '{name}' (ns: {ns}) missing '{REQUIRED}'",
+                message=f"Service {resource_id(doc)} missing '{REQUIRED}'",
                 fix_hint=FIX_HINT,
             ))
-        elif not PUSHOVER_RE.search(doc):
+        elif not _has_pushover(str(endpoint)):
             violations.append(Violation(
                 path=path,
-                message=f"Service '{name}' (ns: {ns}) has '{REQUIRED}' but is missing '- type: pushover'",
+                message=f"Service {resource_id(doc)} has '{REQUIRED}' but is missing '- type: pushover'",
                 fix_hint=FIX_HINT,
             ))
 

@@ -3,11 +3,14 @@
 Pre-commit linter for k8s YAML manifests.
 
 To add a check: import the module and add it to CHECKS.
-Each check module must expose NAME, DESCRIPTION, PATHS, and check(path, content) -> list[Violation].
+Each check module must expose NAME, DESCRIPTION, PATHS, and check(path, docs) -> list[Violation].
 PATHS is a list of fnmatch glob patterns; the check runs only on matching files.
+docs is a list of parsed YAML documents (dicts) from the file.
 """
 import sys
 from pathlib import Path
+
+import yaml
 
 sys.path.insert(0, str(Path(__file__).parent))
 
@@ -22,7 +25,6 @@ CHECKS = [
 
 def run(paths: list[str]) -> bool:
     """Return True if all checks pass."""
-    # violations[check_name] = list[Violation]
     by_check: dict[str, list[Violation]] = {c.NAME: [] for c in CHECKS}
 
     for path in paths:
@@ -35,8 +37,14 @@ def run(paths: list[str]) -> bool:
             print(f"  [ERROR] could not read {path}: {e}", file=sys.stderr)
             return False
 
+        try:
+            docs = [d for d in yaml.safe_load_all(content) if isinstance(d, dict)]
+        except yaml.YAMLError as e:
+            print(f"  [ERROR] YAML parse error in {path}: {e}", file=sys.stderr)
+            return False
+
         for chk in applicable:
-            by_check[chk.NAME].extend(chk.check(path, content))
+            by_check[chk.NAME].extend(chk.check(path, docs))
 
     any_fail = any(v for v in by_check.values())
     if not any_fail:
