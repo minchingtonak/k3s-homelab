@@ -1,0 +1,43 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: navidrome-api
+  namespace: navidrome
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`navidrome-api.item.fyi`)
+      services:
+        - name: navidrome
+          port: 4533
+  tls: {}
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: navidrome
+  namespace: navidrome
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Navidrome"
+    gethomepage.dev/description: "Music streaming server"
+    gethomepage.dev/group: "Media"
+    gethomepage.dev/icon: "navidrome.png"
+    gethomepage.dev/href: "https://navidrome.item.fyi"
+    gethomepage.dev/siteMonitor: "http://navidrome.navidrome.svc.cluster.local:4533"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=navidrome"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`navidrome.item.fyi`)
+      middlewares:
+        - name: authentik
+          namespace: authentik
+      services:
+        - name: navidrome
+          port: 4533
+  tls: {}
