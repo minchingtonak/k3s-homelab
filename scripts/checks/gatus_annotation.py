@@ -4,6 +4,7 @@ from checks import Violation
 
 NAME = "gatus-annotation"
 DESCRIPTION = "every kind:Service must have the gatus endpoint annotation (or opt out)"
+PATHS = ["k8s/**/*.yaml", "k8s/**/*.yml"]
 
 OPT_OUT = "gatus.home-operations.com/enabled"
 REQUIRED = "gatus.home-operations.com/endpoint"

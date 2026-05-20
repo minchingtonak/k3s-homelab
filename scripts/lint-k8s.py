@@ -3,14 +3,15 @@
 Pre-commit linter for k8s YAML manifests.
 
 To add a check: import the module and add it to CHECKS.
-Each check module must expose NAME, DESCRIPTION, and check(path, content) -> list[Violation].
+Each check module must expose NAME, DESCRIPTION, PATHS, and check(path, content) -> list[Violation].
+PATHS is a list of fnmatch glob patterns; the check runs only on matching files.
 """
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-from checks import Violation
+from checks import Violation, _applies
 from checks import gatus_annotation, app_name_label
 
 CHECKS = [
@@ -25,13 +26,16 @@ def run(paths: list[str]) -> bool:
     by_check: dict[str, list[Violation]] = {c.NAME: [] for c in CHECKS}
 
     for path in paths:
+        applicable = [chk for chk in CHECKS if _applies(path, chk.PATHS)]
+        if not applicable:
+            continue
         try:
             content = Path(path).read_text()
         except OSError as e:
             print(f"  [ERROR] could not read {path}: {e}", file=sys.stderr)
             return False
 
-        for chk in CHECKS:
+        for chk in applicable:
             by_check[chk.NAME].extend(chk.check(path, content))
 
     any_fail = any(v for v in by_check.values())

@@ -4,6 +4,7 @@ from checks import Violation
 
 NAME = "app-name-label"
 DESCRIPTION = "every kind:Deployment must have app.kubernetes.io/name under metadata.labels"
+PATHS = ["k8s/apps/**/*.yaml", "k8s/apps/**/*.yml"]
 
 KIND_DEPLOYMENT_RE = re.compile(r'^kind:\s+Deployment\s*$', re.MULTILINE)
 NAME_RE = re.compile(r'^\s{2}name:\s+(\S+)', re.MULTILINE)
@@ -29,8 +30,6 @@ FIX_HINT = (
 
 
 def check(path: str, content: str) -> list[Violation]:
-    if "k8s/apps/" not in path:
-        return []
     violations = []
     docs = re.split(r'^---\s*$', content, flags=re.MULTILINE)
 
