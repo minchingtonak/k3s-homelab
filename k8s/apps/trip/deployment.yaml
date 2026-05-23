@@ -35,7 +35,7 @@ spec:
     spec:
       containers:
         - name: trip
-          image: ghcr.io/itskovacs/trip:1.44.0@sha256:19dd24aec6347a66521e34c14ae04daa2a69757933c4dffcc45cdc41a085786d
+          image: ghcr.io/itskovacs/trip:1.45.1@sha256:ab6750f656a5522ae39ea5431e15d1defb7fb441b5ccad4c052bc68d7674f87b
           command: ["fastapi", "run", "/app/trip/main.py", "--host", "0.0.0.0"]
           ports:
             - name: http
