@@ -98,8 +98,6 @@ spec:
         app.kubernetes.io/name: picard
     spec:
       securityContext:
-        runAsUser: 100000
-        runAsGroup: 100000
         fsGroup: 100000
       containers:
         - name: picard
