@@ -1,0 +1,27 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: picard
+  namespace: picard
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Picard"
+    gethomepage.dev/description: "MusicBrainz music tagger"
+    gethomepage.dev/group: "Media"
+    gethomepage.dev/icon: "musicbrainz-picard.png"
+    gethomepage.dev/href: "https://picard.item.fyi"
+    gethomepage.dev/siteMonitor: "http://picard.picard.svc.cluster.local:5800"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=picard"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`picard.item.fyi`)
+      middlewares:
+        - name: authentik
+          namespace: authentik
+      services:
+        - name: picard
+          port: 5800
+  tls: {}
