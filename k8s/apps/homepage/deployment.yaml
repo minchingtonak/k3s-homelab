@@ -93,13 +93,41 @@ data:
         cache: 5
   docker.yaml: ""
   bookmarks.yaml: |
-    - Homelab:
-        - Proxmox:
-            - href: "https://192.168.8.89:8006"
-              icon: "proxmox.png"
-        - k3s-homelab GitHub:
-            - href: "https://github.com/minchingtonak/k3s-homelab"
-              icon: "github.png"
+    - infrastructure:
+      - router:
+          - icon: sh-gl-inet.svg
+            href: http://192.168.8.1
+      - proxmox:
+          - icon: proxmox.png
+            href: https://192.168.8.89:8006
+    - backup & dr:
+      - edsac pbs:
+          - icon: proxmox-backup-server.svg
+            href: https://192.168.8.189:8007
+      - cloud pbs:
+          - icon: proxmox-backup-server-dark.svg
+            href: https://sh19-112.prod.cloud-pbs.com:8007
+    - project tools:
+      - k3s-homelab github:
+          - icon: github.png
+            href: https://github.com/minchingtonak/k3s-homelab
+      - pulumi cloud:
+          - icon: https://cdn.prod.website-files.com/644656ba41efb6aaeae93c9c/6476ef251611160587b267ff_partners_pulumi.svg
+            href: https://app.pulumi.com/minchingtonak
+    - monitoring:
+      - pushover:
+          - icon: pushover.png
+            href: https://client.pushover.net
+      - healthchecks:
+          - icon: healthchecks.png
+            href: https://healthchecks.io
+    - apps:
+      - pangolin:
+          - icon: pangolin.png
+            href: https://pangolin.minch.zone
+      - nextcloud:
+          - icon: nextcloud.png
+            href: https://nextcloud.alecminch.dev/
 ---
 apiVersion: v1
 kind: Service
