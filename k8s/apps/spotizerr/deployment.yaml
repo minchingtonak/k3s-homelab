@@ -1,0 +1,235 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: spotizerr
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: spotizerr-app-state
+  namespace: spotizerr
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-zfs
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: spotizerr-redis
+  namespace: spotizerr
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-zfs
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: spotizerr-downloads
+spec:
+  capacity:
+    storage: 500Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  claimRef:
+    name: spotizerr-downloads
+    namespace: spotizerr
+  nfs:
+    server: 192.168.8.89
+    path: /void/media/downloads/spotizerr
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: spotizerr-downloads
+  namespace: spotizerr
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ""
+  volumeName: spotizerr-downloads
+  resources:
+    requests:
+      storage: 500Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spotizerr-redis
+  namespace: spotizerr
+  labels:
+    app.kubernetes.io/name: spotizerr-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: spotizerr-redis
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: spotizerr-redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:alpine@sha256:81b6f81d6a6c5b9019231a2e8eb10085e3a139a34f833dcc965a8a959b040b72
+          command: ["sh", "-c", "redis-server --requirepass \"$REDIS_PASSWORD\" --appendonly yes"]
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: spotizerr
+                  key: REDIS_PASSWORD
+          ports:
+            - name: redis
+              containerPort: 6379
+              protocol: TCP
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", "redis-cli -a \"$REDIS_PASSWORD\" ping"]
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "25m"
+            limits:
+              memory: "256Mi"
+              cpu: "250m"
+      volumes:
+        - name: redis-data
+          persistentVolumeClaim:
+            claimName: spotizerr-redis
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: spotizerr-redis
+  namespace: spotizerr
+  annotations:
+    gatus.home-operations.com/enabled: "false"
+spec:
+  selector:
+    app.kubernetes.io/name: spotizerr-redis
+  ports:
+    - port: 6379
+      targetPort: 6379
+      name: redis
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spotizerr
+  namespace: spotizerr
+  labels:
+    app.kubernetes.io/name: spotizerr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: spotizerr
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: spotizerr
+    spec:
+      securityContext:
+        runAsUser: 100000
+        runAsGroup: 100000
+      containers:
+        - name: spotizerr
+          image: spotizerrphoenix/spotizerr:4.0.17@sha256:2a4aac5ef750f1497a3b942796ddaa9e02d6cec7a196d1292051a90d68b8f2ce
+          env:
+            - name: TZ
+              value: America/New_York
+            - name: HOST
+              value: "0.0.0.0"
+            - name: REDIS_HOST
+              value: spotizerr-redis
+            - name: REDIS_PORT
+              value: "6379"
+            - name: REDIS_DB
+              value: "0"
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: spotizerr
+                  key: REDIS_PASSWORD
+            - name: EXPLICIT_FILTER
+              value: "false"
+            - name: UMASK
+              value: "0022"
+            - name: SKIP_SET_PERMISSIONS
+              value: "false"
+            - name: ENABLE_AUTH
+              value: "false"
+            - name: JWT_EXPIRATION_HOURS
+              value: "720"
+            - name: DISABLE_REGISTRATION
+              value: "false"
+            - name: SSO_ENABLED
+              value: "false"
+            - name: SSO_BASE_REDIRECT_URI
+              value: "https://spotizerr.item.fyi/api/auth/sso/callback"
+            - name: FRONTEND_URL
+              value: "https://spotizerr.item.fyi"
+            - name: LOG_LEVEL
+              value: info
+          ports:
+            - name: http
+              containerPort: 7171
+              protocol: TCP
+          volumeMounts:
+            - name: app-state
+              mountPath: /app/.cache
+              subPath: cache
+            - name: app-state
+              mountPath: /app/data
+              subPath: data
+            - name: app-state
+              mountPath: /app/logs
+              subPath: logs
+            - name: downloads
+              mountPath: /app/downloads
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+      volumes:
+        - name: app-state
+          persistentVolumeClaim:
+            claimName: spotizerr-app-state
+        - name: downloads
+          persistentVolumeClaim:
+            claimName: spotizerr-downloads
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: spotizerr
+  namespace: spotizerr
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
+spec:
+  selector:
+    app.kubernetes.io/name: spotizerr
+  ports:
+    - port: 7171
+      targetPort: 7171
+      name: http
