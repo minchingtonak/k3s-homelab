@@ -191,9 +191,8 @@ spec:
               containerPort: 7171
               protocol: TCP
           volumeMounts:
-            - name: app-state
+            - name: cache
               mountPath: /app/.cache
-              subPath: cache
             - name: app-state
               mountPath: /app/data
               subPath: data
@@ -210,6 +209,8 @@ spec:
               memory: "1Gi"
               cpu: "1000m"
       volumes:
+        - name: cache
+          emptyDir: {}
         - name: app-state
           persistentVolumeClaim:
             claimName: spotizerr-app-state
