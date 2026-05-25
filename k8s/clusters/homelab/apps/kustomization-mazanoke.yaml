@@ -11,7 +11,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
-  path: k8s/apps/tools/mazanoke
+  path: k8s/apps/mazanoke
   prune: true
   wait: true
   timeout: 5m
