@@ -129,6 +129,12 @@ spec:
   entryPoints:
     - websecure
   routes:
+    # API key auth only — lets external integrations (e.g. jellyfin) reach the api
+    - kind: Rule
+      match: Host(`sonarr.item.fyi`) && PathPrefix(`/api`)
+      services:
+        - name: sonarr
+          port: 8989
     - kind: Rule
       match: Host(`sonarr.item.fyi`)
       middlewares:
@@ -157,6 +163,12 @@ spec:
   entryPoints:
     - websecure
   routes:
+    # API key auth only — lets external integrations (e.g. jellyfin) reach the api
+    - kind: Rule
+      match: Host(`radarr.item.fyi`) && PathPrefix(`/api`)
+      services:
+        - name: radarr
+          port: 7878
     - kind: Rule
       match: Host(`radarr.item.fyi`)
       middlewares:
