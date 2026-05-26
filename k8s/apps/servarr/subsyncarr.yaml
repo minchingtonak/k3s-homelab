@@ -1,0 +1,68 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: subsyncarr
+  namespace: servarr
+  labels:
+    app.kubernetes.io/name: subsyncarr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: subsyncarr
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: subsyncarr
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 100000
+      containers:
+        - name: subsyncarr
+          image: mrorbitman/subsyncarr:1.2.15@sha256:36ffb4a235caa5cbd07cc9e871155825f18f48e3723a544b24a2875ca91b66a1
+          env:
+            - name: TZ
+              value: America/New_York
+            - name: CRON_SCHEDULE
+              value: "*/30 * * * *"
+            - name: SCAN_PATHS
+              value: /movies,/tv
+            - name: MAX_CONCURRENT_SYNC_TASKS
+              value: "1"
+            - name: INCLUDE_ENGINES
+              value: ffsubsync,autosubsync
+          ports:
+            - name: http
+              containerPort: 3000
+          volumeMounts:
+            - name: movies
+              mountPath: /movies
+            - name: tv
+              mountPath: /tv
+      volumes:
+        - name: movies
+          persistentVolumeClaim:
+            claimName: servarr-movies
+        - name: tv
+          persistentVolumeClaim:
+            claimName: servarr-tv
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: subsyncarr
+  namespace: servarr
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
+spec:
+  selector:
+    app.kubernetes.io/name: subsyncarr
+  ports:
+    - port: 3000
+      targetPort: 3000
+      name: http

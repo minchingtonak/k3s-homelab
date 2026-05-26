@@ -1,0 +1,96 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cleanuparr-config
+  namespace: servarr
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-zfs
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cleanuparr
+  namespace: servarr
+  labels:
+    app.kubernetes.io/name: cleanuparr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: cleanuparr
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: cleanuparr
+    spec:
+      securityContext:
+        fsGroup: 100000
+      containers:
+        - name: cleanuparr
+          image: ghcr.io/cleanuparr/cleanuparr:2.9.13@sha256:4ad626da7e1d2774ca51bbfa812f832d5639264b3fe308909e47de02ba2188f7
+          env:
+            - name: PORT
+              value: "11011"
+            - name: BASE_PATH
+              value: ""
+            - name: PUID
+              value: "0"
+            - name: PGID
+              value: "0"
+            - name: UMASK
+              value: "022"
+            - name: TZ
+              value: America/New_York
+          ports:
+            - name: http
+              containerPort: 11011
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 11011
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            failureThreshold: 3
+            timeoutSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 11011
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            failureThreshold: 3
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: downloads
+              mountPath: /data/downloads
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: cleanuparr-config
+        - name: downloads
+          persistentVolumeClaim:
+            claimName: servarr-downloads
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cleanuparr
+  namespace: servarr
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
+spec:
+  selector:
+    app.kubernetes.io/name: cleanuparr
+  ports:
+    - port: 11011
+      targetPort: 11011
+      name: http

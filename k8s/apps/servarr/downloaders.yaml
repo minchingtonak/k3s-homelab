@@ -1,0 +1,310 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gluetun-config
+  namespace: servarr
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-zfs
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: qbittorrent-config
+  namespace: servarr
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-zfs
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nzbget-config
+  namespace: servarr
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-zfs
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: slskd-data
+  namespace: servarr
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-zfs
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: downloaders
+  namespace: servarr
+  labels:
+    app.kubernetes.io/name: downloaders
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: downloaders
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: downloaders
+    spec:
+      securityContext:
+        fsGroup: 100000
+      initContainers:
+        - name: gluetun
+          image: qmcgaw/gluetun:v3.40.1@sha256:dc38bac12b40bb935e477f0dbd88adf174001c84b144c86648b25ff5f14ef54a
+          restartPolicy: Always
+          securityContext:
+            capabilities:
+              add:
+                - NET_ADMIN
+          env:
+            - name: VPN_SERVICE_PROVIDER
+              value: airvpn
+            - name: VPN_TYPE
+              value: wireguard
+            - name: WIREGUARD_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: gluetun-wireguard
+                  key: private_key
+            - name: WIREGUARD_PRESHARED_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: gluetun-wireguard
+                  key: preshared_key
+            - name: WIREGUARD_ADDRESSES
+              valueFrom:
+                secretKeyRef:
+                  name: gluetun-wireguard
+                  key: addresses
+            - name: FIREWALL_VPN_INPUT_PORTS
+              value: "29730"
+            - name: FIREWALL_OUTBOUND_SUBNETS
+              value: 10.42.0.0/16,10.43.0.0/16
+            - name: SERVER_COUNTRIES
+              value: United States
+            - name: HEALTH_VPN_DURATION_INITIAL
+              value: 120s
+            - name: UPDATER_PERIOD
+              value: 24h
+          livenessProbe:
+            exec:
+              command: [sh, -c, "ping -c 1 -W 5 www.google.com"]
+            periodSeconds: 60
+            failureThreshold: 5
+            timeoutSeconds: 20
+          volumeMounts:
+            - name: tun
+              mountPath: /dev/net/tun
+            - name: gluetun-config
+              mountPath: /gluetun
+      containers:
+        - name: qbittorrent
+          image: ghcr.io/linuxserver/qbittorrent:5.2.0@sha256:eeea9f8a8cdde23555186843d26e8ded1222421f31f98a5cc1b50c2882ebcf4e
+          env:
+            - name: PUID
+              value: "0"
+            - name: PGID
+              value: "0"
+            - name: TZ
+              value: America/New_York
+            - name: WEBUI_PORT
+              value: "8081"
+            - name: TORRENTING_PORT
+              value: "29730"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8081
+            initialDelaySeconds: 20
+            periodSeconds: 60
+            failureThreshold: 3
+            timeoutSeconds: 10
+          volumeMounts:
+            - name: qbittorrent-config
+              mountPath: /config
+            - name: downloads
+              mountPath: /data/downloads
+        - name: nzbget
+          image: ghcr.io/linuxserver/nzbget:v25.4-ls228@sha256:51184d6996a33e79f5db2136c31724f3ce783fde708b3ef780f259e7f168e76a
+          env:
+            - name: PUID
+              value: "0"
+            - name: PGID
+              value: "0"
+            - name: TZ
+              value: America/New_York
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 6789
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 8
+            timeoutSeconds: 5
+          volumeMounts:
+            - name: nzbget-config
+              mountPath: /config
+            - name: downloads
+              mountPath: /data/downloads
+        - name: slskd
+          image: slskd/slskd:0.25.1@sha256:ab9ed50e028b524cefdb7c1dd8ebca368a076e18441ee8ac2326473eb850b4c3
+          env:
+            - name: SLSKD_REMOTE_CONFIGURATION
+              value: "true"
+          volumeMounts:
+            - name: slskd-data
+              mountPath: /app/data
+            - name: slskd-incomplete
+              mountPath: /app/incomplete
+            - name: slskd-scripts
+              mountPath: /app/scripts
+            - name: slskd-config
+              mountPath: /app/slskd.yml
+              subPath: slskd.yml
+            - name: downloads
+              mountPath: /data/downloads
+            - name: music
+              mountPath: /data/music
+      volumes:
+        - name: tun
+          hostPath:
+            path: /dev/net/tun
+            type: CharDevice
+        - name: gluetun-config
+          persistentVolumeClaim:
+            claimName: gluetun-config
+        - name: qbittorrent-config
+          persistentVolumeClaim:
+            claimName: qbittorrent-config
+        - name: nzbget-config
+          persistentVolumeClaim:
+            claimName: nzbget-config
+        - name: slskd-data
+          persistentVolumeClaim:
+            claimName: slskd-data
+        - name: slskd-incomplete
+          emptyDir: {}
+        - name: slskd-scripts
+          emptyDir: {}
+        - name: slskd-config
+          secret:
+            secretName: slskd-config
+        - name: downloads
+          persistentVolumeClaim:
+            claimName: servarr-downloads
+        - name: music
+          persistentVolumeClaim:
+            claimName: servarr-music
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: qbittorrent
+  namespace: servarr
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
+spec:
+  selector:
+    app.kubernetes.io/name: downloaders
+  ports:
+    - name: http
+      port: 8081
+      targetPort: 8081
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nzbget
+  namespace: servarr
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
+spec:
+  selector:
+    app.kubernetes.io/name: downloaders
+  ports:
+    - name: http
+      port: 6789
+      targetPort: 6789
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: slskd
+  namespace: servarr
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
+spec:
+  selector:
+    app.kubernetes.io/name: downloaders
+  ports:
+    - name: http
+      port: 5030
+      targetPort: 5030
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: qbittorrent-bittorrent
+  namespace: servarr
+  annotations:
+    metallb.universe.tf/address-pool: default
+    gatus.home-operations.com/enabled: "false"
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/name: downloaders
+  ports:
+    - name: bittorrent-tcp
+      port: 29730
+      targetPort: 29730
+      protocol: TCP
+    - name: bittorrent-udp
+      port: 29730
+      targetPort: 29730
+      protocol: UDP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: slskd-listen
+  namespace: servarr
+  annotations:
+    metallb.universe.tf/address-pool: default
+    gatus.home-operations.com/enabled: "false"
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/name: downloaders
+  ports:
+    - name: soulseek
+      port: 50300
+      targetPort: 50300
+      protocol: TCP

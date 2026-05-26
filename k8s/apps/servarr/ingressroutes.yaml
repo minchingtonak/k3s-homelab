@@ -1,0 +1,364 @@
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: qbittorrent
+  namespace: servarr
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "qBittorrent"
+    gethomepage.dev/description: "BitTorrent client"
+    gethomepage.dev/group: "Downloads"
+    gethomepage.dev/icon: "qbittorrent.png"
+    gethomepage.dev/href: "https://qbittorrent.item.fyi"
+    gethomepage.dev/siteMonitor: "http://qbittorrent.servarr.svc.cluster.local:8081"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=downloaders"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`qbittorrent.item.fyi`)
+      middlewares:
+        - name: authentik
+          namespace: authentik
+      services:
+        - name: qbittorrent
+          port: 8081
+  tls: {}
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: nzbget
+  namespace: servarr
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "NZBGet"
+    gethomepage.dev/description: "Usenet downloader"
+    gethomepage.dev/group: "Downloads"
+    gethomepage.dev/icon: "nzbget.png"
+    gethomepage.dev/href: "https://nzbget.item.fyi"
+    gethomepage.dev/siteMonitor: "http://nzbget.servarr.svc.cluster.local:6789"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=downloaders"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`nzbget.item.fyi`)
+      middlewares:
+        - name: authentik
+          namespace: authentik
+      services:
+        - name: nzbget
+          port: 6789
+  tls: {}
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: slskd
+  namespace: servarr
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "slskd"
+    gethomepage.dev/description: "Soulseek client"
+    gethomepage.dev/group: "Downloads"
+    gethomepage.dev/icon: "slskd.png"
+    gethomepage.dev/href: "https://slskd.item.fyi"
+    gethomepage.dev/siteMonitor: "http://slskd.servarr.svc.cluster.local:5030"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=downloaders"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`slskd.item.fyi`)
+      middlewares:
+        - name: authentik
+          namespace: authentik
+      services:
+        - name: slskd
+          port: 5030
+  tls: {}
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: prowlarr
+  namespace: servarr
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Prowlarr"
+    gethomepage.dev/description: "Indexer manager"
+    gethomepage.dev/group: "Media"
+    gethomepage.dev/icon: "prowlarr.png"
+    gethomepage.dev/href: "https://prowlarr.item.fyi"
+    gethomepage.dev/siteMonitor: "http://prowlarr.servarr.svc.cluster.local:9696"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=prowlarr"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`prowlarr.item.fyi`)
+      middlewares:
+        - name: authentik
+          namespace: authentik
+      services:
+        - name: prowlarr
+          port: 9696
+  tls: {}
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: sonarr
+  namespace: servarr
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Sonarr"
+    gethomepage.dev/description: "TV show manager"
+    gethomepage.dev/group: "Media"
+    gethomepage.dev/icon: "sonarr.png"
+    gethomepage.dev/href: "https://sonarr.item.fyi"
+    gethomepage.dev/siteMonitor: "http://sonarr.servarr.svc.cluster.local:8989"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=sonarr"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`sonarr.item.fyi`)
+      middlewares:
+        - name: authentik
+          namespace: authentik
+      services:
+        - name: sonarr
+          port: 8989
+  tls: {}
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: radarr
+  namespace: servarr
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Radarr"
+    gethomepage.dev/description: "Movie manager"
+    gethomepage.dev/group: "Media"
+    gethomepage.dev/icon: "radarr.png"
+    gethomepage.dev/href: "https://radarr.item.fyi"
+    gethomepage.dev/siteMonitor: "http://radarr.servarr.svc.cluster.local:7878"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=radarr"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`radarr.item.fyi`)
+      middlewares:
+        - name: authentik
+          namespace: authentik
+      services:
+        - name: radarr
+          port: 7878
+  tls: {}
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: lidarr
+  namespace: servarr
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Lidarr"
+    gethomepage.dev/description: "Music manager"
+    gethomepage.dev/group: "Media"
+    gethomepage.dev/icon: "lidarr.png"
+    gethomepage.dev/href: "https://lidarr.item.fyi"
+    gethomepage.dev/siteMonitor: "http://lidarr.servarr.svc.cluster.local:8686"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=lidarr"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`lidarr.item.fyi`)
+      middlewares:
+        - name: authentik
+          namespace: authentik
+      services:
+        - name: lidarr
+          port: 8686
+  tls: {}
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: bazarr
+  namespace: servarr
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Bazarr"
+    gethomepage.dev/description: "Subtitle manager"
+    gethomepage.dev/group: "Media"
+    gethomepage.dev/icon: "bazarr.png"
+    gethomepage.dev/href: "https://bazarr.item.fyi"
+    gethomepage.dev/siteMonitor: "http://bazarr.servarr.svc.cluster.local:6767"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=bazarr"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`bazarr.item.fyi`)
+      middlewares:
+        - name: authentik
+          namespace: authentik
+      services:
+        - name: bazarr
+          port: 6767
+  tls: {}
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: subsyncarr
+  namespace: servarr
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Subsyncarr"
+    gethomepage.dev/description: "Subtitle sync"
+    gethomepage.dev/group: "Media"
+    gethomepage.dev/icon: "subsyncarr.png"
+    gethomepage.dev/href: "https://subsyncarr.item.fyi"
+    gethomepage.dev/siteMonitor: "http://subsyncarr.servarr.svc.cluster.local:3000"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=subsyncarr"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`subsyncarr.item.fyi`)
+      middlewares:
+        - name: authentik
+          namespace: authentik
+      services:
+        - name: subsyncarr
+          port: 3000
+  tls: {}
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: profilarr
+  namespace: servarr
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Profilarr"
+    gethomepage.dev/description: "Quality profile manager"
+    gethomepage.dev/group: "Media"
+    gethomepage.dev/icon: "profilarr.png"
+    gethomepage.dev/href: "https://profilarr.item.fyi"
+    gethomepage.dev/siteMonitor: "http://profilarr.servarr.svc.cluster.local:6868"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=profilarr"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`profilarr.item.fyi`)
+      middlewares:
+        - name: authentik
+          namespace: authentik
+      services:
+        - name: profilarr
+          port: 6868
+  tls: {}
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: cleanuparr
+  namespace: servarr
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Cleanuparr"
+    gethomepage.dev/description: "Queue cleaner"
+    gethomepage.dev/group: "Media"
+    gethomepage.dev/icon: "cleanuparr.png"
+    gethomepage.dev/href: "https://cleanuparr.item.fyi"
+    gethomepage.dev/siteMonitor: "http://cleanuparr.servarr.svc.cluster.local:11011"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=cleanuparr"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`cleanuparr.item.fyi`)
+      middlewares:
+        - name: authentik
+          namespace: authentik
+      services:
+        - name: cleanuparr
+          port: 11011
+  tls: {}
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: triggarr
+  namespace: servarr
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Triggarr"
+    gethomepage.dev/description: "Automated search scheduler"
+    gethomepage.dev/group: "Media"
+    gethomepage.dev/icon: "triggarr.png"
+    gethomepage.dev/href: "https://triggarr.item.fyi"
+    gethomepage.dev/siteMonitor: "http://triggarr.servarr.svc.cluster.local:8080"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=triggarr"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`triggarr.item.fyi`)
+      middlewares:
+        - name: authentik
+          namespace: authentik
+      services:
+        - name: triggarr
+          port: 8080
+  tls: {}
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: apprise
+  namespace: servarr
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Apprise"
+    gethomepage.dev/description: "Notification service"
+    gethomepage.dev/group: "Media"
+    gethomepage.dev/icon: "apprise.png"
+    gethomepage.dev/href: "https://apprise.item.fyi"
+    gethomepage.dev/siteMonitor: "http://apprise.servarr.svc.cluster.local:8000"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=apprise"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`apprise.item.fyi`)
+      middlewares:
+        - name: authentik
+          namespace: authentik
+      services:
+        - name: apprise
+          port: 8000
+  tls: {}

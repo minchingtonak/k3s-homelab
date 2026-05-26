@@ -1,0 +1,95 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: bazarr-config
+  namespace: servarr
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-zfs
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bazarr
+  namespace: servarr
+  labels:
+    app.kubernetes.io/name: bazarr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: bazarr
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: bazarr
+    spec:
+      securityContext:
+        fsGroup: 100000
+      containers:
+        - name: bazarr
+          image: ghcr.io/linuxserver/bazarr:1.5.6@sha256:95f27692c3de6dbe130cd035d342d8138ec74ade7b62cfc52e11ae222c52c855
+          env:
+            - name: PUID
+              value: "0"
+            - name: PGID
+              value: "0"
+            - name: TZ
+              value: America/New_York
+          ports:
+            - name: http
+              containerPort: 6767
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 6767
+            initialDelaySeconds: 15
+            periodSeconds: 5
+            failureThreshold: 4
+            timeoutSeconds: 4
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 6767
+            initialDelaySeconds: 15
+            periodSeconds: 5
+            failureThreshold: 4
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: tv
+              mountPath: /data/tv
+            - name: movies
+              mountPath: /data/movies
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: bazarr-config
+        - name: tv
+          persistentVolumeClaim:
+            claimName: servarr-tv
+        - name: movies
+          persistentVolumeClaim:
+            claimName: servarr-movies
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bazarr
+  namespace: servarr
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
+spec:
+  selector:
+    app.kubernetes.io/name: bazarr
+  ports:
+    - port: 6767
+      targetPort: 6767
+      name: http

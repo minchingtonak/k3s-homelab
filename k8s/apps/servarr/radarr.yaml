@@ -1,0 +1,95 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: radarr-config
+  namespace: servarr
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-zfs
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: radarr
+  namespace: servarr
+  labels:
+    app.kubernetes.io/name: radarr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: radarr
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: radarr
+    spec:
+      securityContext:
+        fsGroup: 100000
+      containers:
+        - name: radarr
+          image: ghcr.io/linuxserver/radarr:6.1.1@sha256:079e48870584baf2a3e7e43e7ba6d3c834555931851a59c82c51cc792d285caf
+          env:
+            - name: PUID
+              value: "0"
+            - name: PGID
+              value: "0"
+            - name: TZ
+              value: America/New_York
+          ports:
+            - name: http
+              containerPort: 7878
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 7878
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 4
+            timeoutSeconds: 4
+          readinessProbe:
+            httpGet:
+              path: /ping
+              port: 7878
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 4
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: movies
+              mountPath: /data/movies
+            - name: downloads
+              mountPath: /data/downloads
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: radarr-config
+        - name: movies
+          persistentVolumeClaim:
+            claimName: servarr-movies
+        - name: downloads
+          persistentVolumeClaim:
+            claimName: servarr-downloads
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: radarr
+  namespace: servarr
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
+spec:
+  selector:
+    app.kubernetes.io/name: radarr
+  ports:
+    - port: 7878
+      targetPort: 7878
+      name: http

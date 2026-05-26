@@ -1,0 +1,90 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: apprise-config
+  namespace: servarr
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-zfs
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apprise
+  namespace: servarr
+  labels:
+    app.kubernetes.io/name: apprise
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: apprise
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: apprise
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 100000
+      containers:
+        - name: apprise
+          image: caronc/apprise:v1.3.3@sha256:4bfeac268ba87b8e08e308c9aa0182fe99e9501ec464027afc333d1634e65977
+          env:
+            - name: APPRISE_WORKER_COUNT
+              value: "1"
+            - name: APPRISE_STATEFUL_MODE
+              value: simple
+            - name: APPRISE_DEFAULT_THEME
+              value: dark
+            - name: APPRISE_DEFAULT_CONFIG_ID
+              value: homelab
+            - name: APPRISE_CONFIG_LOCK
+              value: "yes"
+          ports:
+            - name: http
+              containerPort: 8000
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: apprise-secret
+              mountPath: /config/homelab.yml
+              subPath: homelab.yml
+            - name: attach
+              mountPath: /attach
+            - name: plugin
+              mountPath: /plugin
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: apprise-config
+        - name: apprise-secret
+          secret:
+            secretName: apprise-config
+        - name: attach
+          emptyDir: {}
+        - name: plugin
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: apprise
+  namespace: servarr
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
+spec:
+  selector:
+    app.kubernetes.io/name: apprise
+  ports:
+    - port: 8000
+      targetPort: 8000
+      name: http
