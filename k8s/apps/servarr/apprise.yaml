@@ -46,7 +46,7 @@ spec:
             - name: APPRISE_DEFAULT_CONFIG_ID
               value: homelab
             - name: APPRISE_CONFIG_LOCK
-              value: "yes"
+              value: "no"
           ports:
             - name: http
               containerPort: 8000
