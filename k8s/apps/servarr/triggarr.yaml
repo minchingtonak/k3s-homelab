@@ -39,9 +39,9 @@ spec:
           args: ["cp /triggarr.toml.src /config/triggarr.toml && exec /entrypoint.sh"]
           env:
             - name: PUID
-              value: "0"
+              value: "100000"
             - name: PGID
-              value: "0"
+              value: "100000"
           ports:
             - name: http
               containerPort: 8080

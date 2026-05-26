@@ -124,9 +124,9 @@ spec:
           image: ghcr.io/linuxserver/qbittorrent:5.2.0@sha256:eeea9f8a8cdde23555186843d26e8ded1222421f31f98a5cc1b50c2882ebcf4e
           env:
             - name: PUID
-              value: "0"
+              value: "100000"
             - name: PGID
-              value: "0"
+              value: "100000"
             - name: TZ
               value: America/New_York
             - name: WEBUI_PORT
@@ -150,9 +150,9 @@ spec:
           image: ghcr.io/linuxserver/nzbget:v25.4-ls228@sha256:51184d6996a33e79f5db2136c31724f3ce783fde708b3ef780f259e7f168e76a
           env:
             - name: PUID
-              value: "0"
+              value: "100000"
             - name: PGID
-              value: "0"
+              value: "100000"
             - name: TZ
               value: America/New_York
           livenessProbe:

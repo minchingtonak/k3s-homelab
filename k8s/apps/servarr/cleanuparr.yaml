@@ -40,9 +40,9 @@ spec:
             - name: BASE_PATH
               value: ""
             - name: PUID
-              value: "0"
+              value: "100000"
             - name: PGID
-              value: "0"
+              value: "100000"
             - name: UMASK
               value: "022"
             - name: TZ

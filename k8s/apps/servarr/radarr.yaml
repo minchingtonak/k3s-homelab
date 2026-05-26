@@ -36,9 +36,9 @@ spec:
           image: ghcr.io/linuxserver/radarr:6.1.1@sha256:079e48870584baf2a3e7e43e7ba6d3c834555931851a59c82c51cc792d285caf
           env:
             - name: PUID
-              value: "0"
+              value: "100000"
             - name: PGID
-              value: "0"
+              value: "100000"
             - name: TZ
               value: America/New_York
           ports:
