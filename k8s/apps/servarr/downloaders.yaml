@@ -108,6 +108,8 @@ spec:
               value: 120s
             - name: UPDATER_PERIOD
               value: 24h
+            - name: BLOCK_MALICIOUS
+              value: off
           livenessProbe:
             httpGet:
               path: /
