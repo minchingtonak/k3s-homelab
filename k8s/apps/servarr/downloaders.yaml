@@ -112,6 +112,8 @@ spec:
               value: 24h
             - name: BLOCK_MALICIOUS
               value: on
+            - name: HEALTH_SERVER_ADDRESS
+              value: :9999
           livenessProbe:
             httpGet:
               path: /
