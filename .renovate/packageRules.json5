@@ -7,16 +7,72 @@
     { matchDepNames: ["k3s-io/k3s"], groupName: "k3s version" },
     // group all node version bumps (CI node-version + @types/node) into one PR
     { matchDepNames: ["node", "@types/node"], groupName: "node version" },
-    // paperless-ngx
-    // https://github.com/paperless-ngx/paperless-ngx/blob/dev/docker/compose/docker-compose.postgres-tika.yml
-    { matchPackageNames: ["gotenberg/gotenberg"], matchCurrentVersion: "8.27", enabled: false },
-    // dawarich
-    { matchPackageNames: ["postgis/postgis"], matchCurrentVersion: "17-3.5-alpine", enabled: false },
-    { matchPackageNames: ["redis"], matchCurrentVersion: "7.4-alpine", enabled: false },
-    // docuseal
-    { matchPackageNames: ["postgres"], matchCurrentVersion: "15", enabled: false },
-    // tandoor
-    { matchPackageNames: ["postgres"], matchCurrentVersion: "16-alpine3.22", enabled: false },
-    // fittrackee uses the same postgis version as dawarich (covered above)
+
+    // ── stateful service images ────────────────────────────────────────────
+    // Each app needs a specific major of its database/cache/broker. We:
+    //   1. cap the allowed major per app via allowedVersions
+    //   2. group remaining minor/patch bumps and run them monthly
+    //   3. require dashboard approval for any major that slips through
+
+    // per-app major pins
+    { matchFileNames: ["k8s/apps/tandoor/**"],      matchPackageNames: ["postgres"],         allowedVersions: "<17" },
+    { matchFileNames: ["k8s/apps/docuseal/**"],     matchPackageNames: ["postgres"],         allowedVersions: "<16" },
+    { matchFileNames: ["k8s/apps/windmill/**"],     matchPackageNames: ["postgres"],         allowedVersions: "<17" },
+    { matchFileNames: ["k8s/apps/immich/**"],       matchPackageNames: ["ghcr.io/immich-app/postgres"], allowedVersions: "/^14-/" },
+    { matchFileNames: ["k8s/apps/immich/**"],       matchPackageNames: ["redis"],            allowedVersions: "<7" },
+    { matchFileNames: ["k8s/apps/dawarich/**"],     matchPackageNames: ["postgis/postgis"],  allowedVersions: "/^17-/" },
+    { matchFileNames: ["k8s/apps/dawarich/**"],     matchPackageNames: ["redis"],            allowedVersions: "<8" },
+    { matchFileNames: ["k8s/apps/fittrackee/**"],   matchPackageNames: ["postgis/postgis"],  allowedVersions: "/^17-/" },
+    { matchFileNames: ["k8s/apps/your-spotify/**"], matchPackageNames: ["mongo"],            allowedVersions: "<7" },
+    { matchFileNames: ["k8s/apps/paperless-ngx/**"], matchPackageNames: ["gotenberg/gotenberg"], allowedVersions: "<9" },
+
+    // group + slow down stateful bumps to one batched PR per category per month
+    {
+      matchDatasources: ["docker"],
+      matchPackageNames: ["/postgres/", "/postgis/"],
+      groupName: "stateful: postgres",
+      schedule: ["* * 1-7 * 6"], // first Saturday of the month
+    },
+    {
+      matchDatasources: ["docker"],
+      matchPackageNames: ["/redis/", "/valkey/", "/memcached/"],
+      groupName: "stateful: caches",
+      schedule: ["* * 1-7 * 6"],
+    },
+    {
+      matchDatasources: ["docker"],
+      matchPackageNames: ["/mongo/", "/mariadb/", "/mysql/", "/rabbitmq/", "/gotenberg/"],
+      groupName: "stateful: other",
+      schedule: ["* * 1-7 * 6"],
+    },
+
+    // safety net: never auto-open a major PR for stateful images — surface on the
+    // dependency dashboard so a migration is an explicit, manual decision.
+    {
+      matchDatasources: ["docker"],
+      matchPackageNames: [
+        "/postgres/",
+        "/postgis/",
+        "/redis/",
+        "/valkey/",
+        "/memcached/",
+        "/mongo/",
+        "/mariadb/",
+        "/mysql/",
+        "/rabbitmq/",
+      ],
+      matchUpdateTypes: ["major"],
+      dependencyDashboardApproval: true,
+    },
+
+    // immich: group server, ML, postgres sidecar, and redis sidecar into one PR.
+    // Placed last so groupName + schedule override the "stateful: *" rules above,
+    // pulling immich's postgres/redis out of the monthly stateful batch.
+    {
+      matchFileNames: ["k8s/apps/immich/**"],
+      matchDatasources: ["docker"],
+      groupName: "immich",
+      schedule: ["on saturday"],
+    },
   ],
 }
