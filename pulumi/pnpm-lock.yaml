@@ -18,7 +18,7 @@ importers:
         specifier: ^4.31.1
         version: 4.31.1(typescript@6.0.3)
       '@pulumi/pulumi':
-        specifier: ^3.242.0
+        specifier: ^3.243.0
         version: 3.243.0(typescript@6.0.3)
     devDependencies:
       '@types/node':
