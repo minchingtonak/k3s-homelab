@@ -319,7 +319,7 @@ metadata:
     gethomepage.dev/group: "Media"
     gethomepage.dev/icon: "triggarr.png"
     gethomepage.dev/href: "https://triggarr.item.fyi"
-    gethomepage.dev/siteMonitor: "http://triggarr.servarr.svc.cluster.local:8080"
+    gethomepage.dev/siteMonitor: "http://triggarr.servarr.svc.cluster.local:8484"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=triggarr"
 spec:
   entryPoints:
@@ -332,7 +332,7 @@ spec:
           namespace: authentik
       services:
         - name: triggarr
-          port: 8080
+          port: 8484
   tls: {}
 ---
 apiVersion: traefik.io/v1alpha1

@@ -42,9 +42,11 @@ spec:
               value: "100000"
             - name: PGID
               value: "100000"
+            - name: TRUSTED_PROXY_IPS
+              value: "0.0.0.0/0"
           ports:
             - name: http
-              containerPort: 8080
+              containerPort: 8484
           securityContext:
             capabilities:
               drop:
@@ -82,6 +84,6 @@ spec:
   selector:
     app.kubernetes.io/name: triggarr
   ports:
-    - port: 8080
-      targetPort: 8080
+    - port: 8484
+      targetPort: 8484
       name: http
