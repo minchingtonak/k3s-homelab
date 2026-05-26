@@ -7,7 +7,7 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Gatus"
     gethomepage.dev/description: "Service health status"
-    gethomepage.dev/group: "Monitoring"
+    gethomepage.dev/group: "monitoring"
     gethomepage.dev/icon: "gatus.png"
     gethomepage.dev/href: "https://status.item.fyi"
     gethomepage.dev/siteMonitor: "http://gatus.gatus.svc.cluster.local"

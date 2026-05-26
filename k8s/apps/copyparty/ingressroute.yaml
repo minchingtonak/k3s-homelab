@@ -7,7 +7,7 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Copyparty"
     gethomepage.dev/description: "File sharing"
-    gethomepage.dev/group: "Tools"
+    gethomepage.dev/group: "tools"
     gethomepage.dev/icon: "sh-copyparty.svg"
     gethomepage.dev/href: "https://copyparty.item.fyi"
     gethomepage.dev/siteMonitor: "http://copyparty.copyparty.svc.cluster.local:3939"

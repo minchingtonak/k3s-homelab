@@ -7,7 +7,7 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "CyberChef"
     gethomepage.dev/description: "The Cyber Swiss Army Knife"
-    gethomepage.dev/group: "Tools"
+    gethomepage.dev/group: "tools"
     gethomepage.dev/icon: "cyberchef.png"
     gethomepage.dev/href: "https://cyberchef.item.fyi"
     gethomepage.dev/siteMonitor: "http://cyberchef.cyberchef.svc.cluster.local"

@@ -7,7 +7,7 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "BentoPDF"
     gethomepage.dev/description: "PDF tools"
-    gethomepage.dev/group: "Tools"
+    gethomepage.dev/group: "tools"
     gethomepage.dev/icon: "sh-bentopdf.png"
     gethomepage.dev/href: "https://bentopdf.item.fyi"
     gethomepage.dev/siteMonitor: "http://bentopdf.bentopdf.svc.cluster.local"

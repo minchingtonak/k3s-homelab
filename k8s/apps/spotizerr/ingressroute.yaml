@@ -7,7 +7,7 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Spotizerr"
     gethomepage.dev/description: "Spotify & Deezer downloader"
-    gethomepage.dev/group: "Media"
+    gethomepage.dev/group: "media"
     gethomepage.dev/icon: "spotify.png"
     gethomepage.dev/href: "https://spotizerr.item.fyi"
     gethomepage.dev/siteMonitor: "http://spotizerr.spotizerr.svc.cluster.local:7171"

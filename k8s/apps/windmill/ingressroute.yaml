@@ -7,7 +7,7 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Windmill"
     gethomepage.dev/description: "Developer platform and script runner"
-    gethomepage.dev/group: "Development"
+    gethomepage.dev/group: "development"
     gethomepage.dev/icon: "sh-windmill.svg"
     gethomepage.dev/href: "https://windmill.item.fyi"
     gethomepage.dev/siteMonitor: "http://windmill.windmill.svc.cluster.local"

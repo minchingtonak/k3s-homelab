@@ -7,7 +7,7 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "IT Tools"
     gethomepage.dev/description: "Collection of handy online tools"
-    gethomepage.dev/group: "Tools"
+    gethomepage.dev/group: "tools"
     gethomepage.dev/icon: "it-tools.png"
     gethomepage.dev/href: "https://it-tools.item.fyi"
     gethomepage.dev/siteMonitor: "http://it-tools.it-tools.svc.cluster.local"

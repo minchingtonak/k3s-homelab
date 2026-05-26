@@ -15,7 +15,7 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Crafty Controller"
     gethomepage.dev/description: "Minecraft server manager"
-    gethomepage.dev/group: "Games"
+    gethomepage.dev/group: "tools"
     gethomepage.dev/icon: "sh-crafty-controller.svg"
     gethomepage.dev/href: "https://crafty.item.fyi"
     gethomepage.dev/siteMonitor: "https://crafty-controller.crafty-controller.svc.cluster.local:8443"

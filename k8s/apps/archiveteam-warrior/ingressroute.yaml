@@ -7,7 +7,7 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Archive Team Warrior"
     gethomepage.dev/description: "Distributed web archiving"
-    gethomepage.dev/group: "Tools"
+    gethomepage.dev/group: "tools"
     gethomepage.dev/icon: "sh-archiveteam-warrior.png"
     gethomepage.dev/href: "https://archiveteam-warrior.item.fyi"
     gethomepage.dev/siteMonitor: "http://archiveteam-warrior.archiveteam-warrior.svc.cluster.local"

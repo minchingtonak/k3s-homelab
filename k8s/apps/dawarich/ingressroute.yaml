@@ -7,7 +7,7 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Dawarich"
     gethomepage.dev/description: "Location history tracking"
-    gethomepage.dev/group: "Life"
+    gethomepage.dev/group: "life"
     gethomepage.dev/icon: "dawarich.png"
     gethomepage.dev/href: "https://dawarich.item.fyi"
     gethomepage.dev/siteMonitor: "https://dawarich.item.fyi" # app returns 403 on all paths unauthenticated, use external URL

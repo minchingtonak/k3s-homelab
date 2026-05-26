@@ -7,7 +7,7 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Headlamp"
     gethomepage.dev/description: "Kubernetes cluster UI"
-    gethomepage.dev/group: "Infrastructure"
+    gethomepage.dev/group: "infrastructure"
     gethomepage.dev/icon: "sh-headlamp.svg"
     gethomepage.dev/href: "https://headlamp.item.fyi"
     gethomepage.dev/siteMonitor: "http://headlamp.kube-system.svc.cluster.local"

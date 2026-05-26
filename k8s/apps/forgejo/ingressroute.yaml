@@ -7,7 +7,7 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Forgejo"
     gethomepage.dev/description: "Git forge"
-    gethomepage.dev/group: "Development"
+    gethomepage.dev/group: "development"
     gethomepage.dev/icon: "forgejo.png"
     gethomepage.dev/href: "https://forgejo.item.fyi"
     gethomepage.dev/siteMonitor: "http://forgejo.forgejo.svc.cluster.local"

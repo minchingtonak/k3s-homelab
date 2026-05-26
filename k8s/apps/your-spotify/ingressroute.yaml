@@ -23,7 +23,7 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Your Spotify"
     gethomepage.dev/description: "Spotify stats"
-    gethomepage.dev/group: "Media"
+    gethomepage.dev/group: "media"
     gethomepage.dev/icon: "your-spotify.png"
     gethomepage.dev/href: "https://your-spotify.item.fyi"
     gethomepage.dev/siteMonitor: "http://your-spotify-web.your-spotify.svc.cluster.local:3000"

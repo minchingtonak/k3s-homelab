@@ -7,7 +7,7 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Omni Tools"
     gethomepage.dev/description: "All-in-one tools collection"
-    gethomepage.dev/group: "Tools"
+    gethomepage.dev/group: "tools"
     gethomepage.dev/icon: "sh-omnitools.webp"
     gethomepage.dev/href: "https://omni-tools.item.fyi"
     gethomepage.dev/siteMonitor: "http://omni-tools.omni-tools.svc.cluster.local"

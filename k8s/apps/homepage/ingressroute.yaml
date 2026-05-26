@@ -7,7 +7,7 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Homepage"
     gethomepage.dev/description: "Service dashboard"
-    gethomepage.dev/group: "Infrastructure"
+    gethomepage.dev/group: "infrastructure"
     gethomepage.dev/icon: "homepage.png"
     gethomepage.dev/href: "https://homepage.item.fyi"
     gethomepage.dev/siteMonitor: "http://homepage.homepage.svc.cluster.local:3000"

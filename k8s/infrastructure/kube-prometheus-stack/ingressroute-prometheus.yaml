@@ -7,7 +7,7 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Prometheus"
     gethomepage.dev/description: "Metrics and alerting"
-    gethomepage.dev/group: "Monitoring"
+    gethomepage.dev/group: "monitoring"
     gethomepage.dev/icon: "prometheus.png"
     gethomepage.dev/href: "https://prometheus.item.fyi"
     gethomepage.dev/siteMonitor: "http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090"

@@ -7,7 +7,7 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Mazanoke"
     gethomepage.dev/description: "Simple online image compressor"
-    gethomepage.dev/group: "Tools"
+    gethomepage.dev/group: "tools"
     gethomepage.dev/icon: "sh-mazanoke.svg"
     gethomepage.dev/href: "https://mazanoke.item.fyi"
     gethomepage.dev/siteMonitor: "http://mazanoke.mazanoke.svc.cluster.local"

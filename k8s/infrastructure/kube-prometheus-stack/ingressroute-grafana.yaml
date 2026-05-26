@@ -7,7 +7,7 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Grafana"
     gethomepage.dev/description: "Monitoring dashboards"
-    gethomepage.dev/group: "Monitoring"
+    gethomepage.dev/group: "monitoring"
     gethomepage.dev/icon: "grafana.png"
     gethomepage.dev/href: "https://grafana.item.fyi"
     gethomepage.dev/siteMonitor: "http://kube-prometheus-stack-grafana.monitoring.svc.cluster.local"

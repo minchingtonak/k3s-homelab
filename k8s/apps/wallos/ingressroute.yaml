@@ -7,7 +7,7 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Wallos"
     gethomepage.dev/description: "Subscription tracker"
-    gethomepage.dev/group: "Life"
+    gethomepage.dev/group: "life"
     gethomepage.dev/icon: "wallos.png"
     gethomepage.dev/href: "https://wallos.item.fyi"
     gethomepage.dev/siteMonitor: "http://wallos.wallos.svc.cluster.local"
