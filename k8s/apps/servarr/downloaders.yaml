@@ -99,7 +99,7 @@ spec:
                   name: gluetun-wireguard
                   key: addresses
             - name: FIREWALL_VPN_INPUT_PORTS
-              value: "29730"
+              value: "29730,50300"
             - name: FIREWALL_OUTBOUND_SUBNETS
               value: 10.42.0.0/16,10.43.0.0/16
             - name: SERVER_COUNTRIES
@@ -109,11 +109,12 @@ spec:
             - name: UPDATER_PERIOD
               value: 24h
           livenessProbe:
-            exec:
-              command: [sh, -c, "ping -c 1 -W 5 www.google.com"]
+            httpGet:
+              path: /
+              port: 9999
             periodSeconds: 60
             failureThreshold: 5
-            timeoutSeconds: 20
+            timeoutSeconds: 10
           volumeMounts:
             - name: tun
               mountPath: /dev/net/tun
