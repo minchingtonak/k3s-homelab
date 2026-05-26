@@ -16,6 +16,6 @@
     "@muhlba91/pulumi-proxmoxve": "^7.13.0",
     "@pulumi/command": "^1.2.1",
 "@pulumi/kubernetes": "^4.31.1",
-    "@pulumi/pulumi": "^3.239.0"
+    "@pulumi/pulumi": "^3.242.0"
   }
 }
