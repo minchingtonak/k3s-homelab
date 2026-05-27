@@ -606,7 +606,7 @@ runcmd:
       },
 
       cpu: {
-        cores: 4,
+        cores: 16,
         sockets: 1,
         type: 'host',
       },
