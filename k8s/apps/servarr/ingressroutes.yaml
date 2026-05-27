@@ -112,6 +112,11 @@ spec:
     - websecure
   routes:
     - kind: Rule
+      match: Host(`prowlarr.item.fyi`) && PathPrefix(`/api`)
+      services:
+        - name: prowlarr
+          port: 9696
+    - kind: Rule
       match: Host(`prowlarr.item.fyi`)
       middlewares:
         - name: authentik
