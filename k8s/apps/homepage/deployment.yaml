@@ -61,7 +61,14 @@ data:
     headerStyle: clean
     useEqualHeights: true
     layout:
-      columns: 2
+      columns: 4
+      life: {}
+      media: {}
+      servarr: {}
+      tools: {}
+      infrastructure: {}
+      monitoring: {}
+      development: {}
     quicklaunch:
       searchDescriptions: true
       hideInternetSearch: true
@@ -77,8 +84,20 @@ data:
   services.yaml: "[]"
   widgets.yaml: |
     - resources:
-        cpu: true
-        memory: true
+        label: storage
+        disk: /
+    - kubernetes:
+        cluster:
+          show: true
+          cpu: true
+          memory: true
+          showLabel: true
+          label: cluster
+        nodes:
+          show: true
+          cpu: true
+          memory: true
+          showLabel: true
     - datetime:
         text_size: l
         format:
