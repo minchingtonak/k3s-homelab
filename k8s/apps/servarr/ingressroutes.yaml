@@ -270,7 +270,7 @@ metadata:
     gethomepage.dev/name: "Subsyncarr"
     gethomepage.dev/description: "Subtitle sync"
     gethomepage.dev/group: "servarr"
-    gethomepage.dev/icon: "subsyncarr.png"
+    gethomepage.dev/abbr: "S"
     gethomepage.dev/href: "https://subsyncarr.item.fyi"
     gethomepage.dev/siteMonitor: "http://subsyncarr.servarr.svc.cluster.local:3000"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=subsyncarr"
