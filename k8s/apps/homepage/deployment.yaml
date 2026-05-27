@@ -65,8 +65,8 @@ data:
       life: {}
       media: {}
       servarr: {}
-      tools: {}
       infrastructure: {}
+      tools: {}
       monitoring: {}
       development: {}
     quicklaunch:
