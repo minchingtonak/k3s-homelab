@@ -85,6 +85,17 @@
       dependencyDashboardApproval: true,
     },
 
+    // your-spotify: group server + client image bumps (they release in lockstep).
+    // Excludes mongo, which stays in the monthly "stateful: other" batch.
+    {
+      matchDatasources: ["docker"],
+      matchPackageNames: [
+        "yooooomi/your_spotify_server",
+        "yooooomi/your_spotify_client",
+      ],
+      groupName: "your-spotify",
+    },
+
     // immich: group server, ML, postgres sidecar, and redis sidecar into one PR.
     // Placed last so groupName + schedule override the "stateful: *" rules above,
     // pulling immich's postgres/redis out of the monthly stateful batch.
