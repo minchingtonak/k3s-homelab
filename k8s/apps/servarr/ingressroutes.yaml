@@ -18,6 +18,11 @@ spec:
     - websecure
   routes:
     - kind: Rule
+      match: Host(`qbittorrent.item.fyi`) && PathPrefix(`/api`)
+      services:
+        - name: qbittorrent
+          port: 8081
+    - kind: Rule
       match: Host(`qbittorrent.item.fyi`)
       middlewares:
         - name: authentik
@@ -45,6 +50,11 @@ spec:
   entryPoints:
     - websecure
   routes:
+    - kind: Rule
+      match: Host(`nzbget.item.fyi`) && PathPrefix(`/jsonrpc`)
+      services:
+        - name: nzbget
+          port: 6789
     - kind: Rule
       match: Host(`nzbget.item.fyi`)
       middlewares:
@@ -198,6 +208,11 @@ spec:
     - websecure
   routes:
     - kind: Rule
+      match: Host(`lidarr.item.fyi`) && PathPrefix(`/api`)
+      services:
+        - name: lidarr
+          port: 8686
+    - kind: Rule
       match: Host(`lidarr.item.fyi`)
       middlewares:
         - name: authentik
@@ -225,6 +240,11 @@ spec:
   entryPoints:
     - websecure
   routes:
+    - kind: Rule
+      match: Host(`bazarr.item.fyi`) && PathPrefix(`/api`)
+      services:
+        - name: bazarr
+          port: 6767
     - kind: Rule
       match: Host(`bazarr.item.fyi`)
       middlewares:
