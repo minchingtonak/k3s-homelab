@@ -126,6 +126,15 @@ spec:
               mountPath: /dev/net/tun
             - name: gluetun-config
               mountPath: /gluetun
+        - name: qbittorrent-cleanup
+          image: busybox:1.37.0
+          command:
+            - sh
+            - -c
+            - rm -f /config/qBittorrent/lockfile /config/qBittorrent/ipc-socket
+          volumeMounts:
+            - name: qbittorrent-config
+              mountPath: /config
       containers:
         - name: qbittorrent
           image: ghcr.io/linuxserver/qbittorrent:5.2.1@sha256:715d2bfbcf1cd3d734cbbd4fbd599eb7ea0642eaa079a372dd0d343f59516700
