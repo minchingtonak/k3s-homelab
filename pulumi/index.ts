@@ -30,7 +30,7 @@ const provider = new proxmox.Provider('proxmox-provider', {
 // =============================================================================
 // G017: Create an isolated Linux bridge (vmbr1) for internal K3s cluster
 // communication. No IP, no ports — purely L2 isolation between cluster nodes.
-const vmbr1 = new proxmox.network.NetworkBridge(
+const vmbr1 = new proxmox.network.linux.Bridge(
   'vmbr1',
   {
     nodeName: nodeName,
@@ -200,7 +200,7 @@ const k3sServerIp = '192.168.8.100';
 const gatewayIp = '192.168.8.1';
 
 // K3s Server cloud-init
-const k3sServerCloudInit = new proxmox.storage.File(
+const k3sServerCloudInit = new proxmox.FileLegacy(
   'k3s-server-cloud-init',
   {
     nodeName: nodeName,
@@ -321,7 +321,7 @@ runcmd:
 // =============================================================================
 // 4. CREATE BASE TEMPLATE (Optional - if you want Pulumi to manage the template)
 // =============================================================================
-const k3sTemplate = new proxmox.vm.VirtualMachine(
+const k3sTemplate = new proxmox.VmLegacy(
   'k3s-template',
   {
     nodeName: nodeName,
@@ -395,7 +395,7 @@ const k3sTemplate = new proxmox.vm.VirtualMachine(
 // =============================================================================
 // 5. DEPLOY K3S SERVER NODE
 // =============================================================================
-const k3sServer = new proxmox.vm.VirtualMachine(
+const k3sServer = new proxmox.VmLegacy(
   'k3s-server-01',
   {
     nodeName: nodeName,
@@ -414,8 +414,8 @@ const k3sServer = new proxmox.vm.VirtualMachine(
       type: 'host',
     },
     memory: {
-      dedicated: 24576, // ~30.77 GiB (31500) is total available on proxmox host
-      floating: 24576,
+      dedicated: 8192, // ~30.77 GiB (31500) is total available on proxmox host
+      floating: 8192,
     },
 
     // Cannot reference k3sTemplate.disks — the template disk carries fileId pointing
@@ -424,7 +424,7 @@ const k3sServer = new proxmox.vm.VirtualMachine(
       {
         interface: 'scsi0',
         datastoreId: datastoreId,
-        size: 256,
+        size: 64,
         discard: 'on',
         ssd: true,
       },
@@ -475,8 +475,8 @@ const k3sServer = new proxmox.vm.VirtualMachine(
 // =============================================================================
 // 6. DEPLOY K3S AGENT NODES
 // =============================================================================
-const agentCount = 0;
-const k3sAgents: proxmox.vm.VirtualMachine[] = [];
+const agentCount = 2;
+const k3sAgents: proxmox.VmLegacy[] = [];
 
 for (let i = 0; i < agentCount; i++) {
   const agentNum = i + 1;
@@ -484,7 +484,7 @@ for (let i = 0; i < agentCount; i++) {
   const agentName = `k3s-agent-${agentNum.toString().padStart(2, '0')}`;
   const ipAddress = `192.168.8.${vmId}/24`;
 
-  const agentCloudInit = new proxmox.storage.File(
+  const agentCloudInit = new proxmox.FileLegacy(
     `k3s-agent-cloud-init-${agentNum.toString().padStart(2, '0')}`,
     {
       nodeName: nodeName,
@@ -591,7 +591,7 @@ runcmd:
     { provider },
   );
 
-  const agent = new proxmox.vm.VirtualMachine(
+  const agent = new proxmox.VmLegacy(
     agentName,
     {
       nodeName: nodeName,
@@ -611,15 +611,15 @@ runcmd:
         type: 'host',
       },
       memory: {
-        dedicated: 8192,
-        floating: 8192,
+        dedicated: 12288,
+        floating: 12288,
       },
 
       disks: [
         {
           interface: 'scsi0',
           datastoreId: datastoreId,
-          size: 50,
+          size: 128,
           discard: 'on',
           ssd: true,
         },
@@ -779,5 +779,3 @@ export const agents = k3sAgents.map((a, i) => ({
 }));
 
 export const templateVmId = k3sTemplate.vmId;
-export const proxmoxEndpoint = config.require('proxmoxEndpoint');
-export { k3sVersion };
