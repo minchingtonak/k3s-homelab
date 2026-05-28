@@ -26,6 +26,7 @@ flux `Kustomization` entrypoints for the homelab cluster. defines the reconcilia
 - [sealed-secrets](https://github.com/bitnami-labs/sealed-secrets) for encrypted secret management in Git
 - [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller) for automated k3s node upgrades via GitOps
 - [reloader](https://github.com/stakater/Reloader) to restart pods when config changes
+- [descheduler](https://github.com/kubernetes-sigs/descheduler) to dynamically schedule pods based on node metrics
 - [nfs-subdir-external-provisioner](https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner) for simple distributed storage
 
 
