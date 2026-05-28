@@ -409,7 +409,7 @@ const k3sServer = new proxmox.VmLegacy(
     },
 
     cpu: {
-      cores: 12,
+      cores: 8,
       sockets: 1,
       type: 'host',
     },
