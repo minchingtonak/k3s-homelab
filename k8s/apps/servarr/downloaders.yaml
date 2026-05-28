@@ -225,8 +225,8 @@ spec:
         - name: slskd-scripts
           emptyDir: {}
         - name: slskd-config
-          secret:
-            secretName: slskd-config
+          configMap:
+            name: slskd-config
         - name: downloads
           persistentVolumeClaim:
             claimName: servarr-downloads
