@@ -16,13 +16,17 @@ spec:
   values:
     kind: CronJob
     schedule: "*/5 * * * *"
-    # Uses pod-request based utilization. To switch to real metrics later,
-    # add `metricsProviders: [{source: KubernetesMetrics}]` to deschedulerPolicy
-    # (requires metrics-server) or `source: Prometheus` with a prometheus block.
     deschedulerPolicyAPIVersion: "descheduler/v1alpha2"
     deschedulerPolicy:
       maxNoOfPodsToEvictPerNode: 5
       maxNoOfPodsToEvictPerNamespace: 5
+      # Real-utilization mode: LowNodeUtilization reads node CPU from Prometheus
+      # instead of summing pod requests. Anonymous access works against the
+      # in-cluster kube-prometheus-stack (no auth enforced).
+      metricsProviders:
+        - source: Prometheus
+          prometheus:
+            url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
       profiles:
         - name: rebalance
           pluginConfig:
@@ -40,14 +44,29 @@ spec:
                   - requiredDuringSchedulingIgnoredDuringExecution
             - name: LowNodeUtilization
               args:
+                # In Prometheus mode, thresholds key on the special `MetricResource`
+                # name (cpu/memory/pods keys are invalid here — descheduler errors).
+                # Query returns node CPU utilization in [0,1], relabeled so `instance`
+                # equals the k8s node name (descheduler requires this).
                 thresholds:
-                  cpu: 40
-                  memory: 40
-                  pods: 30
+                  MetricResource: 30
                 targetThresholds:
-                  cpu: 75
-                  memory: 75
-                  pods: 70
+                  MetricResource: 70
+                metricsUtilization:
+                  source: Prometheus
+                  prometheus:
+                    query: |
+                      clamp(
+                        label_replace(
+                          (1 - avg by (instance) (
+                            rate(node_cpu_seconds_total{job="node-exporter",mode="idle"}[5m])
+                          ))
+                          * on (instance) group_left(node)
+                            label_replace(kube_node_info, "instance", "$1:9100", "internal_ip", "(.+)"),
+                          "instance", "$1", "node", "(.+)"
+                        ),
+                        0, 1
+                      )
           plugins:
             balance:
               enabled:
