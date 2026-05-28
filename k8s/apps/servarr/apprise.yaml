@@ -65,8 +65,8 @@ spec:
           persistentVolumeClaim:
             claimName: apprise-config
         - name: apprise-secret
-          secret:
-            secretName: apprise-config
+          configMap:
+            name: apprise-config
         - name: attach
           emptyDir: {}
         - name: plugin

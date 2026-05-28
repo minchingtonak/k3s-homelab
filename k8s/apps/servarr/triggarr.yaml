@@ -68,8 +68,8 @@ spec:
           persistentVolumeClaim:
             claimName: triggarr-config
         - name: triggarr-secret
-          secret:
-            secretName: triggarr-config
+          configMap:
+            name: triggarr-config
 ---
 apiVersion: v1
 kind: Service
