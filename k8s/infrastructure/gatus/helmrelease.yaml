@@ -79,7 +79,7 @@ spec:
         args:
           - --auto-service
           - --output=/config-merged/sidecar.yaml
-          - --default-interval=5m
+          - --default-interval=2m
         volumeMounts:
           - name: config-merged
             mountPath: /config-merged
