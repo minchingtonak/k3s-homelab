@@ -15,7 +15,7 @@ spec:
       interval: 1h
   values:
     kind: CronJob
-    schedule: "*/5 * * * *"
+    schedule: "*/3 * * * *"
     deschedulerPolicyAPIVersion: "descheduler/v1alpha2"
     deschedulerPolicy:
       maxNoOfPodsToEvictPerNode: 5
