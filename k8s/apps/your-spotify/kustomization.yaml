@@ -3,4 +3,4 @@ kind: Kustomization
 resources:
   - deployment.yaml
   - ingressroute.yaml
-  - your-spotify-sealed-secret.yaml
+  - your-spotify-secret.sops.yaml

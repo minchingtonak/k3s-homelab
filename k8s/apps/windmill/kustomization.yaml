@@ -3,4 +3,4 @@ kind: Kustomization
 resources:
   - deployment.yaml
   - ingressroute.yaml
-  - windmill-sealed-secret.yaml
+  - windmill-secret.sops.yaml

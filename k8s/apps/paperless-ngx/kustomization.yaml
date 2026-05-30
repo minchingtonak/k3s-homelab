@@ -3,4 +3,4 @@ kind: Kustomization
 resources:
   - deployment.yaml
   - ingressroute.yaml
-  - paperless-ngx-sealed-secret.yaml
+  - paperless-ngx-secret.sops.yaml

@@ -3,5 +3,5 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - helmrepository.yaml
-  - porkbun-sealed-secret.yaml
+  - porkbun-secret.sops.yaml
   - helmrelease.yaml

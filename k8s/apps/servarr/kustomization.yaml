@@ -4,6 +4,7 @@ resources:
   - namespace.yaml
   - storage.yaml
   - secrets.yaml
+  - gluetun-wireguard-secret.sops.yaml
   - downloaders.yaml
   - prowlarr.yaml
   - sonarr.yaml

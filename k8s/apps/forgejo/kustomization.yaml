@@ -3,4 +3,4 @@ kind: Kustomization
 resources:
   - deployment.yaml
   - ingressroute.yaml
-  - forgejo-sealed-secret.yaml
+  - forgejo-secret.sops.yaml

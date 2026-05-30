@@ -4,7 +4,7 @@ resources:
   - namespace.yaml
   - helmrepository.yaml
   - helmrelease.yaml
-  - authentik-sealed-secret.yaml
+  - authentik-secret.sops.yaml
   - blueprint-configmap.yaml
-  - blueprint-sealed-secret.yaml
+  - blueprint-secret.sops.yaml
   - ingressroute.yaml

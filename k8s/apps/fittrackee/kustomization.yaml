@@ -3,4 +3,4 @@ kind: Kustomization
 resources:
   - deployment.yaml
   - ingressroute.yaml
-  - fittrackee-sealed-secret.yaml
+  - fittrackee-secret.sops.yaml

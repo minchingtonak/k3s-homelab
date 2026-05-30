@@ -3,4 +3,4 @@ kind: Kustomization
 resources:
   - deployment.yaml
   - ingressroute.yaml
-  - tandoor-sealed-secret.yaml
+  - tandoor-secret.sops.yaml

@@ -4,9 +4,9 @@ resources:
   - namespace.yaml
   - helmrepository.yaml
   - helmrelease.yaml
-  - grafana-admin-sealed-secret.yaml
-  - grafana-oauth2-sealed-secret.yaml
-  - alertmanager-pushover-sealed-secret.yaml
+  - grafana-admin-secret.sops.yaml
+  - grafana-oauth2-secret.sops.yaml
+  - alertmanager-pushover-secret.sops.yaml
   - ingressroute-grafana.yaml
   - ingressroute-prometheus.yaml
   - ingressroute-alertmanager.yaml
