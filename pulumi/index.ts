@@ -8,9 +8,10 @@ const sshPublicKey = config.requireSecret('sshPublicKey');
 const k3sToken = config.requireSecret('k3sToken');
 const gitRepo = config.require('gitRepo');
 const sshPrivateKey = config.requireSecret('sshPrivateKey');
-// Export from cluster: kubectl get secret -n flux-system -l sealedsecrets.bitnami.com/sealed-secrets-key -o jsonpath='{.data.tls\.key}' | base64 -d
-const sealedSecretsKey = config.requireSecret('sealedSecretsKey');
-const sealedSecretsCert = config.require('sealedSecretsCert');
+// Full contents of an age keypair file (private + public key). Generated with `age-keygen`.
+// Flux's kustomize-controller reads this from the `sops-age` Secret in `flux-system`
+// to decrypt SOPS-encrypted resources at reconcile time.
+const sopsAgeKey = config.requireSecret('sopsAgeKey');
 
 const k3sVersion = 'v1.36.1+k3s1';
 
@@ -715,21 +716,20 @@ const fluxOperator = new k8s.helm.v3.Release(
   { provider: k8sProvider, dependsOn: [k3sServer, ...k3sAgents] },
 );
 
-// Pre-create the sealing key so the controller uses a stable key across cluster rebuilds.
-// If this Secret exists with the active label when the controller starts, it adopts it
-// instead of generating a new one — keeping existing SealedSecrets decryptable.
-new k8s.core.v1.Secret(
-  'sealed-secrets-key',
+// SOPS decryption key for Flux's kustomize-controller. Must exist in flux-system
+// before any Kustomization with `spec.decryption: { provider: sops, secretRef: sops-age }`
+// reconciles, otherwise decryption fails.
+const sopsAgeSecret = new k8s.core.v1.Secret(
+  'sops-age',
   {
     metadata: {
-      name: 'sealed-secrets-key',
+      name: 'sops-age',
       namespace: 'flux-system',
-      labels: { 'sealedsecrets.bitnami.com/sealed-secrets-key': 'active' },
     },
-    type: 'kubernetes.io/tls',
+    type: 'Opaque',
     stringData: {
-      'tls.key': sealedSecretsKey,
-      'tls.crt': sealedSecretsCert,
+      // Key filename must end in `.agekey` for kustomize-controller to pick it up.
+      'age.agekey': sopsAgeKey,
     },
   },
   { provider: k8sProvider, dependsOn: [fluxOperator] },
@@ -757,7 +757,7 @@ new k8s.apiextensions.CustomResource(
   },
   {
     provider: k8sProvider,
-    dependsOn: [fluxOperator],
+    dependsOn: [fluxOperator, sopsAgeSecret],
     // Flux's kustomize-controller takes ownership of .spec after the initial apply,
     // reconciling it from k8s/clusters/homelab/flux-system/flux-instance.yaml.
     // ignoreChanges prevents SSA field conflicts between Pulumi and kustomize-controller.
