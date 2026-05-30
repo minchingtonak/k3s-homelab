@@ -1,8 +1,4 @@
 pulumi/bin/
 node_modules/
 
-# Plain (unsealed) secrets -- never commit these
-**/*-secret.yaml
-!**/*-sealed-secret.yaml
-
 __pycache__/
