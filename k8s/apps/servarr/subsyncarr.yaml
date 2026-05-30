@@ -27,7 +27,7 @@ spec:
             - name: TZ
               value: America/New_York
             - name: CRON_SCHEDULE
-              value: "*/30 * * * *"
+              value: "0 */2 * * *"
             - name: SCAN_PATHS
               value: /movies,/tv
             - name: MAX_CONCURRENT_SYNC_TASKS
