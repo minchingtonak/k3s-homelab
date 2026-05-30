@@ -89,6 +89,37 @@ Config and secrets in `pulumi/Pulumi.dev.yaml` are Pulumi-encrypted:
 
 To set/update secrets: `pulumi config set --secret k3s-homelab:<key> <value>`
 
+## Secrets
+
+Cluster secrets are SOPS-encrypted (age) and committed as `*.sops.yaml` files. Flux's kustomize-controller decrypts them at reconcile time using the `sops-age` Secret in `flux-system` (bootstrapped by Pulumi). See README "secrets (SOPS)" for the user-facing view/edit commands.
+
+When creating a new secret:
+
+1. **Always use `stringData:` for Opaque Secrets**, never `data:`. The lint check `secret-stringdata` in `scripts/lint-k8s.py` enforces this. Plaintext values are far easier to review and edit; Kubernetes base64-encodes them at apply time so the in-cluster Secret is identical.
+
+2. **Ask the user for secret values directly** — do not pull them from `.env` files, other hosts, or guess. If a placeholder is needed (e.g. for an OAuth client_secret before the provider has been set up), use a clearly-marked `FIXME` value and tell the user what to replace.
+
+3. **Encrypt before committing**: `sops -e -i path/to/new-secret.sops.yaml`. The `.sops.yaml` config at the repo root applies the age recipient automatically to any path matching `*.sops.yaml`.
+
+4. **Never `kubectl apply` a Secret directly** — commit and let Flux reconcile (general project rule, not secret-specific).
+
+### Sharing secrets across namespaces (substituteFrom pattern)
+
+When a secret value needs to be referenced from a ConfigMap or other manifest (e.g. embedded in an app config file as a placeholder), use Flux `postBuild.substituteFrom` rather than mounting the Secret directly. This keeps the bulk of the config file diffable as plaintext while keeping the actual values encrypted.
+
+Pattern (see `servarr` and `authentik` for live examples):
+
+- Put `${SECRET_FOO}` placeholders inline in the ConfigMap manifest.
+- Create a SOPS-encrypted Secret in `flux-system` namespace (e.g. `<app>-vars`) containing the actual `SECRET_FOO: <value>` pairs.
+- Apply it via a dedicated `<app>-vars` Flux Kustomization with `decryption.provider: sops`, separate from the consuming Kustomization.
+- On the consuming Kustomization: add `dependsOn: [<app>-vars]` and `postBuild.substituteFrom: [{ kind: Secret, name: <app>-vars }]`.
+
+The `flux-system` namespace placement is required: `postBuild.substituteFrom` only resolves sources in the Kustomization's own namespace (`flux-system`), not the app's namespace. The chicken-and-egg between secret creation and consumer reconciliation is solved by the separate `*-vars` Kustomization plus `dependsOn`.
+
+### When SealedSecret-style ownership matters
+
+Pruning a Kustomization that previously contained a `SealedSecret` (or any owner CR) will cascade-delete the owned Secret via Kubernetes garbage collection, even if Flux applies a replacement Secret in the same reconcile. The Secret comes back on the next reconcile (1m later), but `wait: true` with a 5–10m timeout will fail health checks during the gap. This is one-time pain during migration; not a steady-state concern.
+
 ## Cluster Access
 
 kubectl is configured locally and can be used directly — no need to SSH into nodes for cluster operations. If the cluster has been redeployed (e.g. after `pulumi destroy && pulumi up`), refresh the local kubeconfig first:
