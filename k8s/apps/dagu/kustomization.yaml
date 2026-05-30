@@ -1,0 +1,26 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: dagu
+resources:
+  - namespace.yaml
+  - pvc.yaml
+  - deployment.yaml
+  - service.yaml
+  - ingressroute.yaml
+  - secret-ssh.sops.yaml
+  - secret-pbs-keys.sops.yaml
+configMapGenerator:
+  - name: dagu-base
+    files:
+      - base.yaml
+  - name: dagu-dags
+    files:
+      - dags/backup.yaml
+      - dags/k3s-nfs-backup.yaml
+  - name: dagu-scripts
+    files:
+      - scripts/pbs-backup-common.sh
+      - scripts/local-pbs-backup.sh
+      - scripts/cloud-pbs-backup.sh
+      - scripts/k3s-nfs-local-pbs-backup.sh
+      - scripts/k3s-nfs-cloud-pbs-backup.sh

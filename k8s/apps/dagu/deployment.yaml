@@ -1,0 +1,115 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dagu
+  namespace: dagu
+  labels:
+    app.kubernetes.io/name: dagu
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: dagu
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: dagu
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 100000
+      containers:
+        - name: dagu
+          image: ghcr.io/dagucloud/dagu:2.7.4@sha256:8b431a2bdfa0040f5d00c98356c9976150a6e783e6e4be74887dc96e8fbad391
+          command: ["dagu", "start-all"]
+          env:
+            - name: DAGU_TZ
+              value: America/New_York
+            - name: DAGU_HOST
+              value: "0.0.0.0"
+            - name: DAGU_PORT
+              value: "8080"
+            - name: DAGU_HOME
+              value: /dagu
+            - name: DAGU_DAGS_DIR
+              value: /dagu/dags
+            - name: DAGU_BASE_CONFIG
+              value: /dagu/base.yaml
+            - name: DAGU_AUTH_MODE
+              value: none
+            - name: HOME
+              value: /dagu
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          volumeMounts:
+            - name: data
+              mountPath: /dagu
+            - name: base
+              mountPath: /dagu/base.yaml
+              subPath: base.yaml
+              readOnly: true
+            - name: dags
+              mountPath: /dagu/dags
+              readOnly: true
+            - name: scripts
+              mountPath: /dagu/dags/scripts
+              readOnly: true
+            - name: ssh
+              mountPath: /dagu/.ssh
+              readOnly: true
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: dagu-data
+        - name: base
+          configMap:
+            name: dagu-base
+        - name: dags
+          configMap:
+            name: dagu-dags
+        - name: scripts
+          projected:
+            sources:
+              - configMap:
+                  name: dagu-scripts
+                  # default mode 0755 so .sh files are executable
+                  defaultMode: 0755
+              - secret:
+                  name: dagu-pbs-keys
+                  items:
+                    - key: appdata.key
+                      path: keys/appdata.key
+                    - key: cloud-pbs.key
+                      path: keys/cloud-pbs.key
+                    - key: k3s-nfs.key
+                      path: keys/k3s-nfs.key
+                    - key: personal-files.key
+                      path: keys/personal-files.key
+        - name: ssh
+          secret:
+            secretName: dagu-ssh
+            defaultMode: 0600

@@ -1,0 +1,10 @@
+# Base DAG Configuration
+# Values defined here are inherited by ALL DAGs.
+
+overlap_policy: skip
+log_output: separate
+hist_retention_days: 30
+max_clean_up_time_sec: 5
+max_active_steps: 10
+max_output_size: 1048576 # 1MB
+catchup_window: "6h"
