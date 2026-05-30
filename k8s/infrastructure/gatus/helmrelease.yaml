@@ -59,7 +59,7 @@ spec:
     # Copy the base config into the writable emptyDir before Gatus starts.
     extraInitContainers:
       - name: copy-config
-        image: busybox:1.37.0
+        image: busybox:1.38.0
         command:
           - sh
           - -c
