@@ -1,5 +1,8 @@
 #!/usr/bin/bash
 
+# shellcheck source=/dev/null
+source "$(dirname "${BASH_SOURCE[0]}")/env.sh"
+
 ##
 # K3s NFS Cloud PBS Backup Script
 # Backs up k3s NFS PVC directories to cloud Proxmox Backup Server
@@ -41,8 +44,8 @@ function backup() {
     if [ ${#backup_args[@]} -gt 0 ]; then
         echo "Running k3s NFS backup for ${#backup_args[@]} PVC directories"
 
-        export PBS_ENCRYPTION_PASSWORD='${SECRET_K3S_NFS_ENCRYPTION_PASSWORD}'
-        export PBS_PASSWORD='${SECRET_CLOUD_PBS_API_TOKEN_SECRET}'
+        export PBS_ENCRYPTION_PASSWORD="$SECRET_K3S_NFS_ENCRYPTION_PASSWORD"
+        export PBS_PASSWORD="$SECRET_CLOUD_PBS_API_TOKEN_SECRET"
 
         set -x
         proxmox-backup-client backup \
@@ -58,7 +61,7 @@ function backup() {
         echo "⚠️  No PVC directories found in snapshot at ${SNAPSHOT_PATH}"
     fi
 
-    curl -fsS -m 10 --retry 5 -o /dev/null '${SECRET_K3S_NFS_CLOUD_HEALTHCHECK_URL}'
+    curl -fsS -m 10 --retry 5 -o /dev/null "$SECRET_K3S_NFS_CLOUD_HEALTHCHECK_URL"
 
     echo '🎉 k3s NFS cloud PBS backup job done!'
 }

@@ -4,6 +4,7 @@ namespace: dagu
 resources:
   - namespace.yaml
   - pvc.yaml
+  - configmap-env.yaml
   - deployment.yaml
   - service.yaml
   - ingressroute.yaml
@@ -24,3 +25,9 @@ configMapGenerator:
       - scripts/cloud-pbs-backup.sh
       - scripts/k3s-nfs-local-pbs-backup.sh
       - scripts/k3s-nfs-cloud-pbs-backup.sh
+# Generated ConfigMaps contain bash variable references (${VAR}) that
+# envsubst would clobber. Only configmap-env.yaml (above) is meant to be
+# substituted by Flux postBuild.
+generatorOptions:
+  annotations:
+    kustomize.toolkit.fluxcd.io/substitute: disabled

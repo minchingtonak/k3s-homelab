@@ -1,5 +1,8 @@
 #!/usr/bin/bash
 
+# shellcheck source=/dev/null
+source "$(dirname "${BASH_SOURCE[0]}")/env.sh"
+
 # Function to send logs to Slack in chunks
 # Parameters:
 #   $1 - TAG to filter logs

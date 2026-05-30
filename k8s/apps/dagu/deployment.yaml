@@ -98,6 +98,8 @@ spec:
                   name: dagu-scripts
                   # default mode 0755 so .sh files are executable
                   defaultMode: 0755
+              - configMap:
+                  name: dagu-env
               - secret:
                   name: dagu-pbs-keys
                   items:

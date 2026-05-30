@@ -1,5 +1,8 @@
 #!/usr/bin/bash
 
+# shellcheck source=/dev/null
+source "$(dirname "${BASH_SOURCE[0]}")/env.sh"
+
 ##
 # Cloud PBS Backup Script
 # Backs up both app data and personal files to cloud Proxmox Backup Server
@@ -28,12 +31,12 @@ function backup() {
     # Cloud PBS uses a single datastore, so all data must be backed up in one command
     backup_combined \
         '78cce27bc683469fb4cd@pbs!homelab-pve@sh19-112.prod.cloud-pbs.com:78cce27bc683469fb4cd' \
-        '${SECRET_PERSONAL_FILES_AND_CLOUD_PBS_ENCRYPTION_PASSWORD}' \
-        '${SECRET_CLOUD_PBS_API_TOKEN_SECRET}' \
+        "$SECRET_PERSONAL_FILES_AND_CLOUD_PBS_ENCRYPTION_PASSWORD" \
+        "$SECRET_CLOUD_PBS_API_TOKEN_SECRET" \
         './keys/cloud-pbs.key' \
         'cloud PBS'
 
-    curl -fsS -m 10 --retry 5 -o /dev/null '${SECRET_CLOUD_PBS_BACKUP_HEALTHCHECK_URL}'
+    curl -fsS -m 10 --retry 5 -o /dev/null "$SECRET_CLOUD_PBS_BACKUP_HEALTHCHECK_URL"
 
     echo '🎉 all cloud PBS backups completed successfully!'
 }

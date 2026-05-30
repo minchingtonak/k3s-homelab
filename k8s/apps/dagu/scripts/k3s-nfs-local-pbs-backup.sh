@@ -1,5 +1,8 @@
 #!/usr/bin/bash
 
+# shellcheck source=/dev/null
+source "$(dirname "${BASH_SOURCE[0]}")/env.sh"
+
 ##
 # K3s NFS Local PBS Backup Script
 # Backs up k3s NFS PVC directories to local Proxmox Backup Server
@@ -33,7 +36,7 @@ function backup() {
     setup_error_handling "$TAG"
 
     # note: this will need to be updated when the IP/cert of PBS is changed
-    export PBS_FINGERPRINT='${SECRET_LOCAL_PBS_FINGERPRINT}'
+    export PBS_FINGERPRINT="$SECRET_LOCAL_PBS_FINGERPRINT"
 
     echo "📸 beginning k3s NFS backup to local PBS from snapshot: $SNAPSHOT_NAME"
 
@@ -52,8 +55,8 @@ function backup() {
     if [ ${#backup_args[@]} -gt 0 ]; then
         echo "Running k3s NFS backup for ${#backup_args[@]} PVC directories"
 
-        export PBS_ENCRYPTION_PASSWORD='${SECRET_K3S_NFS_ENCRYPTION_PASSWORD}'
-        export PBS_PASSWORD='${SECRET_EDSAC_PBS_PASSWORD}'
+        export PBS_ENCRYPTION_PASSWORD="$SECRET_K3S_NFS_ENCRYPTION_PASSWORD"
+        export PBS_PASSWORD="$SECRET_EDSAC_PBS_PASSWORD"
 
         set -x
         proxmox-backup-client backup \
@@ -69,7 +72,7 @@ function backup() {
         echo "⚠️  No PVC directories found in snapshot at ${SNAPSHOT_PATH}"
     fi
 
-    curl -fsS -m 10 --retry 5 -o /dev/null '${SECRET_K3S_NFS_HEALTHCHECK_URL}'
+    curl -fsS -m 10 --retry 5 -o /dev/null "$SECRET_K3S_NFS_HEALTHCHECK_URL"
 
     echo '🎉 k3s NFS local PBS backup job done!'
 }

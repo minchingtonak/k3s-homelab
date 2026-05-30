@@ -1,5 +1,8 @@
 #!/usr/bin/bash
 
+# shellcheck source=/dev/null
+source "$(dirname "${BASH_SOURCE[0]}")/env.sh"
+
 ##
 # Local PBS Backup Script
 # Backs up both app data and personal files to local Proxmox Backup Server
@@ -29,34 +32,34 @@ function backup() {
     setup_error_handling "$TAG"
 
     # note: this will need to be updated when the IP/cert of PBS is changed
-    export PBS_FINGERPRINT='${SECRET_LOCAL_PBS_FINGERPRINT}'
+    export PBS_FINGERPRINT="$SECRET_LOCAL_PBS_FINGERPRINT"
 
     backup_music \
         "root@pam@$LOCAL_PBS_IP:music-blackpool" \
-        '${SECRET_PERSONAL_FILES_AND_CLOUD_PBS_ENCRYPTION_PASSWORD}' \
-        '${SECRET_EDSAC_PBS_PASSWORD}' \
+        "$SECRET_PERSONAL_FILES_AND_CLOUD_PBS_ENCRYPTION_PASSWORD" \
+        "$SECRET_EDSAC_PBS_PASSWORD" \
         './keys/personal-files.key' \
         'local PBS'
 
-    curl -fsS -m 10 --retry 5 -o /dev/null '${SECRET_MUSIC_HEALTHCHECK_URL}'
+    curl -fsS -m 10 --retry 5 -o /dev/null "$SECRET_MUSIC_HEALTHCHECK_URL"
 
     backup_app_data \
         "root@pam@$LOCAL_PBS_IP:appdata-blackpool" \
-        '${SECRET_APPDATA_ENCRYPTION_PASSWORD}' \
-        '${SECRET_EDSAC_PBS_PASSWORD}' \
+        "$SECRET_APPDATA_ENCRYPTION_PASSWORD" \
+        "$SECRET_EDSAC_PBS_PASSWORD" \
         './keys/appdata.key' \
         'local PBS'
 
-    curl -fsS -m 10 --retry 5 -o /dev/null '${SECRET_APPDATA_HEALTHCHECK_URL}'
+    curl -fsS -m 10 --retry 5 -o /dev/null "$SECRET_APPDATA_HEALTHCHECK_URL"
 
     backup_personal_files \
         "root@pam@$LOCAL_PBS_IP:personal-files-blackpool" \
-        '${SECRET_PERSONAL_FILES_AND_CLOUD_PBS_ENCRYPTION_PASSWORD}' \
-        '${SECRET_EDSAC_PBS_PASSWORD}' \
+        "$SECRET_PERSONAL_FILES_AND_CLOUD_PBS_ENCRYPTION_PASSWORD" \
+        "$SECRET_EDSAC_PBS_PASSWORD" \
         './keys/personal-files.key' \
         'local PBS'
 
-    curl -fsS -m 10 --retry 5 -o /dev/null '${SECRET_PERSONAL_FILES_HEALTHCHECK_URL}'
+    curl -fsS -m 10 --retry 5 -o /dev/null "$SECRET_PERSONAL_FILES_HEALTHCHECK_URL"
 
     echo '🎉 all local PBS backups completed successfully!'
 }
