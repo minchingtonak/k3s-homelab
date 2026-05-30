@@ -17,13 +17,15 @@ spec:
         app.kubernetes.io/name: subsyncarr
     spec:
       securityContext:
-        runAsUser: 0
-        runAsGroup: 0
         fsGroup: 100000
       containers:
         - name: subsyncarr
           image: mrorbitman/subsyncarr:1.2.16@sha256:82f3694621d4c4a020d28d7c800ae0591e7c62ca046460c9f2df61c201801356
           env:
+            - name: PUID
+              value: "100000"
+            - name: PGID
+              value: "100000"
             - name: TZ
               value: America/New_York
             - name: CRON_SCHEDULE
