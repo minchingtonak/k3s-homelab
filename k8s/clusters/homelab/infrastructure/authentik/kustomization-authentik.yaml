@@ -8,11 +8,14 @@ spec:
   retryInterval: 1m
   dependsOn:
     - name: traefik
-    - name: sealed-secrets
     - name: nfs-provisioner
   sourceRef:
     kind: GitRepository
     name: flux-system
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
   path: k8s/infrastructure/authentik
   prune: true
   wait: true

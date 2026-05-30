@@ -8,10 +8,13 @@ spec:
   retryInterval: 1m
   dependsOn:
     - name: cert-manager
-    - name: sealed-secrets
   sourceRef:
     kind: GitRepository
     name: flux-system
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
   path: k8s/infrastructure/cert-manager-config
   prune: true
   timeout: 5m

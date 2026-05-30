@@ -9,6 +9,10 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
   path: k8s/apps/servarr/vars
   prune: true
   wait: true
