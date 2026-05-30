@@ -42,7 +42,24 @@ after cloning, configure git hooks:
 make setup
 ```
 
+## secrets (SOPS)
+
+secrets are stored as `*.sops.yaml` files alongside other manifests, encrypted with age. the private key lives in `~/.config/sops/age/keys.txt`.
+
+view a decrypted secret:
+
+```bash
+sops -d k8s/infrastructure/gatus/pushover-secret.sops.yaml
+```
+
+edit a secret interactively. opens `$EDITOR` with plaintext, re-encrypts on save:
+
+```bash
+sops k8s/infrastructure/gatus/pushover-secret.sops.yaml
+```
+
 ## credits
 
 - https://github.com/ahgraber/homelab-gitops-k3s
 - https://github.com/ehlesp/smallab-k8s-pve-guide
+- https://github.com/chr1sd/home-ops
