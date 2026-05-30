@@ -127,7 +127,7 @@ spec:
             - name: gluetun-config
               mountPath: /gluetun
         - name: qbittorrent-cleanup
-          image: busybox:1.37.0
+          image: busybox:1.38.0
           command:
             - sh
             - -c
