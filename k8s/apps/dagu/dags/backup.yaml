@@ -8,6 +8,7 @@ handler_on:
     config:
       user: "root"
       host: "192.168.8.89"
+      key: /etc/dagu/lxc_ed25519
       strict_host_key: false
       shell: "/bin/bash -e"
 
@@ -18,17 +19,19 @@ steps:
       set -Eeuxo pipefail
 
       apt-get -qq update
-      # install scp
       DEBIAN_FRONTEND=noninteractive apt-get -y -qq install openssh-client
 
       WORK_DIR="/tmp/dag-${DAG_RUN_ID}"
+      KEY="$WORK_DIR/key"
+      mkdir -p "$WORK_DIR"
+      install -m 0600 /etc/dagu/lxc_ed25519 "$KEY"
 
-      scp -r \
+      scp -r -i "$KEY" \
         -o StrictHostKeyChecking=no \
         -o UserKnownHostsFile=/dev/null \
         /dagu/dags/scripts/* root@192.168.8.89:$WORK_DIR
 
-      ssh \
+      ssh -i "$KEY" \
         -o StrictHostKeyChecking=no \
         -o UserKnownHostsFile=/dev/null \
         root@192.168.8.89 "chmod +x $WORK_DIR/*.sh"
@@ -42,6 +45,7 @@ steps:
     config:
       user: "root"
       host: "192.168.8.89"
+      key: /etc/dagu/lxc_ed25519
       strict_host_key: false
       shell: "/bin/bash -e"
     depends: setup
@@ -53,6 +57,7 @@ steps:
     config:
       user: "root"
       host: "192.168.8.89"
+      key: /etc/dagu/lxc_ed25519
       strict_host_key: false
       shell: "/bin/bash -e"
     depends: run-local-pbs-backup-script
