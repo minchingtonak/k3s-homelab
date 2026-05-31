@@ -31,8 +31,7 @@ exportfs -ra
 systemctl enable --now nfs-kernel-server
 ```
 
-`no_root_squash` is required — many container init processes run as root to set up
-file permissions, and NFS clients are trusted (K3s VMs only).
+`no_root_squash` is required — many container init processes run as root to set up file permissions, and NFS clients are trusted (K3s VMs only).
 
 ### Verify
 
@@ -50,16 +49,13 @@ ssh -i ~/.ssh/k3s_ed25519 k3s@192.168.8.100 \
 
 ## Kubernetes side
 
-The `nfs-subdir-external-provisioner` Helm chart is deployed via Flux at
-`k8s/infrastructure/nfs-provisioner/`. It creates the `nfs-zfs` StorageClass, which:
+The `nfs-subdir-external-provisioner` Helm chart is deployed via Flux at `k8s/infrastructure/nfs-provisioner/`. It creates the `nfs-zfs` StorageClass, which:
 
 - Provisions each PVC as a subdirectory: `/fast/k3s-nfs/<namespace>-<pvc-name>/`
 - Uses `reclaimPolicy: Retain` — deleted PVCs are archived as `archived-<namespace>-<pvc-name>/` rather than destroyed
 - Does **not** enforce storage quotas (the 50Gi Prometheus request is advisory; Prometheus self-limits via `retentionSize`)
 
-To use it, set `storageClassName: nfs-zfs` on a PVC. To make it the cluster default,
-set `storageClass.defaultClass: true` in the HelmRelease values and annotate
-`local-path` with `storageclass.kubernetes.io/is-default-class: "false"`.
+To use it, set `storageClassName: nfs-zfs` on a PVC. To make it the cluster default, set `storageClass.defaultClass: true` in the HelmRelease values and annotate `local-path` with `storageclass.kubernetes.io/is-default-class: "false"`.
 
 ## Checking usage
 
@@ -76,7 +72,4 @@ ssh -i ~/.ssh/lxc_ed25519 root@192.168.8.89 "zfs set quota=500G fast/k3s-nfs"
 
 ## Backup
 
-`fast/k3s-nfs` is backed up daily to both local and cloud Proxmox Backup Server via a
-Dagu DAG (`k3s-nfs-backup`) in the `hac` repo. A ZFS snapshot is taken before each
-backup run for crash consistency. See [Backup & Restore](./backup-k3s-nfs.md) for setup
-instructions, architecture details, and restore procedures.
+`fast/k3s-nfs` is backed up daily to both local and cloud Proxmox Backup Server via a Dagu DAG (`k3s-nfs-backup`) in the `hac` repo. A ZFS snapshot is taken before each backup run for crash consistency. See [Backup & Restore](./backup-k3s-nfs.md) for setup instructions, architecture details, and restore procedures.

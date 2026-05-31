@@ -2,31 +2,20 @@
 
 ## Architecture
 
-The ZFS dataset `fast/k3s-nfs` on the Proxmox host (`192.168.8.89`) is the NFS backend
-for all Kubernetes PVCs using the `nfs-zfs` StorageClass. A Dagu DAG (`k3s-nfs-backup`)
-runs daily at 02:00 on the backup LXC and backs up the full dataset to both local and
-cloud Proxmox Backup Server.
+The ZFS dataset `fast/k3s-nfs` on the Proxmox host (`192.168.8.89`) is the NFS backend for all Kubernetes PVCs using the `nfs-zfs` StorageClass. A Dagu DAG (`k3s-nfs-backup`) runs daily at 02:00 on the backup LXC and backs up the full dataset to both local and cloud Proxmox Backup Server.
 
 Flow per run:
 
-1. **ZFS snapshot** — `fast/k3s-nfs@k3s-nfs-backup-<run-id>` is created for crash
-   consistency (Prometheus, Grafana, and Seerr continue running against the live dataset
-   while the backup reads from the frozen snapshot)
-2. **Local PBS backup** — each PVC subdirectory under the snapshot is uploaded to the
-   `k3s-nfs` datastore on the local PBS (`192.168.8.189`) using `proxmox-backup-client`
-   with client-side AES-256 encryption
-3. **Cloud PBS backup** — same subdirectories uploaded to the cloud PBS, identified by
-   `--backup-id k3s-nfs` (separate from the existing combined appdata/personal-files backup)
-4. **Snapshot destroyed** — exit handler always destroys the ZFS snapshot regardless of
-   backup outcome
+1. **ZFS snapshot** — `fast/k3s-nfs@k3s-nfs-backup-<run-id>` is created for crash consistency (Prometheus, Grafana, and Seerr continue running against the live dataset while the backup reads from the frozen snapshot)
+2. **Local PBS backup** — each PVC subdirectory under the snapshot is uploaded to the `k3s-nfs` datastore on the local PBS (`192.168.8.189`) using `proxmox-backup-client` with client-side AES-256 encryption
+3. **Cloud PBS backup** — same subdirectories uploaded to the cloud PBS, identified by `--backup-id k3s-nfs` (separate from the existing combined appdata/personal-files backup)
+4. **Snapshot destroyed** — exit handler always destroys the ZFS snapshot regardless of backup outcome
 
-On local backup failure, the cloud backup still runs (`continue_on: failure: true`). Both
-failures send Pushover and Slack notifications via `pbs-backup-common.sh`.
+On local backup failure, the cloud backup still runs (`continue_on: failure: true`). Both failures send Pushover and Slack notifications via `pbs-backup-common.sh`.
 
 ## Backup source
 
-All subdirectories of `/fast/k3s-nfs/` are dynamically enumerated — new PVCs using
-`nfs-zfs` are automatically included without any script changes. Current directories:
+All subdirectories of `/fast/k3s-nfs/` are dynamically enumerated — new PVCs using `nfs-zfs` are automatically included without any script changes. Current directories:
 
 | Directory                                                       | Contents            |
 | --------------------------------------------------------------- | ------------------- |
@@ -34,8 +23,7 @@ All subdirectories of `/fast/k3s-nfs/` are dynamically enumerated — new PVCs u
 | `monitoring-kube-prometheus-stack-grafana`                      | Grafana data        |
 | `seerr-seerr-config`                                            | Seerr configuration |
 
-Archived PVCs (renamed to `archived-<namespace>-<pvc-name>` on deletion) are also
-captured automatically.
+Archived PVCs (renamed to `archived-<namespace>-<pvc-name>` on deletion) are also captured automatically.
 
 ## Implementation
 
@@ -65,8 +53,7 @@ proxmox-backup-manager datastore update k3s-nfs \
 
 ### 2. Generate the encryption key
 
-Run this on any machine with `proxmox-backup-client` installed (your desktop, the backup
-LXC, the PVE host, etc.):
+Run this on any machine with `proxmox-backup-client` installed (your desktop, the backup LXC, the PVE host, etc.):
 
 ```bash
 # Interactive — you will be prompted to set a password
@@ -76,9 +63,7 @@ proxmox-backup-client key create ./k3s-nfs.key
 cat ./k3s-nfs.key
 ```
 
-Keep the key file and password safe — they are required for any restore. The key is
-stored as a Pulumi secret and SCP'd to the PVE host at backup runtime; it does not need
-to live on the PVE host permanently.
+Keep the key file and password safe — they are required for any restore. The key is stored as a Pulumi secret and SCP'd to the PVE host at backup runtime; it does not need to live on the PVE host permanently.
 
 ### 3. Add Pulumi secrets (from the hac repo)
 
@@ -108,8 +93,7 @@ Dagu picks up the new DAG automatically from its schedule.
 ### Prerequisites
 
 - SSH access to the Proxmox host (`192.168.8.89`)
-- The encryption key file (`/root/k3s-nfs.key` on the PVE host, or export it again
-  from the Pulumi secret `SECRET_K3S_NFS_PBS_CLIENT_KEY`)
+- The encryption key file (`/root/k3s-nfs.key` on the PVE host, or export it again from the Pulumi secret `SECRET_K3S_NFS_PBS_CLIENT_KEY`)
 - The encryption password (`SECRET_K3S_NFS_ENCRYPTION_PASSWORD` from Pulumi)
 - PBS credentials (`SECRET_EDSAC_PBS_PASSWORD` for local PBS)
 
@@ -185,7 +169,6 @@ proxmox-backup-client restore <snapshot-id> <archive-name>.pxar \
 - Dagu web UI shows DAG run history, step logs, and failure status
 - Pushover and Slack notifications fire on any script error
 - Healthcheck monitors alert if backups stop completing
-- PBS web UI (`https://192.168.8.189:8007`) shows backup history and storage usage for
-  the `k3s-nfs` datastore
+- PBS web UI (`https://192.168.8.189:8007`) shows backup history and storage usage for the `k3s-nfs` datastore
 
 See also: [NFS Storage Setup](./nfs-storage-setup.md)

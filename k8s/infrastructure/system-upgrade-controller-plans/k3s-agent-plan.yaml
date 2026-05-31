@@ -10,9 +10,9 @@ spec:
   version: v1.36.1+k3s1
   nodeSelector:
     matchExpressions:
-      - {key: k3s-upgrade, operator: Exists}
-      - {key: k3s-upgrade, operator: NotIn, values: ["disabled", "false"]}
-      - {key: node-role.kubernetes.io/control-plane, operator: DoesNotExist}
+      - { key: k3s-upgrade, operator: Exists }
+      - { key: k3s-upgrade, operator: NotIn, values: ["disabled", "false"] }
+      - { key: node-role.kubernetes.io/control-plane, operator: DoesNotExist }
   serviceAccountName: system-upgrade
   prepare:
     image: rancher/k3s-upgrade

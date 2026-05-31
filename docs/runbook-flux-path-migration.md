@@ -2,8 +2,7 @@
 
 ## Symptom
 
-After moving the `clusters/homelab` directory to a new path in git (e.g. into
-`k8s/clusters/homelab`), all Flux Kustomizations fail with errors like:
+After moving the `clusters/homelab` directory to a new path in git (e.g. into `k8s/clusters/homelab`), all Flux Kustomizations fail with errors like:
 
 ```
 flux-system   False   kustomization path not found: stat /tmp/.../clusters/homelab: no such file or directory
@@ -13,21 +12,15 @@ cert-manager  False   dependency 'flux-system/traefik' is not ready
 
 ## Root cause
 
-This is a bootstrapping deadlock. The `flux-system` Kustomization is responsible
-for applying the `FluxInstance` manifest from git — but the `FluxInstance` is also
-what tells `flux-system` _where in git to look_. When the path changes:
+This is a bootstrapping deadlock. The `flux-system` Kustomization is responsible for applying the `FluxInstance` manifest from git — but the `FluxInstance` is also what tells `flux-system` _where in git to look_. When the path changes:
 
 1. `flux-system` tries to fetch content from the **old** path (`clusters/homelab`)
 2. That path no longer exists in git → reconciliation fails
-3. Because reconciliation fails, it never applies the updated `flux-instance.yaml`
-   that would point it to the new path
+3. Because reconciliation fails, it never applies the updated `flux-instance.yaml` that would point it to the new path
 
-Flux can't use itself to update the config that controls itself. The in-cluster
-`FluxInstance` must be patched manually to break the deadlock.
+Flux can't use itself to update the config that controls itself. The in-cluster `FluxInstance` must be patched manually to break the deadlock.
 
-The individual Kustomization path errors (`infrastructure/metallb`, etc.) are a
-cascading failure: those Kustomization CRDs still reference the old paths until
-`flux-system` successfully reconciles and overwrites them from the new location.
+The individual Kustomization path errors (`infrastructure/metallb`, etc.) are a cascading failure: those Kustomization CRDs still reference the old paths until `flux-system` successfully reconciles and overwrites them from the new location.
 
 ## Resolution
 
@@ -47,14 +40,11 @@ Replace `k8s/clusters/homelab` with whatever the new path is.
 flux reconcile source git flux-system
 ```
 
-This fetches the latest git commit and applies the new `k8s/clusters/homelab`
-content. `flux-system` and the Layer 0 Kustomizations (metallb, sealed-secrets,
-nfs-provisioner, reloader) should turn green immediately.
+This fetches the latest git commit and applies the new `k8s/clusters/homelab` content. `flux-system` and the Layer 0 Kustomizations (metallb, sealed-secrets, nfs-provisioner, reloader) should turn green immediately.
 
 ### 3. Wait for the dependency chain to propagate
 
-The remaining Kustomizations will unblock in order as their dependencies become
-ready:
+The remaining Kustomizations will unblock in order as their dependencies become ready:
 
 ```
 Layer 0: metallb, sealed-secrets, nfs-provisioner, reloader
@@ -73,7 +63,4 @@ Running this once is usually enough to unblock the full chain.
 
 ## Prevention
 
-The bootstrap `FluxInstance` in `index.ts` uses `ignoreChanges: ['spec']` so
-Pulumi won't fight with the flux-operator over ownership. However, this also means
-Pulumi won't auto-update `sync.path` when the repo is restructured — the manual
-patch above is always required when the root path changes.
+The bootstrap `FluxInstance` in `index.ts` uses `ignoreChanges: ['spec']` so Pulumi won't fight with the flux-operator over ownership. However, this also means Pulumi won't auto-update `sync.path` when the repo is restructured — the manual patch above is always required when the root path changes.

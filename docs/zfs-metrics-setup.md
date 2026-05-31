@@ -32,6 +32,7 @@ curl -s http://localhost:9100/metrics | grep ^node_zfs
 ```
 
 You should see metrics like:
+
 - `node_zfs_arc_size` — ARC (adaptive replacement cache) size
 - `node_zfs_pool_state` — pool health (0 = online)
 - `node_zfs_pool_io_*` — pool read/write throughput

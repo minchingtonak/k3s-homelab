@@ -15,7 +15,7 @@
   "dependencies": {
     "@muhlba91/pulumi-proxmoxve": "^8.2.1",
     "@pulumi/command": "^1.2.1",
-"@pulumi/kubernetes": "^4.31.1",
+    "@pulumi/kubernetes": "^4.31.1",
     "@pulumi/pulumi": "^3.243.0"
   }
 }

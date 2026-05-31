@@ -41,17 +41,17 @@ spec:
               name: http
           env:
             - name: TZ
-              value: 'America/New_York'
+              value: "America/New_York"
           volumeMounts:
             - name: data
               mountPath: /data
           resources:
             requests:
-              memory: '128Mi'
-              cpu: '100m'
+              memory: "128Mi"
+              cpu: "100m"
             limits:
-              memory: '512Mi'
-              cpu: '1000m'
+              memory: "512Mi"
+              cpu: "1000m"
       volumes:
         - name: data
           persistentVolumeClaim:

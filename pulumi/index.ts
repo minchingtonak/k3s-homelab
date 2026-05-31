@@ -1,7 +1,7 @@
-import * as pulumi from '@pulumi/pulumi';
 import * as proxmox from '@muhlba91/pulumi-proxmoxve';
 import * as command from '@pulumi/command';
 import * as k8s from '@pulumi/kubernetes';
+import * as pulumi from '@pulumi/pulumi';
 
 const config = new pulumi.Config();
 const sshPublicKey = config.requireSecret('sshPublicKey');
@@ -55,7 +55,8 @@ const debianCloudImage = new proxmox.download.File(
     contentType: 'iso',
     fileName: 'debian-13-genericcloud-amd64.img',
     // info: https://cloud.debian.org/images/cloud/
-    url: 'https://cloud.debian.org/images/cloud/trixie/20260402-2435/debian-13-genericcloud-amd64-20260402-2435.qcow2',
+    url:
+      'https://cloud.debian.org/images/cloud/trixie/20260402-2435/debian-13-genericcloud-amd64-20260402-2435.qcow2',
     overwrite: false,
   },
   { provider },
@@ -681,7 +682,8 @@ const fetchKubeconfig = new command.remote.Command(
       privateKey: sshPrivateKey,
       dialErrorLimit: 50, // buffer for cloud-init wait time
     },
-    create: `until sudo test -f /etc/rancher/k3s/k3s.yaml; do sleep 5; done && sudo cat /etc/rancher/k3s/k3s.yaml | sed 's/127\\.0\\.0\\.1/${k3sServerIp}/g'`,
+    create:
+      `until sudo test -f /etc/rancher/k3s/k3s.yaml; do sleep 5; done && sudo cat /etc/rancher/k3s/k3s.yaml | sed 's/127\\.0\\.0\\.1/${k3sServerIp}/g'`,
     triggers: [k3sServer.id],
   },
   { dependsOn: [k3sServer], additionalSecretOutputs: ['stdout'] },
@@ -691,7 +693,8 @@ const fetchKubeconfig = new command.remote.Command(
 const waitForK8s = new command.local.Command(
   'wait-for-k8s',
   {
-    create: `KCFG=$(mktemp) && trap 'rm -f "$KCFG"' EXIT && cat > "$KCFG" && until kubectl --kubeconfig "$KCFG" get nodes &>/dev/null; do sleep 5; done`,
+    create:
+      `KCFG=$(mktemp) && trap 'rm -f "$KCFG"' EXIT && cat > "$KCFG" && until kubectl --kubeconfig "$KCFG" get nodes &>/dev/null; do sleep 5; done`,
     stdin: fetchKubeconfig.stdout,
     triggers: [fetchKubeconfig.stdout],
   },

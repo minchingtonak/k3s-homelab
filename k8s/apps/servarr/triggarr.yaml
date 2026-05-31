@@ -36,7 +36,9 @@ spec:
           image: ghcr.io/thejuran/triggarr:v2.7.3@sha256:301cb2b85f916d2aa93a0982c6768788082a426531daa10d3d6fe5636461a8e8
           # copy read-only secret to writable /config dir, then hand off to the real entrypoint
           command: ["/bin/sh", "-c"]
-          args: ["cp /triggarr.toml.src /config/triggarr.toml && exec /entrypoint.sh"]
+          args: [
+            "cp /triggarr.toml.src /config/triggarr.toml && exec /entrypoint.sh"
+          ]
           env:
             - name: PUID
               value: "100000"

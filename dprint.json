@@ -1,0 +1,59 @@
+{
+  "lineWidth": 100,
+  "indentWidth": 2,
+  "useTabs": false,
+  "newLineKind": "lf",
+  "typescript": {
+    "quoteStyle": "preferSingle",
+    "quoteProps": "asNeeded",
+    "semiColons": "always",
+    "trailingCommas": "onlyMultiLine",
+    "useBraces": "whenNotSingleLine",
+    "bracePosition": "sameLineUnlessHanging",
+    "operatorPosition": "nextLine",
+    "arrowFunction.useParentheses": "force",
+    "module.sortImportDeclarations": "caseInsensitive",
+    "importDeclaration.sortNamedImports": "caseInsensitive",
+    "exportDeclaration.sortNamedExports": "caseInsensitive"
+  },
+  "json": {
+    "trailingCommas": "jsonc",
+    "commentLine.forceSpaceAfterSlashes": true
+  },
+  "markdown": {
+    "lineWidth": 120,
+    "textWrap": "maintain",
+    "emphasisKind": "underscores",
+    "strongKind": "asterisks",
+    "unorderedListKind": "dashes"
+  },
+  "toml": {
+    "comment.forceLeadingSpace": true,
+    "cargo.applyConventions": true
+  },
+  "yaml": {
+    "printWidth": 100,
+    "indentWidth": 2,
+    "quotes": "preferDouble",
+    "trailingComma": false,
+    "formatComments": true,
+    "indentBlockSequenceInMap": true,
+    "braceSpacing": true,
+    "bracketSpacing": false,
+    "dashSpacing": "oneSpace",
+    "trimTrailingWhitespaces": true,
+    "trimTrailingZero": false
+  },
+  "excludes": [
+    "**/node_modules",
+    "**/*-lock.json",
+    "**/*-lock.yaml"
+  ],
+  "plugins": [
+    "https://plugins.dprint.dev/typescript-0.96.1.wasm",
+    "https://plugins.dprint.dev/json-0.21.3.wasm",
+    "https://plugins.dprint.dev/markdown-0.22.1.wasm",
+    "https://plugins.dprint.dev/toml-0.7.0.wasm",
+    "https://plugins.dprint.dev/g-plane/pretty_yaml-v0.6.0.wasm"
+  ]
+}

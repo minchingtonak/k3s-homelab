@@ -41,21 +41,21 @@ spec:
               name: http
           env:
             - name: LOG_LEVEL
-              value: 'debug'
+              value: "debug"
             - name: TZ
-              value: 'America/New_York' # Adjust to your timezone
+              value: "America/New_York" # Adjust to your timezone
             - name: PORT
-              value: '5055'
+              value: "5055"
           volumeMounts:
             - name: config
               mountPath: /app/config
           resources:
             requests:
-              memory: '256Mi'
-              cpu: '100m'
+              memory: "256Mi"
+              cpu: "100m"
             limits:
-              memory: '1Gi'
-              cpu: '1000m'
+              memory: "1Gi"
+              cpu: "1000m"
       volumes:
         - name: config
           persistentVolumeClaim:

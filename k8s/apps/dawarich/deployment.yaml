@@ -78,7 +78,13 @@ spec:
               protocol: TCP
           livenessProbe:
             exec:
-              command: ["pg_isready", "-U", "postgres", "-d", "dawarich_development"]
+              command: [
+                "pg_isready",
+                "-U",
+                "postgres",
+                "-d",
+                "dawarich_development"
+              ]
             initialDelaySeconds: 10
             periodSeconds: 10
           volumeMounts:

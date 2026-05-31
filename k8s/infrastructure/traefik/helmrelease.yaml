@@ -66,10 +66,10 @@ spec:
         publishedService:
           enabled: true
     api:
-      insecure: true  # exposes /api/* on the traefik entrypoint (port 8080) for homepage widget
+      insecure: true # exposes /api/* on the traefik entrypoint (port 8080) for homepage widget
     ingressRoute:
       dashboard:
-        enabled: false  # managed via ingressroute-dashboard.yaml instead
+        enabled: false # managed via ingressroute-dashboard.yaml instead
     logs:
       access:
         enabled: true
@@ -82,6 +82,6 @@ spec:
         addRoutersLabels: true
         addServicesLabels: true
         service:
-          enabled: true  # dedicated ClusterIP service for metrics scraping
+          enabled: true # dedicated ClusterIP service for metrics scraping
         serviceMonitor:
-          enabled: false  # managed via separate manifest after kube-prometheus-stack deploys its CRDs
+          enabled: false # managed via separate manifest after kube-prometheus-stack deploys its CRDs

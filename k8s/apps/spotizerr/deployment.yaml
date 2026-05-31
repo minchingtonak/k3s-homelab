@@ -81,7 +81,11 @@ spec:
       containers:
         - name: redis
           image: redis:alpine@sha256:81b6f81d6a6c5b9019231a2e8eb10085e3a139a34f833dcc965a8a959b040b72
-          command: ["sh", "-c", "redis-server --requirepass \"$REDIS_PASSWORD\" --appendonly yes"]
+          command: [
+            "sh",
+            "-c",
+            "redis-server --requirepass \"$REDIS_PASSWORD\" --appendonly yes"
+          ]
           env:
             - name: REDIS_PASSWORD
               valueFrom:

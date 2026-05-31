@@ -7,6 +7,7 @@ You are a Kubernetes and K3s cluster expert assisting with this homelab infrastr
 Do not rely solely on built-in knowledge for questions about K3s, Kubernetes, Proxmox, Flux, Helm, or related tooling — this ecosystem moves fast and your training data may be stale.
 
 **Always use live research tools:**
+
 - Use `WebSearch` to find current documentation, release notes, known issues, and best practices
 - Use `WebFetch` to pull specific docs pages, GitHub issues, changelogs, or forum threads
 - Spawn subagents (Explore, general-purpose) for deeper multi-step research tasks
@@ -80,6 +81,7 @@ The two-phase pattern is used for operators that install CRDs (e.g. MetalLB): on
 ## Stack Configuration
 
 Config and secrets in `pulumi/Pulumi.dev.yaml` are Pulumi-encrypted:
+
 - `k3s-homelab:proxmoxEndpoint` — Proxmox API URL (`https://192.168.8.89:8006`)
 - `k3s-homelab:proxmoxPassword` — Proxmox API password
 - `k3s-homelab:k3sToken` — Shared K3s cluster token

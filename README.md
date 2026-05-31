@@ -29,7 +29,6 @@ flux `Kustomization` entrypoints for the homelab cluster. defines the reconcilia
 - [descheduler](https://github.com/kubernetes-sigs/descheduler) to dynamically schedule pods based on node metrics
 - [nfs-subdir-external-provisioner](https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner) for simple distributed storage
 
-
 ## apps (`k8s/apps`)
 
 user-facing applications deployed to the cluster. see manifests for details

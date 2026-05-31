@@ -68,9 +68,9 @@ spec:
             alerts:
               - type: pushover
       ingress:
-        enabled: false  # exposed via IngressRoute instead
+        enabled: false # exposed via IngressRoute instead
       initChownData:
-        enabled: false  # provisioner creates 777 dirs; chown is unnecessary and fails on NFS with existing data
+        enabled: false # provisioner creates 777 dirs; chown is unnecessary and fails on NFS with existing data
       persistence:
         enabled: true
         size: 2Gi
@@ -131,17 +131,17 @@ spec:
       dashboards:
         community:
           node-exporter-full:
-            gnetId: 1860      # https://grafana.com/grafana/dashboards/1860
+            gnetId: 1860 # https://grafana.com/grafana/dashboards/1860
             revision: 45
             datasource: Prometheus
           traefik:
-            gnetId: 17346     # https://grafana.com/grafana/dashboards/17346
+            gnetId: 17346 # https://grafana.com/grafana/dashboards/17346
             revision: 9
             datasource:
               - name: DS_PROMETHEUS
                 value: Prometheus
           loki-kubernetes-logs:
-            gnetId: 16976     # https://grafana.com/grafana/dashboards/16976
+            gnetId: 16976 # https://grafana.com/grafana/dashboards/16976
             revision: 7
             datasource:
               - name: DS_LOKI
@@ -149,13 +149,13 @@ spec:
               - name: DS_PROMETHEUS
                 value: Prometheus
           loki-volume:
-            gnetId: 23789     # https://grafana.com/grafana/dashboards/23789
+            gnetId: 23789 # https://grafana.com/grafana/dashboards/23789
             revision: 1
             datasource:
               - name: DS_LOKI
                 value: Loki
           zfs-nas:
-            gnetId: 19580     # https://grafana.com/grafana/dashboards/19580
+            gnetId: 19580 # https://grafana.com/grafana/dashboards/19580
             revision: 10
             datasource:
               - name: DS_PROMETHEUS
@@ -200,7 +200,7 @@ spec:
           - job_name: proxmox-host
             static_configs:
               - targets:
-                  - '192.168.8.89:9100'
+                  - "192.168.8.89:9100"
                 labels:
                   instance: proxmox-host
                   job: node
@@ -233,22 +233,22 @@ spec:
         global:
           resolve_timeout: 5m
         route:
-          group_by: ['alertname', 'namespace']
+          group_by: ["alertname", "namespace"]
           group_wait: 30s
           group_interval: 5m
           repeat_interval: 12h
           receiver: pushover
           routes:
             # Watchdog is a synthetic heartbeat alert — always firing, always suppressed
-            - receiver: 'null'
+            - receiver: "null"
               matchers:
                 - alertname = Watchdog
             # InfoInhibitor is a meta-alert used to silence info-level alerts
-            - receiver: 'null'
+            - receiver: "null"
               matchers:
                 - alertname = InfoInhibitor
         receivers:
-          - name: 'null'
+          - name: "null"
           - name: pushover
             pushover_configs:
               - user_key_file: /etc/alertmanager/secrets/alertmanager-pushover-credentials/userKey
@@ -272,4 +272,3 @@ spec:
       enabled: true
     kubeStateMetrics:
       enabled: true
-
