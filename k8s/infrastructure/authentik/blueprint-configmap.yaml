@@ -341,14 +341,14 @@ data:
 
       - model: authentik_flows.flowstagebinding
         identifiers:
-          target: !KeyOf passwordless-flow
+          target: !Find [authentik_flows.flow, [slug, default-authentication-flow-passwordless]]
           order: 0
         attrs:
           stage: !KeyOf passwordless-webauthn-validate
 
       - model: authentik_flows.flowstagebinding
         identifiers:
-          target: !KeyOf passwordless-flow
+          target: !Find [authentik_flows.flow, [slug, default-authentication-flow-passwordless]]
           order: 10
         attrs:
           stage: !Find [authentik_stages_user_login.userloginstage, [name, default-authentication-login]]
@@ -361,7 +361,7 @@ data:
         identifiers:
           name: default-authentication-identification
         attrs:
-          passwordless_flow: !KeyOf passwordless-flow
+          passwordless_flow: !Find [authentik_flows.flow, [slug, default-authentication-flow-passwordless]]
           webauthn_stage: !KeyOf passwordless-webauthn-validate
 
   user-akmin.yaml: |
