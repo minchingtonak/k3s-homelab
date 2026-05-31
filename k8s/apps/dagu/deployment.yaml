@@ -72,8 +72,8 @@ spec:
               mountPath: /dagu/dags/scripts
               readOnly: true
             - name: ssh
-              mountPath: /etc/dagu/lxc_ed25519
-              subPath: id_ed25519
+              mountPath: /etc/dagu/proxmox_ed25519
+              subPath: proxmox_ed25519
               readOnly: true
           resources:
             requests:
@@ -116,6 +116,6 @@ spec:
           secret:
             secretName: dagu-ssh
             items:
-              - key: id_ed25519
-                path: id_ed25519
+              - key: proxmox_ed25519
+                path: proxmox_ed25519
             defaultMode: 0400

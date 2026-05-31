@@ -10,7 +10,7 @@ handler_on:
     config:
       user: "root"
       host: "192.168.8.89"
-      key: /etc/dagu/lxc_ed25519
+      key: /etc/dagu/proxmox_ed25519
       strict_host_key: false
       shell: "/bin/bash -e"
 
@@ -26,7 +26,7 @@ steps:
       WORK_DIR="/tmp/dag-${DAG_RUN_ID}"
       KEY="$WORK_DIR/key"
       mkdir -p "$WORK_DIR"
-      install -m 0600 /etc/dagu/lxc_ed25519 "$KEY"
+      install -m 0600 /etc/dagu/proxmox_ed25519 "$KEY"
 
       scp -r -i "$KEY" \
         -o StrictHostKeyChecking=no \
@@ -48,7 +48,7 @@ steps:
     config:
       user: "root"
       host: "192.168.8.89"
-      key: /etc/dagu/lxc_ed25519
+      key: /etc/dagu/proxmox_ed25519
       strict_host_key: false
       shell: "/bin/bash -e"
     depends: setup
@@ -60,7 +60,7 @@ steps:
   #   config:
   #     user: "root"
   #     host: "192.168.8.89"
-  #     key: /etc/dagu/lxc_ed25519
+  #     key: /etc/dagu/proxmox_ed25519
   #     strict_host_key: false
   #     shell: "/bin/bash -e"
   #   depends: run-local-pbs-backup-script
