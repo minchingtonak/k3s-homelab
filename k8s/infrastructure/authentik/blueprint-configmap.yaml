@@ -319,7 +319,6 @@ data:
       # of being shunted into setup — password+totp/webauthn enrollment is
       # already handled by default-authentication-mfa-validation on the normal flow.
       - model: authentik_stages_authenticator_validate.authenticatorvalidatestage
-        id: passwordless-webauthn-validate
         identifiers:
           name: passwordless-webauthn-validate
         attrs:
@@ -330,7 +329,6 @@ data:
 
       # passwordless flow: webauthn check, then log the user in
       - model: authentik_flows.flow
-        id: passwordless-flow
         identifiers:
           slug: default-authentication-flow-passwordless
         attrs:
@@ -344,7 +342,7 @@ data:
           target: !Find [authentik_flows.flow, [slug, default-authentication-flow-passwordless]]
           order: 0
         attrs:
-          stage: !KeyOf passwordless-webauthn-validate
+          stage: !Find [authentik_stages_authenticator_validate.authenticatorvalidatestage, [name, passwordless-webauthn-validate]]
 
       - model: authentik_flows.flowstagebinding
         identifiers:
@@ -362,7 +360,7 @@ data:
           name: default-authentication-identification
         attrs:
           passwordless_flow: !Find [authentik_flows.flow, [slug, default-authentication-flow-passwordless]]
-          webauthn_stage: !KeyOf passwordless-webauthn-validate
+          webauthn_stage: !Find [authentik_stages_authenticator_validate.authenticatorvalidatestage, [name, passwordless-webauthn-validate]]
 
   user-akmin.yaml: |
     version: 1
