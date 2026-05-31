@@ -354,11 +354,17 @@ data:
       # patch the built-in identification stage: expose the passwordless flow
       # as a shortcut button and enable webauthn conditional-ui autofill on
       # the username field.
+      # user_fields must be re-declared because the blueprint serializer treats
+      # this as a full update — omitting it would empty the field and fail the
+      # serializer's "user_fields or sources required" check.
       - model: authentik_stages_identification.identificationstage
         state: present
         identifiers:
           name: default-authentication-identification
         attrs:
+          user_fields:
+            - email
+            - username
           passwordless_flow: !Find [authentik_flows.flow, [slug, default-authentication-flow-passwordless]]
           webauthn_stage: !Find [authentik_stages_authenticator_validate.authenticatorvalidatestage, [name, passwordless-webauthn-validate]]
 
