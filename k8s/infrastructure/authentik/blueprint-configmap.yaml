@@ -362,7 +362,7 @@ data:
           name: default-authentication-identification
         attrs:
           passwordless_flow: !KeyOf passwordless-flow
-          webauthn_authenticator_validation_stage: !KeyOf passwordless-webauthn-validate
+          webauthn_stage: !KeyOf passwordless-webauthn-validate
 
   user-akmin.yaml: |
     version: 1
