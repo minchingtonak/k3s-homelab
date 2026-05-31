@@ -306,6 +306,64 @@ data:
           provider: !KeyOf forgejo-provider
           meta_launch_url: https://forgejo.item.fyi
 
+  passwordless.yaml: |
+    # yaml-language-server: $schema=https://goauthentik.io/blueprints/schema.json
+    version: 1
+    metadata:
+      name: passwordless passkey login
+      labels:
+        blueprints.goauthentik.io/instantiate: "true"
+    entries:
+      # webauthn-only validation stage used inside the passwordless flow.
+      # deny (not configure) so users without a passkey hard-fail here instead
+      # of being shunted into setup — password+totp/webauthn enrollment is
+      # already handled by default-authentication-mfa-validation on the normal flow.
+      - model: authentik_stages_authenticator_validate.authenticatorvalidatestage
+        id: passwordless-webauthn-validate
+        identifiers:
+          name: passwordless-webauthn-validate
+        attrs:
+          not_configured_action: deny
+          device_classes:
+            - webauthn
+          webauthn_user_verification: preferred
+
+      # passwordless flow: webauthn check, then log the user in
+      - model: authentik_flows.flow
+        id: passwordless-flow
+        identifiers:
+          slug: default-authentication-flow-passwordless
+        attrs:
+          name: Passwordless authentication
+          title: Sign in with a passkey
+          designation: stage_configuration
+          authentication: require_unauthenticated
+
+      - model: authentik_flows.flowstagebinding
+        identifiers:
+          target: !KeyOf passwordless-flow
+          order: 0
+        attrs:
+          stage: !KeyOf passwordless-webauthn-validate
+
+      - model: authentik_flows.flowstagebinding
+        identifiers:
+          target: !KeyOf passwordless-flow
+          order: 10
+        attrs:
+          stage: !Find [authentik_stages_user_login.userloginstage, [name, default-authentication-login]]
+
+      # patch the built-in identification stage: expose the passwordless flow
+      # as a shortcut button and enable webauthn conditional-ui autofill on
+      # the username field.
+      - model: authentik_stages_identification.identificationstage
+        state: present
+        identifiers:
+          name: default-authentication-identification
+        attrs:
+          passwordless_flow: !KeyOf passwordless-flow
+          webauthn_authenticator_validation_stage: !KeyOf passwordless-webauthn-validate
+
   user-akmin.yaml: |
     version: 1
     metadata:
