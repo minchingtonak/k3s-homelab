@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tailscale
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tailscale-state
+  namespace: tailscale
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: nfs-zfs
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tailscale
+  namespace: tailscale
+  labels:
+    app.kubernetes.io/name: tailscale
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tailscale
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: tailscale
+    spec:
+      containers:
+        - name: tailscale
+          image: tailscale/tailscale:v1.94.2@sha256:95e528798bebe75f39b10e74e7051cf51188ee615934f232ba7ad06a3390ffa1
+          env:
+            - name: TS_AUTHKEY
+              valueFrom:
+                secretKeyRef:
+                  name: tailscale
+                  key: TS_AUTHKEY
+            - name: TS_HOSTNAME
+              value: tailscale-k3s
+            - name: TS_EXTRA_ARGS
+              value: "--ssh --advertise-routes=192.168.8.0/24"
+            - name: TS_STATE_DIR
+              value: /var/lib/tailscale
+            - name: TS_USERSPACE
+              value: "true"
+          volumeMounts:
+            - name: state
+              mountPath: /var/lib/tailscale
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+          securityContext:
+            capabilities:
+              add: ["NET_ADMIN"]
+      volumes:
+        - name: state
+          persistentVolumeClaim:
+            claimName: tailscale-state
