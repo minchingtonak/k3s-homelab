@@ -3,6 +3,7 @@
   $schema: 'https://docs.renovatebot.com/renovate-schema.json',
   extends: [
     'config:recommended',
+    'github>aquaproj/aqua-renovate-config#2.12.1',
     'github>minchingtonak/k3s-homelab//.renovate/customManagers.json5',
     'github>minchingtonak/k3s-homelab//.renovate/packageRules.json5',
     'github>minchingtonak/k3s-homelab//.renovate/labels.json5',
