@@ -21,8 +21,8 @@ spec:
       maxNoOfPodsToEvictPerNode: 5
       maxNoOfPodsToEvictPerNamespace: 5
       # Real-utilization mode: LowNodeUtilization reads node CPU/memory from
-      # metrics-server (the k3s built-in metrics.k8s.io API) instead of summing
-      # pod requests.
+      # metrics-server (metrics.k8s.io API, managed via Flux HelmRelease) instead
+      # of summing pod requests.
       metricsProviders:
         - source: KubernetesMetrics
       profiles:
