@@ -253,6 +253,7 @@ write_files:
         - traefik
         - servicelb
         - local-storage
+        - metrics-server
       node-label:
         - "k3s-upgrade=true"
 
