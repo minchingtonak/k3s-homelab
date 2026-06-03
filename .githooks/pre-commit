@@ -3,17 +3,20 @@ set -euo pipefail
 
 export PATH="${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}/bin:$PATH"
 
-make check-fmt
+# Collect all staged files
+mapfile -t staged < <(git diff --cached --name-only --diff-filter=ACM || true)
+
+if [ "${#staged[@]}" -gt 0 ]; then
+    dprint check --allow-no-files "${staged[@]}"
+fi
 
 # Collect staged YAML files under k8s/
 mapfile -t files < <(
-    git diff --cached --name-only --diff-filter=ACM \
+    printf '%s\n' "${staged[@]}" \
     | grep -E '^k8s/.*\.ya?ml$' \
     || true
 )
 
-if [ "${#files[@]}" -eq 0 ]; then
-    exit 0
+if [ "${#files[@]}" -gt 0 ]; then
+    python3 scripts/lint-k8s.py "${files[@]}"
 fi
-
-exec python3 scripts/lint-k8s.py "${files[@]}"
