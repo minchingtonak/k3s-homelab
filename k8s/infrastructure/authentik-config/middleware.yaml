@@ -6,6 +6,7 @@ metadata:
 spec:
   forwardAuth:
     address: http://authentik-server.authentik.svc.cluster.local/outpost.goauthentik.io/auth/traefik
+    maxResponseBodySize: 3145728 # 3 MiB
     authResponseHeaders:
       - X-authentik-username
       - X-authentik-groups
