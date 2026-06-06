@@ -9,7 +9,7 @@ spec:
   dependsOn:
     - name: cert-manager
     - name: nfs-provisioner
-    - name: authentik
+    - name: authentik-config
     - name: dagu-vars
   sourceRef:
     kind: GitRepository
