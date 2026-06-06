@@ -10,6 +10,7 @@ spec:
   dependsOn:
     - name: cert-manager
     - name: nfs-provisioner
+    - name: authentik-config
     - name: servarr-vars
   sourceRef:
     kind: GitRepository

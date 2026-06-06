@@ -9,6 +9,7 @@ spec:
   dependsOn:
     - name: cert-manager
     - name: nfs-provisioner
+    - name: authentik-config
   sourceRef:
     kind: GitRepository
     name: flux-system
