@@ -32,7 +32,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: audiobookshelf-audiobooks
+  name: audiobookshelf-media
 spec:
   capacity:
     storage: 500Gi
@@ -41,22 +41,22 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: ""
   claimRef:
-    name: audiobookshelf-audiobooks
+    name: audiobookshelf-media
     namespace: audiobookshelf
   nfs:
     server: 192.168.8.89
-    path: /void/audiobooks
+    path: /void/media
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: audiobookshelf-audiobooks
+  name: audiobookshelf-media
   namespace: audiobookshelf
 spec:
   accessModes:
     - ReadWriteOnce
   storageClassName: ""
-  volumeName: audiobookshelf-audiobooks
+  volumeName: audiobookshelf-media
   resources:
     requests:
       storage: 500Gi
@@ -126,8 +126,8 @@ spec:
               mountPath: /config
             - name: metadata
               mountPath: /metadata
-            - name: audiobooks
-              mountPath: /audiobooks
+            - name: media
+              mountPath: /data
             - name: podcasts
               mountPath: /podcasts
       volumes:
@@ -137,9 +137,9 @@ spec:
         - name: metadata
           persistentVolumeClaim:
             claimName: audiobookshelf-metadata
-        - name: audiobooks
+        - name: media
           persistentVolumeClaim:
-            claimName: audiobookshelf-audiobooks
+            claimName: audiobookshelf-media
         - name: podcasts
           persistentVolumeClaim:
             claimName: audiobookshelf-podcasts
