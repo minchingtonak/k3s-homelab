@@ -28,7 +28,7 @@ data:
       /mnt
       accs:
         # https://github.com/9001/copyparty#accounts-and-volumes
-        A: * # same as rwmda (read/write/move/delete/admin/dotfiles)
+        A: *  # same as rwmda (read/write/move/delete/admin/dotfiles)
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -338,6 +338,8 @@ metadata:
   namespace: copyparty
   labels:
     app.kubernetes.io/name: copyparty
+  annotations:
+    reloader.stakater.com/auto: "true"
 spec:
   replicas: 1
   selector:
