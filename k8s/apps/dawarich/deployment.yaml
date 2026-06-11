@@ -144,7 +144,7 @@ spec:
     spec:
       containers:
         - name: redis
-          image: redis:7.4-alpine@sha256:bb186d083732f669da90be8b0f975a37812b15e913465bb14d845db72a4e3e08
+          image: redis:7.4-alpine@sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99
           command: ["redis-server"]
           ports:
             - name: redis
