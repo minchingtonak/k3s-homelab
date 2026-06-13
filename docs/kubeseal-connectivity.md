@@ -5,7 +5,7 @@
 Running `kubeseal --controller-name=sealed-secrets-controller --controller-namespace=flux-system --fetch-cert` (or any kubeseal invocation that probes the controller) fails with:
 
 ```
-error: cannot fetch certificate: error trying to reach service: proxy error from 192.168.8.100:6443 while dialing 10.42.1.8:8080, code 502: 502 Bad Gateway
+error: cannot fetch certificate: error trying to reach service: proxy error from 192.168.20.100:6443 while dialing 10.42.1.8:8080, code 502: 502 Bad Gateway
 ```
 
 ## Root Cause
@@ -27,7 +27,7 @@ spec:
 When kubeseal probes the controller, it uses the Kubernetes API server proxy mechanism:
 
 ```
-kubeseal → API server (192.168.8.100:6443) → proxies HTTP → pod (10.42.1.8:8080)
+kubeseal → API server (192.168.20.100:6443) → proxies HTTP → pod (10.42.1.8:8080)
 ```
 
 The API server's outbound connection arrives at the sealed-secrets pod with a source IP of `10.42.0.0` — the server node's flannel VXLAN VTEP address. This is **not** a pod IP, so it does not match `podSelector: {}` in the NetworkPolicy. kube-router enforces the policy by rejecting the packet with `icmp-port-unreachable`, which the API server surfaces as a 502.
@@ -35,8 +35,8 @@ The API server's outbound connection arrives at the sealed-secrets pod with a so
 A tcpdump on the server confirmed the VXLAN tunnel itself is healthy — packets reach the agent node and are decapsulated correctly, but kube-router drops them before they reach the pod:
 
 ```
-192.168.8.100 → 192.168.8.101:8472 (VXLAN): 10.42.0.0 → 10.42.1.8 ICMP echo request
-192.168.8.101 → 192.168.8.100:8472 (VXLAN): 10.42.1.0 → 10.42.0.0 ICMP unreachable
+192.168.20.100 → 192.168.20.101:8472 (VXLAN): 10.42.0.0 → 10.42.1.8 ICMP echo request
+192.168.20.101 → 192.168.20.100:8472 (VXLAN): 10.42.1.0 → 10.42.0.0 ICMP unreachable
 ```
 
 ## Fix

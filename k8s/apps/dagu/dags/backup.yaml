@@ -7,7 +7,7 @@ handler_on:
     type: ssh
     config:
       user: "root"
-      host: "192.168.8.89"
+      host: "192.168.20.89"
       key: /etc/dagu/proxmox_ed25519
       strict_host_key: false
       shell: "/bin/bash -e"
@@ -29,12 +29,12 @@ steps:
       scp -r -i "$KEY" \
         -o StrictHostKeyChecking=no \
         -o UserKnownHostsFile=/dev/null \
-        /dagu/dags/scripts/* root@192.168.8.89:$WORK_DIR
+        /dagu/dags/scripts/* root@192.168.20.89:$WORK_DIR
 
       ssh -i "$KEY" \
         -o StrictHostKeyChecking=no \
         -o UserKnownHostsFile=/dev/null \
-        root@192.168.8.89 "chmod +x $WORK_DIR/*.sh"
+        root@192.168.20.89 "chmod +x $WORK_DIR/*.sh"
 
   - name: run-local-pbs-backup-script
     command: cd /tmp/dag-${DAG_RUN_ID} && ./local-pbs-backup.sh
@@ -44,7 +44,7 @@ steps:
     type: ssh
     config:
       user: "root"
-      host: "192.168.8.89"
+      host: "192.168.20.89"
       key: /etc/dagu/proxmox_ed25519
       strict_host_key: false
       shell: "/bin/bash -e"
@@ -56,7 +56,7 @@ steps:
     type: ssh
     config:
       user: "root"
-      host: "192.168.8.89"
+      host: "192.168.20.89"
       key: /etc/dagu/proxmox_ed25519
       strict_host_key: false
       shell: "/bin/bash -e"

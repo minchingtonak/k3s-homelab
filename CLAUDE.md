@@ -61,9 +61,9 @@ All infrastructure is defined in a single `pulumi/index.ts` with these sections:
 
 4. **Base template VM** (vmId 1000) — 2 CPU / 2GB RAM / 10GB disk, cloned for server and agents.
 
-5. **K3s server node** (vmId 100) — Control plane (`k3s-server-01`, IP `192.168.8.100`). 2 CPU / 4GB RAM / 10GB disk. Installs K3s in cluster-init mode with Traefik and ServiceLB disabled.
+5. **K3s server node** (vmId 100) — Control plane (`k3s-server-01`, IP `192.168.20.100`). 2 CPU / 4GB RAM / 10GB disk. Installs K3s in cluster-init mode with Traefik and ServiceLB disabled.
 
-6. **K3s agent nodes** (vmId 101+) — Worker nodes. 4 CPU / 8GB RAM / 50GB disk. Health-check loop waits for server at `192.168.8.100:6443` before joining. Currently `agentCount = 1`.
+6. **K3s agent nodes** (vmId 101+) — Worker nodes. 4 CPU / 8GB RAM / 50GB disk. Health-check loop waits for server at `192.168.20.100:6443` before joining. Currently `agentCount = 1`.
 
 7. **Flux bootstrap** — Fetches kubeconfig from the server node via SSH (replacing `127.0.0.1` with the external IP), writes it to `~/.kube/k3s-homelab`, installs the Flux Operator via Helm, then applies a `FluxInstance` CRD that bootstraps Flux against the git repository. Flux manages `clusters/homelab` path.
 
@@ -82,7 +82,7 @@ The two-phase pattern is used for operators that install CRDs (e.g. MetalLB): on
 
 Config and secrets in `pulumi/Pulumi.dev.yaml` are Pulumi-encrypted:
 
-- `k3s-homelab:proxmoxEndpoint` — Proxmox API URL (`https://192.168.8.89:8006`)
+- `k3s-homelab:proxmoxEndpoint` — Proxmox API URL (`https://192.168.20.89:8006`)
 - `k3s-homelab:proxmoxPassword` — Proxmox API password
 - `k3s-homelab:k3sToken` — Shared K3s cluster token
 - `k3s-homelab:sshPublicKey` — SSH public key injected into all VMs via cloud-init
@@ -132,39 +132,39 @@ kubectl is configured locally and can be used directly — no need to SSH into n
 
 ## Remote Debugging
 
-### Proxmox host (192.168.8.89)
+### Proxmox host (192.168.20.89)
 
 ```bash
 # SSH into Proxmox
-ssh -i ~/.ssh/lxc_ed25519 -o ConnectTimeout=30 -o ServerAliveInterval=15 -o ServerAliveCountMax=6 root@192.168.8.89
+ssh -i ~/.ssh/lxc_ed25519 -o ConnectTimeout=30 -o ServerAliveInterval=15 -o ServerAliveCountMax=6 root@192.168.20.89
 
 # List VMs
-ssh -i ~/.ssh/lxc_ed25519 root@192.168.8.89 "qm list"
+ssh -i ~/.ssh/lxc_ed25519 root@192.168.20.89 "qm list"
 
 # View cloud-init output log for a running VM (e.g. vmId 100)
-ssh -i ~/.ssh/lxc_ed25519 root@192.168.8.89 "cat /var/log/qemu-server/100.log"
+ssh -i ~/.ssh/lxc_ed25519 root@192.168.20.89 "cat /var/log/qemu-server/100.log"
 ```
 
 ### K3s nodes
 
 ```bash
 # SSH into server node
-ssh -i ~/.ssh/k3s_ed25519 -o ConnectTimeout=30 -o ServerAliveInterval=15 -o ServerAliveCountMax=6 k3s@192.168.8.100
+ssh -i ~/.ssh/k3s_ed25519 -o ConnectTimeout=30 -o ServerAliveInterval=15 -o ServerAliveCountMax=6 k3s@192.168.20.100
 
 # Run a remote command on the server
-ssh -i ~/.ssh/k3s_ed25519 -o ConnectTimeout=30 k3s@192.168.8.100 "<command>"
+ssh -i ~/.ssh/k3s_ed25519 -o ConnectTimeout=30 k3s@192.168.20.100 "<command>"
 
-# Agent nodes follow the same pattern (IPs: 192.168.8.101, .102, ...)
-ssh -i ~/.ssh/k3s_ed25519 -o ConnectTimeout=30 k3s@192.168.8.101
+# Agent nodes follow the same pattern (IPs: 192.168.20.101, .102, ...)
+ssh -i ~/.ssh/k3s_ed25519 -o ConnectTimeout=30 k3s@192.168.20.101
 
 # Tail cloud-init log on a node (snapshot only — avoid -f due to lag)
-ssh -i ~/.ssh/k3s_ed25519 k3s@192.168.8.100 "sudo cat /var/log/cloud-init-output.log"
+ssh -i ~/.ssh/k3s_ed25519 k3s@192.168.20.100 "sudo cat /var/log/cloud-init-output.log"
 
 # Check K3s service status
-ssh -i ~/.ssh/k3s_ed25519 k3s@192.168.8.100 "sudo systemctl status k3s --no-pager"
+ssh -i ~/.ssh/k3s_ed25519 k3s@192.168.20.100 "sudo systemctl status k3s --no-pager"
 
 # Re-run cloud-init after updating a snippet (e.g. after pulumi up)
-ssh -i ~/.ssh/k3s_ed25519 k3s@192.168.8.100 "sudo cloud-init clean && sudo reboot"
+ssh -i ~/.ssh/k3s_ed25519 k3s@192.168.20.100 "sudo cloud-init clean && sudo reboot"
 ```
 
 ### Clean redeployment

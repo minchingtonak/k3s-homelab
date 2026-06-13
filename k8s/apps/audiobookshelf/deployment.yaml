@@ -44,7 +44,7 @@ spec:
     name: audiobookshelf-media
     namespace: audiobookshelf
   nfs:
-    server: 192.168.8.89
+    server: 192.168.20.89
     path: /void/media
 ---
 apiVersion: v1
@@ -76,7 +76,7 @@ spec:
     name: audiobookshelf-podcasts
     namespace: audiobookshelf
   nfs:
-    server: 192.168.8.89
+    server: 192.168.20.89
     path: /void/podcasts
 ---
 apiVersion: v1

@@ -59,7 +59,7 @@ spec:
     name: paperless-ngx-media
     namespace: paperless-ngx
   nfs:
-    server: 192.168.8.89
+    server: 192.168.20.89
     path: /void/documents/paperless
 ---
 apiVersion: v1
@@ -91,7 +91,7 @@ spec:
     name: paperless-ngx-consume
     namespace: paperless-ngx
   nfs:
-    server: 192.168.8.89
+    server: 192.168.20.89
     path: /void/documents/intake
 ---
 apiVersion: v1

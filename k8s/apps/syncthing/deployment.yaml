@@ -33,7 +33,7 @@ spec:
     name: syncthing-backups
     namespace: syncthing
   nfs:
-    server: 192.168.8.89
+    server: 192.168.20.89
     path: /void/backups
 ---
 apiVersion: v1
@@ -65,7 +65,7 @@ spec:
     name: syncthing-documents
     namespace: syncthing
   nfs:
-    server: 192.168.8.89
+    server: 192.168.20.89
     path: /void/documents
 ---
 apiVersion: v1
@@ -97,7 +97,7 @@ spec:
     name: syncthing-drive
     namespace: syncthing
   nfs:
-    server: 192.168.8.89
+    server: 192.168.20.89
     path: /void/drive
 ---
 apiVersion: v1
@@ -129,7 +129,7 @@ spec:
     name: syncthing-photos
     namespace: syncthing
   nfs:
-    server: 192.168.8.89
+    server: 192.168.20.89
     path: /void/photos
 ---
 apiVersion: v1
@@ -161,7 +161,7 @@ spec:
     name: syncthing-media
     namespace: syncthing
   nfs:
-    server: 192.168.8.89
+    server: 192.168.20.89
     path: /void/media
 ---
 apiVersion: v1
@@ -193,7 +193,7 @@ spec:
     name: syncthing-repos
     namespace: syncthing
   nfs:
-    server: 192.168.8.89
+    server: 192.168.20.89
     path: /void/restic/repos
 ---
 apiVersion: v1

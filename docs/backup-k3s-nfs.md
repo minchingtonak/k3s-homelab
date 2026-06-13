@@ -2,12 +2,12 @@
 
 ## Architecture
 
-The ZFS dataset `fast/k3s-nfs` on the Proxmox host (`192.168.8.89`) is the NFS backend for all Kubernetes PVCs using the `nfs-zfs` StorageClass. A Dagu DAG (`k3s-nfs-backup`) runs daily at 02:00 on the backup LXC and backs up the full dataset to both local and cloud Proxmox Backup Server.
+The ZFS dataset `fast/k3s-nfs` on the Proxmox host (`192.168.20.89`) is the NFS backend for all Kubernetes PVCs using the `nfs-zfs` StorageClass. A Dagu DAG (`k3s-nfs-backup`) runs daily at 02:00 on the backup LXC and backs up the full dataset to both local and cloud Proxmox Backup Server.
 
 Flow per run:
 
 1. **ZFS snapshot** — `fast/k3s-nfs@k3s-nfs-backup-<run-id>` is created for crash consistency (Prometheus, Grafana, and Seerr continue running against the live dataset while the backup reads from the frozen snapshot)
-2. **Local PBS backup** — each PVC subdirectory under the snapshot is uploaded to the `k3s-nfs` datastore on the local PBS (`192.168.8.189`) using `proxmox-backup-client` with client-side AES-256 encryption
+2. **Local PBS backup** — each PVC subdirectory under the snapshot is uploaded to the `k3s-nfs` datastore on the local PBS (`192.168.20.189`) using `proxmox-backup-client` with client-side AES-256 encryption
 3. **Cloud PBS backup** — same subdirectories uploaded to the cloud PBS, identified by `--backup-id k3s-nfs` (separate from the existing combined appdata/personal-files backup)
 4. **Snapshot destroyed** — exit handler always destroys the ZFS snapshot regardless of backup outcome
 
@@ -92,7 +92,7 @@ Dagu picks up the new DAG automatically from its schedule.
 
 ### Prerequisites
 
-- SSH access to the Proxmox host (`192.168.8.89`)
+- SSH access to the Proxmox host (`192.168.20.89`)
 - The encryption key file (`/root/k3s-nfs.key` on the PVE host, or export it again from the Pulumi secret `SECRET_K3S_NFS_PBS_CLIENT_KEY`)
 - The encryption password (`SECRET_K3S_NFS_ENCRYPTION_PASSWORD` from Pulumi)
 - PBS credentials (`SECRET_EDSAC_PBS_PASSWORD` for local PBS)
@@ -100,13 +100,13 @@ Dagu picks up the new DAG automatically from its schedule.
 ### List available backups
 
 ```bash
-ssh -i ~/.ssh/lxc_ed25519 root@192.168.8.89
+ssh -i ~/.ssh/lxc_ed25519 root@192.168.20.89
 
 export PBS_PASSWORD='<pbs-password>'
 export PBS_ENCRYPTION_PASSWORD='<encryption-password>'
 
 proxmox-backup-client snapshot list \
-  --repository root@pam@192.168.8.189:k3s-nfs \
+  --repository root@pam@192.168.20.189:k3s-nfs \
   --keyfile /root/k3s-nfs.key
 ```
 
@@ -123,7 +123,7 @@ kubectl scale deployment seerr -n seerr --replicas=0
 # On the Proxmox host — replace <snapshot-id> with e.g. host/k3s-nfs/2025-01-15T02:05:00Z
 proxmox-backup-client restore <snapshot-id> seerr-seerr-config.pxar \
   /fast/k3s-nfs/seerr-seerr-config/ \
-  --repository root@pam@192.168.8.189:k3s-nfs \
+  --repository root@pam@192.168.20.189:k3s-nfs \
   --keyfile /root/k3s-nfs.key
 
 # Scale the workload back up
@@ -141,7 +141,7 @@ kubectl scale deployment --all -n seerr --replicas=0
 # and repeat for each .pxar archive in the snapshot
 proxmox-backup-client restore <snapshot-id> monitoring-kube-prometheus-stack-grafana.pxar \
   /fast/k3s-nfs/monitoring-kube-prometheus-stack-grafana/ \
-  --repository root@pam@192.168.8.189:k3s-nfs \
+  --repository root@pam@192.168.20.189:k3s-nfs \
   --keyfile /root/k3s-nfs.key
 
 # ... repeat for each archive ...
@@ -169,6 +169,6 @@ proxmox-backup-client restore <snapshot-id> <archive-name>.pxar \
 - Dagu web UI shows DAG run history, step logs, and failure status
 - Pushover and Slack notifications fire on any script error
 - Healthcheck monitors alert if backups stop completing
-- PBS web UI (`https://192.168.8.189:8007`) shows backup history and storage usage for the `k3s-nfs` datastore
+- PBS web UI (`https://192.168.20.189:8007`) shows backup history and storage usage for the `k3s-nfs` datastore
 
 See also: [NFS Storage Setup](./nfs-storage-setup.md)

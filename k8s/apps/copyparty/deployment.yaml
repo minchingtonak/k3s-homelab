@@ -58,7 +58,7 @@ spec:
     name: copyparty-audiobooks
     namespace: copyparty
   nfs:
-    server: 192.168.8.89
+    server: 192.168.20.89
     path: /void/audiobooks
 ---
 apiVersion: v1
@@ -90,7 +90,7 @@ spec:
     name: copyparty-backups
     namespace: copyparty
   nfs:
-    server: 192.168.8.89
+    server: 192.168.20.89
     path: /void/backups
 ---
 apiVersion: v1
@@ -122,7 +122,7 @@ spec:
     name: copyparty-documents
     namespace: copyparty
   nfs:
-    server: 192.168.8.89
+    server: 192.168.20.89
     path: /void/documents
 ---
 apiVersion: v1
@@ -154,7 +154,7 @@ spec:
     name: copyparty-drive
     namespace: copyparty
   nfs:
-    server: 192.168.8.89
+    server: 192.168.20.89
     path: /void/drive
 ---
 apiVersion: v1
@@ -186,7 +186,7 @@ spec:
     name: copyparty-media
     namespace: copyparty
   nfs:
-    server: 192.168.8.89
+    server: 192.168.20.89
     path: /void/media
 ---
 apiVersion: v1
@@ -218,7 +218,7 @@ spec:
     name: copyparty-photos
     namespace: copyparty
   nfs:
-    server: 192.168.8.89
+    server: 192.168.20.89
     path: /void/photos
 ---
 apiVersion: v1
@@ -250,7 +250,7 @@ spec:
     name: copyparty-podcasts
     namespace: copyparty
   nfs:
-    server: 192.168.8.89
+    server: 192.168.20.89
     path: /void/podcasts
 ---
 apiVersion: v1
@@ -282,7 +282,7 @@ spec:
     name: copyparty-restic
     namespace: copyparty
   nfs:
-    server: 192.168.8.89
+    server: 192.168.20.89
     path: /void/restic
 ---
 apiVersion: v1
@@ -314,7 +314,7 @@ spec:
     name: copyparty-appdata
     namespace: copyparty
   nfs:
-    server: 192.168.8.89
+    server: 192.168.20.89
     path: /fast/appdata
 ---
 apiVersion: v1

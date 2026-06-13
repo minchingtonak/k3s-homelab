@@ -14,7 +14,7 @@ spec:
     name: servarr-tv
     namespace: servarr
   nfs:
-    server: 192.168.8.89
+    server: 192.168.20.89
     path: /void/media/tv
 ---
 apiVersion: v1
@@ -46,7 +46,7 @@ spec:
     name: servarr-movies
     namespace: servarr
   nfs:
-    server: 192.168.8.89
+    server: 192.168.20.89
     path: /void/media/movies
 ---
 apiVersion: v1
@@ -78,7 +78,7 @@ spec:
     name: servarr-music
     namespace: servarr
   nfs:
-    server: 192.168.8.89
+    server: 192.168.20.89
     path: /void/media/music
 ---
 apiVersion: v1
@@ -110,7 +110,7 @@ spec:
     name: servarr-downloads
     namespace: servarr
   nfs:
-    server: 192.168.8.89
+    server: 192.168.20.89
     path: /void/media/downloads
 ---
 apiVersion: v1

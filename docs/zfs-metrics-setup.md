@@ -1,13 +1,13 @@
 # ZFS Metrics Setup
 
-Prometheus scrapes ZFS pool metrics from the Proxmox host (192.168.8.89) via a static node-exporter target. The K3s VMs themselves don't have ZFS — the pool lives on the Proxmox host, mounted to the cluster via NFS.
+Prometheus scrapes ZFS pool metrics from the Proxmox host (192.168.20.89) via a static node-exporter target. The K3s VMs themselves don't have ZFS — the pool lives on the Proxmox host, mounted to the cluster via NFS.
 
 ## Install node-exporter on the Proxmox host
 
 SSH into the Proxmox host and run:
 
 ```bash
-ssh -i ~/.ssh/lxc_ed25519 root@192.168.8.89
+ssh -i ~/.ssh/lxc_ed25519 root@192.168.20.89
 ```
 
 Install and enable node-exporter with the ZFS collector:
@@ -55,4 +55,4 @@ Dashboard 7845 (ZFS pool metrics) is provisioned automatically via the HelmRelea
 
 ## Firewall note
 
-If the Proxmox host has a firewall (Proxmox Datacenter → Firewall), ensure port 9100 is accessible from the K3s cluster network (192.168.8.0/24). Node-exporter binds to all interfaces by default.
+If the Proxmox host has a firewall (Proxmox Datacenter → Firewall), ensure port 9100 is accessible from the K3s cluster network (192.168.20.0/24). Node-exporter binds to all interfaces by default.

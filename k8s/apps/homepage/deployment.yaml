@@ -114,15 +114,15 @@ data:
   bookmarks.yaml: |
     - infrastructure:
       - router:
-          - icon: sh-gl-inet.svg
-            href: http://192.168.8.1
+          - icon: unifi.svg
+            href: https://192.168.20.1
       - proxmox:
           - icon: proxmox.png
-            href: https://192.168.8.89:8006
+            href: https://192.168.20.89:8006
     - backup & dr:
       - edsac pbs:
           - icon: proxmox-backup-server.svg
-            href: https://192.168.8.189:8007
+            href: https://192.168.20.189:8007
       - cloud pbs:
           - icon: proxmox-backup-server-dark.svg
             href: https://sh19-112.prod.cloud-pbs.com:8007

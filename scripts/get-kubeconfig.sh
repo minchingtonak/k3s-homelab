@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SERVER_IP="192.168.8.100"
+SERVER_IP="192.168.20.100"
 REMOTE_USER="k3s"
 REMOTE_KUBECONFIG="/home/k3s/.kube/config"
 LOCAL_KUBECONFIG="${HOME}/.kube/config"

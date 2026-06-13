@@ -198,8 +198,8 @@ bantime = 86400
 // 3. UPLOAD CLOUD-INIT SNIPPETS
 // =============================================================================
 
-const k3sServerIp = '192.168.8.100';
-const gatewayIp = '192.168.8.1';
+const k3sServerIp = '192.168.20.100';
+const gatewayIp = '192.168.20.1';
 
 // K3s Server cloud-init
 const k3sServerCloudInit = new proxmox.FileLegacy(
@@ -485,7 +485,7 @@ for (let i = 0; i < agentCount; i++) {
   const agentNum = i + 1;
   const vmId = 100 + agentNum;
   const agentName = `k3s-agent-${agentNum.toString().padStart(2, '0')}`;
-  const ipAddress = `192.168.8.${vmId}/24`;
+  const ipAddress = `192.168.20.${vmId}/24`;
 
   const agentCloudInit = new proxmox.FileLegacy(
     `k3s-agent-cloud-init-${agentNum.toString().padStart(2, '0')}`,
@@ -779,7 +779,7 @@ export const server = {
 
 export const agents = k3sAgents.map((a, i) => ({
   vmId: a.vmId,
-  ip: `192.168.8.${101 + i}`,
+  ip: `192.168.20.${101 + i}`,
 }));
 
 export const templateVmId = k3sTemplate.vmId;

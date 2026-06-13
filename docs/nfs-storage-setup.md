@@ -7,7 +7,7 @@ Kubernetes persistent storage is backed by a ZFS dataset on the Proxmox host, ex
 SSH into the Proxmox host:
 
 ```bash
-ssh -i ~/.ssh/lxc_ed25519 root@192.168.8.89
+ssh -i ~/.ssh/lxc_ed25519 root@192.168.20.89
 ```
 
 ### Create the ZFS dataset
@@ -26,7 +26,7 @@ Mounts at `/fast/k3s-nfs` by default (inherits the pool mountpoint).
 
 ```bash
 apt update && apt install -y nfs-kernel-server
-echo '/fast/k3s-nfs 192.168.8.0/24(rw,sync,no_subtree_check,no_root_squash)' >> /etc/exports
+echo '/fast/k3s-nfs 192.168.20.0/24(rw,sync,no_subtree_check,no_root_squash)' >> /etc/exports
 exportfs -ra
 systemctl enable --now nfs-kernel-server
 ```
@@ -37,14 +37,14 @@ systemctl enable --now nfs-kernel-server
 
 ```bash
 showmount -e localhost
-# Expected: /fast/k3s-nfs  192.168.8.0/24
+# Expected: /fast/k3s-nfs  192.168.20.0/24
 ```
 
 Test mount from a K3s node:
 
 ```bash
-ssh -i ~/.ssh/k3s_ed25519 k3s@192.168.8.100 \
-  "sudo mount -t nfs 192.168.8.89:/fast/k3s-nfs /mnt && ls /mnt && sudo umount /mnt"
+ssh -i ~/.ssh/k3s_ed25519 k3s@192.168.20.100 \
+  "sudo mount -t nfs 192.168.20.89:/fast/k3s-nfs /mnt && ls /mnt && sudo umount /mnt"
 ```
 
 ## Kubernetes side
@@ -61,13 +61,13 @@ To use it, set `storageClassName: nfs-zfs` on a PVC. To make it the cluster defa
 
 ```bash
 # PVC subdirectories on the Proxmox host
-ssh -i ~/.ssh/lxc_ed25519 root@192.168.8.89 "du -sh /fast/k3s-nfs/*"
+ssh -i ~/.ssh/lxc_ed25519 root@192.168.20.89 "du -sh /fast/k3s-nfs/*"
 
 # ZFS dataset usage
-ssh -i ~/.ssh/lxc_ed25519 root@192.168.8.89 "zfs list fast/k3s-nfs"
+ssh -i ~/.ssh/lxc_ed25519 root@192.168.20.89 "zfs list fast/k3s-nfs"
 
 # Set a dataset quota if needed
-ssh -i ~/.ssh/lxc_ed25519 root@192.168.8.89 "zfs set quota=500G fast/k3s-nfs"
+ssh -i ~/.ssh/lxc_ed25519 root@192.168.20.89 "zfs set quota=500G fast/k3s-nfs"
 ```
 
 ## Backup

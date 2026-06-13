@@ -195,13 +195,13 @@ spec:
           limits:
             memory: 2500Mi
         # Scrape the Proxmox host's node-exporter for ZFS pool metrics.
-        # Requires node-exporter running on 192.168.8.89 with --collector.zfs.
+        # Requires node-exporter running on 192.168.20.89 with --collector.zfs.
         # See: docs/zfs-metrics-setup.md for installation instructions.
         additionalScrapeConfigs:
           - job_name: proxmox-host
             static_configs:
               - targets:
-                  - "192.168.8.89:9100"
+                  - "192.168.20.89:9100"
                 labels:
                   instance: proxmox-host
                   job: node

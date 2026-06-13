@@ -44,7 +44,7 @@ spec:
     name: spotizerr-downloads
     namespace: spotizerr
   nfs:
-    server: 192.168.8.89
+    server: 192.168.20.89
     path: /void/media/downloads/spotizerr
 ---
 apiVersion: v1

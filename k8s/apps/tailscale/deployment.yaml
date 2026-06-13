@@ -67,7 +67,7 @@ spec:
             - name: TS_HOSTNAME
               value: tailscale-k3s
             - name: TS_EXTRA_ARGS
-              value: "--ssh --advertise-routes=192.168.8.0/24"
+              value: "--ssh --advertise-routes=192.168.20.0/24"
             - name: TS_KUBE_SECRET
               value: tailscale-state
             - name: TS_USERSPACE
