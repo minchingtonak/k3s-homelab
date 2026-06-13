@@ -18,9 +18,6 @@ spec:
   routes:
     - kind: Rule
       match: Host(`headlamp.item.fyi`)
-      middlewares:
-        - name: authentik
-          namespace: authentik
       services:
         - name: headlamp
           port: 80

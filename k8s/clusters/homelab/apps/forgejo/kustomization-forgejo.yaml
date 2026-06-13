@@ -19,4 +19,4 @@ spec:
   path: k8s/apps/forgejo
   prune: true
   wait: true
-  timeout: 5m
+  timeout: 10m
