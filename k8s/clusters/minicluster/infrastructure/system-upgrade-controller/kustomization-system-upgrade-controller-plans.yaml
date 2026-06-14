@@ -1,0 +1,16 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: system-upgrade-controller-plans
+  namespace: flux-system
+spec:
+  interval: 1h
+  retryInterval: 1m
+  dependsOn:
+    - name: system-upgrade-controller
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: k8s/infrastructure/system-upgrade-controller-plans
+  prune: true
+  timeout: 2m
