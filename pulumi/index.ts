@@ -755,7 +755,7 @@ new k8s.apiextensions.CustomResource(
         url: gitRepo,
         ref: 'refs/heads/main',
         // If this path changes, update k8s/clusters/homelab/flux-system/flux-instance.yaml too.
-        path: 'k8s/clusters/homelab',
+        path: 'k8s/clusters/proxmox',
       },
     },
   },
