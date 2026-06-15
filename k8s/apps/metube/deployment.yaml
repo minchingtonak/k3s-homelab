@@ -4,6 +4,24 @@ metadata:
   name: metube
 ---
 apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: metube-downloads
+spec:
+  capacity:
+    storage: 500Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  claimRef:
+    name: metube-downloads
+    namespace: metube
+  nfs:
+    server: 192.168.20.89
+    path: /void/media/downloads/metube
+---
+apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: metube-downloads
@@ -11,10 +29,11 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: nfs-zfs
+  storageClassName: ""
+  volumeName: metube-downloads
   resources:
     requests:
-      storage: 10Gi
+      storage: 500Gi
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -36,6 +55,11 @@ spec:
       containers:
         - name: metube
           image: ghcr.io/alexta69/metube:2026.05.30@sha256:c5ed53d2e9f3aff3982a599aac74388d36879722b1a553a9ae0200346a321ec9
+          env:
+            - name: PUID
+              value: "100000"
+            - name: PGID
+              value: "100000"
           ports:
             - name: http
               containerPort: 8081
