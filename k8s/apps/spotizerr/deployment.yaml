@@ -149,6 +149,9 @@ spec:
       securityContext:
         runAsUser: 100000
         runAsGroup: 100000
+        # fsGroup so the app (uid 100000) can write the fresh Longhorn volume root,
+        # which is otherwise root-owned (else: Permission denied creating data/creds).
+        fsGroup: 100000
       containers:
         - name: spotizerr
           image: spotizerrphoenix/spotizerr:4.0.17@sha256:2a4aac5ef750f1497a3b942796ddaa9e02d6cec7a196d1292051a90d68b8f2ce
