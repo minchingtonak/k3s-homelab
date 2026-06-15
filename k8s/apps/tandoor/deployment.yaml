@@ -57,6 +57,10 @@ spec:
                   key: POSTGRES_PASSWORD
             - name: POSTGRES_DB
               value: djangodb
+            # PGDATA in a subdir so the ext4 lost+found at the Longhorn volume
+            # root doesn't make initdb fail ("directory exists but is not empty").
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
           ports:
             - name: postgres
               containerPort: 5432
