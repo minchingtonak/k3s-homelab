@@ -7,7 +7,7 @@ spec:
   interval: 1h
   retryInterval: 1m
   dependsOn:
-    - name: nfs-provisioner
+    - name: longhorn
     - name: kube-prometheus-stack
   sourceRef:
     kind: GitRepository
