@@ -32,6 +32,10 @@ spec:
       labels:
         app.kubernetes.io/name: seerr
     spec:
+      # seerr runs as uid/gid 1000 (node); fsGroup makes the Longhorn volume
+      # group-owned and writable so it can create /app/config/logs, db, etc.
+      securityContext:
+        fsGroup: 1000
       containers:
         - name: seerr
           image: ghcr.io/seerr-team/seerr:v3.2.0@sha256:c4cbd5121236ac2f70a843a0b920b68a27976be57917555f1c45b08a1e6b2aad
