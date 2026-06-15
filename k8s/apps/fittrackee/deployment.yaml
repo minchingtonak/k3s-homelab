@@ -57,6 +57,8 @@ spec:
                   key: POSTGRES_PASSWORD
             - name: POSTGRES_DB
               value: fittrackee
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
           ports:
             - name: postgres
               containerPort: 5432
@@ -115,6 +117,9 @@ spec:
       labels:
         app.kubernetes.io/name: fittrackee
     spec:
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
       containers:
         - name: fittrackee
           image: fittrackee/fittrackee:v1.3.2@sha256:70cf79d9a76b9eaf03759fb83f8d4d87519ad03031fcfd0d88df9fccaedd6a06
