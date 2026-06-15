@@ -73,11 +73,9 @@ spec:
     postgresql:
       enabled: true
       primary:
-        # Ephemeral: emptyDir instead of a PVC, since the cluster has no
-        # StorageClass yet. WARNING: the authentik database is LOST on pod restart.
-        # TODO: revert to persistent storage (storageClass) once storage exists.
         persistence:
-          enabled: false
+          enabled: true
+          size: 8Gi
         extendedConfiguration: |
           max_connections = 50
     blueprints:
