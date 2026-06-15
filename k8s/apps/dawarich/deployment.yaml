@@ -69,6 +69,8 @@ spec:
                   key: DATABASE_PASSWORD
             - name: POSTGRES_DB
               value: dawarich_development
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
           ports:
             - name: postgres
               containerPort: 5432
