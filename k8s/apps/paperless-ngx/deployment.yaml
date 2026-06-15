@@ -3,7 +3,6 @@ kind: Namespace
 metadata:
   name: paperless-ngx
 ---
-# Dynamic PVCs — managed by nfs-zfs provisioner
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -12,10 +11,9 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: nfs-zfs
   resources:
     requests:
-      storage: 2Gi
+      storage: 1Gi
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -25,7 +23,6 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: nfs-zfs
   resources:
     requests:
       storage: 1Gi
@@ -38,12 +35,10 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: nfs-zfs
   resources:
     requests:
-      storage: 4Gi
+      storage: 2Gi
 ---
-# Static PV/PVC pairs — direct NFS mounts to existing Proxmox paths on void pool
 apiVersion: v1
 kind: PersistentVolume
 metadata:
