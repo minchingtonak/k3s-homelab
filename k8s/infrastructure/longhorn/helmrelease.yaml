@@ -1,0 +1,51 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: longhorn
+  namespace: longhorn-system
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: longhorn
+      version: "1.12.0"
+      sourceRef:
+        kind: HelmRepository
+        name: longhorn
+      interval: 1h
+  values:
+    defaultSettings:
+      # Matches the dedicated data disk provisioned by the ansible common role
+      # (/dev/nvme1n1 mounted at /mnt/data). See ansible/roles/common.
+      defaultDataPath: /mnt/data/longhorn
+      # Single-node cluster today (agents are commented out in the inventory).
+      # Bump these to 2-3 once agent nodes join.
+      defaultReplicaCount: 1
+      # Allow a volume's replicas to schedule onto the same node — required while
+      # the cluster is single-node, otherwise volumes stay degraded.
+      replicaSoftAntiAffinity: true
+    persistence:
+      # Make longhorn the cluster's default StorageClass.
+      defaultClass: true
+      defaultClassReplicaCount: 1
+    # Scale the CSI sidecars and UI down to 1 replica for a single-node cluster
+    # (chart defaults are 3 / 2 and would leave pods Pending with anti-affinity).
+    csi:
+      attacherReplicaCount: 1
+      provisionerReplicaCount: 1
+      resizerReplicaCount: 1
+      snapshotterReplicaCount: 1
+    longhornUI:
+      replicas: 1
+    # UI is exposed via a Traefik IngressRoute in longhorn-config, not the chart's
+    # own ingress.
+    ingress:
+      enabled: false
+  install:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  upgrade:
+    crds: CreateReplace
+    remediation:
+      retries: 3

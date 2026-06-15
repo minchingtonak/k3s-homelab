@@ -1,0 +1,27 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: longhorn
+  namespace: longhorn-system
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Longhorn"
+    gethomepage.dev/description: "Distributed block storage"
+    gethomepage.dev/group: "infrastructure"
+    gethomepage.dev/icon: "longhorn.svg"
+    gethomepage.dev/href: "https://longhorn.item.fyi"
+    gethomepage.dev/siteMonitor: "http://longhorn-frontend.longhorn-system.svc.cluster.local:80"
+    gethomepage.dev/pod-selector: "app=longhorn-ui"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`longhorn.item.fyi`)
+      # middlewares:
+      #   - name: authentik
+      #     namespace: authentik
+      services:
+        - name: longhorn-frontend
+          port: 80
+  tls: {}
