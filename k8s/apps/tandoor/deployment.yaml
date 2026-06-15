@@ -11,10 +11,9 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: nfs-zfs
   resources:
     requests:
-      storage: 2Gi
+      storage: 1Gi
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -24,10 +23,9 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: nfs-zfs
   resources:
     requests:
-      storage: 4Gi
+      storage: 2Gi
 ---
 apiVersion: apps/v1
 kind: Deployment
