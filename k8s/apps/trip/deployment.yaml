@@ -11,10 +11,9 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: nfs-zfs
   resources:
     requests:
-      storage: 2Gi
+      storage: 512Mi
 ---
 apiVersion: apps/v1
 kind: Deployment
