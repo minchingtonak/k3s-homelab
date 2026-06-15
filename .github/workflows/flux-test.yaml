@@ -32,6 +32,17 @@ jobs:
             test
             --all-namespaces
             --enable-helm
-            --path /github/workspace/k8s/clusters/homelab
+            --path /github/workspace/k8s/clusters/minicluster
+            --sources flux-system
+            --verbose
+
+      - name: Run flux-local test
+        uses: docker://ghcr.io/allenporter/flux-local:v8.2.0
+        with:
+          args: >-
+            test
+            --all-namespaces
+            --enable-helm
+            --path /github/workspace/k8s/clusters/proxmox
             --sources flux-system
             --verbose
