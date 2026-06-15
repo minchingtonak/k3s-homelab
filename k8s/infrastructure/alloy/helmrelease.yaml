@@ -87,7 +87,7 @@ spec:
           loki.process "pod_logs" {
             stage.static_labels {
               values = {
-                cluster = "k3s-homelab",
+                cluster = "minicluster",
               }
             }
             forward_to = [loki.write.default.receiver]

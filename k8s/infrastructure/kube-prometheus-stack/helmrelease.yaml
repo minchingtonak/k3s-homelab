@@ -71,11 +71,10 @@ spec:
       ingress:
         enabled: false # exposed via IngressRoute instead
       initChownData:
-        enabled: false # provisioner creates 777 dirs; chown is unnecessary and fails on NFS with existing data
+        enabled: false # volume ownership handled by the chart's fsGroup (472); no chown container needed
       persistence:
         enabled: true
         size: 2Gi
-        storageClassName: nfs-zfs
       admin:
         existingSecret: grafana-admin-credentials
         userKey: admin-user
@@ -183,7 +182,6 @@ spec:
         storageSpec:
           volumeClaimTemplate:
             spec:
-              storageClassName: nfs-zfs
               accessModes: ["ReadWriteOnce"]
               resources:
                 requests:

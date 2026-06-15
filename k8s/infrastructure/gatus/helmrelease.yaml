@@ -42,7 +42,6 @@ spec:
     persistence:
       enabled: true
       size: 1Gi
-      storageClassName: nfs-zfs
       mountPath: /data
 
     # Two extra volumes:

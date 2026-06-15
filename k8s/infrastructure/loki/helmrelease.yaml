@@ -32,7 +32,6 @@ spec:
           memory: 1Gi
       persistence:
         size: 10Gi
-        storageClass: nfs-zfs
 
     loki:
       auth_enabled: false
