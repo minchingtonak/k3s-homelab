@@ -1,0 +1,28 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: servarr
+  namespace: flux-system
+spec:
+  interval: 1h
+  retryInterval: 1m
+  dependsOn:
+    - name: cert-manager
+    - name: longhorn
+    - name: authentik-config
+    - name: servarr-vars
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
+  path: k8s/apps/servarr
+  prune: true
+  wait: true
+  timeout: 5m
+  postBuild:
+    substituteFrom:
+      - kind: Secret
+        name: servarr-config-vars

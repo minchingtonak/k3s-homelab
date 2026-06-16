@@ -2,76 +2,73 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: lidarr-config
+  name: listenarr-config
   namespace: servarr
 spec:
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 20Gi
+      storage: 512Mi
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: lidarr
+  name: listenarr
   namespace: servarr
   labels:
-    app.kubernetes.io/name: lidarr
+    app.kubernetes.io/name: listenarr
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: lidarr
+      app.kubernetes.io/name: listenarr
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: lidarr
+        app.kubernetes.io/name: listenarr
     spec:
       securityContext:
         fsGroup: 100000
       containers:
-        - name: lidarr
-          image: ghcr.io/hotio/lidarr:pr-plugins-3.1.2.4913@sha256:ae0b3b14769fdfeb73fe5d9e61ebcda04edf202244bcbd6323d2fe1381154f57
+        - name: listenarr
+          image: ghcr.io/listenarrs/listenarr:canary-1.0.6@sha256:de6686e27dab51e67fbc30432de64dc75d09a135cfe497613dddbbc7ea0261d8
           env:
             - name: PUID
               value: "100000"
             - name: PGID
               value: "100000"
-            - name: TZ
-              value: America/New_York
+            - name: UMASK
+              value: "022"
           ports:
             - name: http
-              containerPort: 8686
-          livenessProbe:
-            httpGet:
-              path: /ping
-              port: 8686
-            initialDelaySeconds: 5
-            periodSeconds: 5
-            failureThreshold: 4
-            timeoutSeconds: 4
+              containerPort: 4545
           readinessProbe:
-            httpGet:
-              path: /ping
-              port: 8686
-            initialDelaySeconds: 5
-            periodSeconds: 5
-            failureThreshold: 4
+            tcpSocket:
+              port: 4545
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 6
+          livenessProbe:
+            tcpSocket:
+              port: 4545
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            failureThreshold: 3
           volumeMounts:
             - name: config
-              mountPath: /config
-            - name: music
-              mountPath: /data/music
+              mountPath: /app/config
+            - name: audiobooks
+              mountPath: /data/audiobooks
             - name: downloads
               mountPath: /data/downloads
       volumes:
         - name: config
           persistentVolumeClaim:
-            claimName: lidarr-config
-        - name: music
+            claimName: listenarr-config
+        - name: audiobooks
           persistentVolumeClaim:
-            claimName: servarr-music
+            claimName: servarr-audiobooks
         - name: downloads
           persistentVolumeClaim:
             claimName: servarr-downloads
@@ -79,7 +76,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: lidarr
+  name: listenarr
   namespace: servarr
   annotations:
     gatus.home-operations.com/endpoint: |
@@ -87,8 +84,8 @@ metadata:
         - type: pushover
 spec:
   selector:
-    app.kubernetes.io/name: lidarr
+    app.kubernetes.io/name: listenarr
   ports:
-    - port: 8686
-      targetPort: 8686
+    - port: 4545
+      targetPort: 4545
       name: http
