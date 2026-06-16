@@ -3,7 +3,6 @@ kind: Namespace
 metadata:
   name: syncthing
 ---
-# Dynamic PVC — nfs-zfs provisioner for syncthing config/db
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -12,12 +11,10 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: nfs-zfs
   resources:
     requests:
-      storage: 1Gi
+      storage: 512Mi
 ---
-# Static PV/PVC pairs — direct NFS mounts to existing Proxmox paths on void pool
 apiVersion: v1
 kind: PersistentVolume
 metadata:
