@@ -126,3 +126,35 @@ spec:
   resources:
     requests:
       storage: 500Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: servarr-audiobooks
+spec:
+  capacity:
+    storage: 500Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  claimRef:
+    name: servarr-audiobooks
+    namespace: servarr
+  nfs:
+    server: 192.168.20.89
+    path: /void/media/audiobooks
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: servarr-audiobooks
+  namespace: servarr
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ""
+  volumeName: servarr-audiobooks
+  resources:
+    requests:
+      storage: 500Gi

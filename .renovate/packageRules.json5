@@ -27,6 +27,12 @@
       versioning: "regex:^(?<compatibility>pr-plugins)-(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)\\.(?<build>\\d+)$",
       ignoreUnstable: false,
     },
+    // listenarr uses non-standard versioning (canary channel)
+    {
+      matchPackageNames: ["ghcr.io/listenarrs/listenarr"],
+      versioning: "regex:^(?<compatibility>canary)-(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$",
+      ignoreUnstable: false,
+    },
 
     // ── stateful service images ────────────────────────────────────────────
     // Each app needs a specific major of its database/cache/broker. We:
