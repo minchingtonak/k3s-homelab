@@ -22,6 +22,9 @@ spec:
         - namespaceSelector:
             matchLabels:
               kubernetes.io/metadata.name: homepage
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: gatus
       ports:
         - port: 9080
           protocol: TCP
