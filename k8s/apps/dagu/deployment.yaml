@@ -23,7 +23,7 @@ spec:
         fsGroup: 100000
       containers:
         - name: dagu
-          image: ghcr.io/dagucloud/dagu:2.7.5@sha256:42a43610ce3f7df96fc9edb6790b0f0da6050f6ec761f44f54bd6218a957e2fe
+          image: ghcr.io/dagucloud/dagu:2.7.17@sha256:920d19c473f9ccfc77bee77f7bc48aa6b65f3801acc501beb50f04b859cd4ad0
           command: ["dagu", "start-all"]
           env:
             - name: DAGU_TZ
