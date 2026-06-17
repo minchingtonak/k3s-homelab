@@ -14,6 +14,13 @@ spec:
         name: longhorn
       interval: 1h
   values:
+    # S3 backup target (Backblaze B2). Credentials live in the aws-secret Secret
+    # (backup-secret.sops.yaml), decrypted by Flux via the longhorn Kustomization's
+    # sops provider. pollInterval is how often Longhorn syncs backup volume state.
+    defaultBackupStore:
+      backupTarget: s3://minicluster-longhorn-backups@us-west-004/
+      backupTargetCredentialSecret: aws-secret
+      pollInterval: 300
     defaultSettings:
       # Matches the dedicated data disk provisioned by the ansible common role
       # (/dev/nvme1n1 mounted at /mnt/data). See ansible/roles/common.
