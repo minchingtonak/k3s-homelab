@@ -1,42 +1,51 @@
-apiVersion: v1
-kind: ConfigMap
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
 metadata:
-  name: backup-policy
+  name: backup-daily
   namespace: longhorn-system
-data:
-  recurring-job-group.yaml: |
-    apiVersion: longhorn.io/v1beta1
-    kind: RecurringJob
-    metadata:
-      name: backup-daily
-    spec:
-      cron: "0 2 * * *"
-      task: backup
-      groups:
-      - production
-      retain: 14
-      concurrency: 2
-    ---
-    apiVersion: longhorn.io/v1beta1
-    kind: RecurringJob
-    metadata:
-      name: backup-weekly
-    spec:
-      cron: "0 3 * * 0"
-      task: backup
-      groups:
-      - production
-      retain: 8
-      concurrency: 1
-    ---
-    apiVersion: longhorn.io/v1beta1
-    kind: RecurringJob
-    metadata:
-      name: snapshot-hourly
-    spec:
-      cron: "0 * * * *"
-      task: snapshot
-      groups:
-      - production
-      retain: 24
-      concurrency: 3
+spec:
+  cron: "0 2 * * *"
+  task: backup
+  groups:
+    - default
+  retain: 14
+  concurrency: 2
+---
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: backup-weekly
+  namespace: longhorn-system
+spec:
+  cron: "0 3 * * 0"
+  task: backup
+  groups:
+    - default
+  retain: 8
+  concurrency: 2
+---
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: backup-monthly
+  namespace: longhorn-system
+spec:
+  cron: "0 4 1 * *"
+  task: backup
+  groups:
+    - default
+  retain: 12
+  concurrency: 2
+---
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: snapshot-hourly
+  namespace: longhorn-system
+spec:
+  cron: "0 * * * *"
+  task: snapshot
+  groups:
+    - default
+  retain: 24
+  concurrency: 3
