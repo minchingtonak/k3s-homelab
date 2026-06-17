@@ -105,6 +105,8 @@ metadata:
   namespace: windmill
   labels:
     app.kubernetes.io/name: windmill-server
+  annotations:
+    secret.reloader.stakater.com/reload: windmill
 spec:
   replicas: 1
   selector:
@@ -114,8 +116,6 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: windmill-server
-      annotations:
-        secret.reloader.stakater.com/reload: windmill
     spec:
       containers:
         - name: windmill-server
@@ -173,6 +173,8 @@ metadata:
   namespace: windmill
   labels:
     app.kubernetes.io/name: windmill-worker
+  annotations:
+    secret.reloader.stakater.com/reload: windmill
 spec:
   replicas: 1
   selector:
@@ -182,8 +184,6 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: windmill-worker
-      annotations:
-        secret.reloader.stakater.com/reload: windmill
     spec:
       containers:
         - name: windmill-worker
@@ -221,6 +221,8 @@ metadata:
   namespace: windmill
   labels:
     app.kubernetes.io/name: windmill-worker-native
+  annotations:
+    secret.reloader.stakater.com/reload: windmill
 spec:
   replicas: 1
   selector:
@@ -230,8 +232,6 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: windmill-worker-native
-      annotations:
-        secret.reloader.stakater.com/reload: windmill
     spec:
       containers:
         - name: windmill-worker-native
@@ -267,6 +267,8 @@ metadata:
   namespace: windmill
   labels:
     app.kubernetes.io/name: windmill-worker-reports
+  annotations:
+    secret.reloader.stakater.com/reload: windmill
 spec:
   replicas: 1
   selector:
@@ -276,8 +278,6 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: windmill-worker-reports
-      annotations:
-        secret.reloader.stakater.com/reload: windmill
     spec:
       containers:
         - name: windmill-worker-reports

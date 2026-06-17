@@ -18,6 +18,8 @@ metadata:
   namespace: servarr
   labels:
     app.kubernetes.io/name: triggarr
+  annotations:
+    configmap.reloader.stakater.com/reload: triggarr-config
 spec:
   replicas: 1
   strategy:

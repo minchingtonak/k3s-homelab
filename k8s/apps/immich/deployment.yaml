@@ -340,6 +340,8 @@ metadata:
   namespace: immich
   labels:
     app.kubernetes.io/name: immich-server
+  annotations:
+    secret.reloader.stakater.com/reload: immich
 spec:
   replicas: 1
   strategy:
@@ -351,8 +353,6 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: immich-server
-      annotations:
-        secret.reloader.stakater.com/reload: immich
     spec:
       containers:
         - name: immich-server

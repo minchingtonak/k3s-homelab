@@ -18,6 +18,8 @@ metadata:
   namespace: servarr
   labels:
     app.kubernetes.io/name: apprise
+  annotations:
+    configmap.reloader.stakater.com/reload: apprise-config
 spec:
   replicas: 1
   strategy:

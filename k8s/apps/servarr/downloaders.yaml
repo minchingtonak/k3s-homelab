@@ -54,6 +54,8 @@ metadata:
   namespace: servarr
   labels:
     app.kubernetes.io/name: downloaders
+  annotations:
+    configmap.reloader.stakater.com/reload: slskd-config
 spec:
   replicas: 1
   strategy:
