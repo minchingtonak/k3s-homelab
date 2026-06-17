@@ -21,6 +21,9 @@ spec:
     remediation:
       retries: 3
   values:
+    deployment:
+      strategy: Recreate
+
     serviceAccount:
       create: false
       name: gatus
