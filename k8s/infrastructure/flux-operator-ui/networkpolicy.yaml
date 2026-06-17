@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-flux-webui
+  namespace: flux-system
+spec:
+  # Flux's default allow-scraping policy selects all pods in flux-system and
+  # only permits ingress on the metrics port (8080), which makes the namespace
+  # default-deny for ingress. The flux-operator web UI listens on 9080, so
+  # Traefik's connection is dropped and the route returns 502. This additive
+  # policy opens 9080 to the Traefik ingress controller.
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: flux-operator
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: traefik-system
+      ports:
+        - port: 9080
+          protocol: TCP
