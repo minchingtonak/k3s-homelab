@@ -237,7 +237,7 @@ metadata:
     gethomepage.dev/name: "Listenarr"
     gethomepage.dev/description: "Audiobook manager"
     gethomepage.dev/group: "servarr"
-    gethomepage.dev/icon: "listenarr.png"
+    gethomepage.dev/icon: "mdi-book-music"
     gethomepage.dev/href: "https://listenarr.item.fyi"
     gethomepage.dev/siteMonitor: "http://listenarr.servarr.svc.cluster.local:4545"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=listenarr"
