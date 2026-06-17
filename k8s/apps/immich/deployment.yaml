@@ -124,6 +124,8 @@ metadata:
     app.kubernetes.io/name: immich-postgres
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app.kubernetes.io/name: immich-postgres
@@ -211,6 +213,8 @@ metadata:
     app.kubernetes.io/name: immich-redis
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app.kubernetes.io/name: immich-redis
@@ -274,6 +278,8 @@ metadata:
     app.kubernetes.io/name: immich-ml
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app.kubernetes.io/name: immich-ml
@@ -336,6 +342,8 @@ metadata:
     app.kubernetes.io/name: immich-server
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app.kubernetes.io/name: immich-server

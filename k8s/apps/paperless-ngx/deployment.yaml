@@ -112,6 +112,8 @@ metadata:
     app.kubernetes.io/name: paperless-ngx-postgres
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app.kubernetes.io/name: paperless-ngx-postgres
@@ -190,6 +192,8 @@ metadata:
     app.kubernetes.io/name: paperless-ngx-redis
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app.kubernetes.io/name: paperless-ngx-redis
@@ -357,6 +361,8 @@ metadata:
     app.kubernetes.io/name: paperless-ngx
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app.kubernetes.io/name: paperless-ngx

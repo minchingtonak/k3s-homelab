@@ -36,6 +36,8 @@ metadata:
     app.kubernetes.io/name: fittrackee-postgres
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app.kubernetes.io/name: fittrackee-postgres
@@ -109,6 +111,8 @@ metadata:
     app.kubernetes.io/name: fittrackee
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app.kubernetes.io/name: fittrackee

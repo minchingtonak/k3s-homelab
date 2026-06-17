@@ -48,6 +48,8 @@ metadata:
     app.kubernetes.io/name: dawarich-postgres
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app.kubernetes.io/name: dawarich-postgres
@@ -133,6 +135,8 @@ metadata:
     app.kubernetes.io/name: dawarich-redis
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app.kubernetes.io/name: dawarich-redis
@@ -195,6 +199,8 @@ metadata:
     app.kubernetes.io/name: dawarich-app
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app.kubernetes.io/name: dawarich-app
@@ -310,6 +316,8 @@ metadata:
     app.kubernetes.io/name: dawarich-sidekiq
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app.kubernetes.io/name: dawarich-sidekiq

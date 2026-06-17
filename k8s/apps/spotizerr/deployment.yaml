@@ -68,6 +68,8 @@ metadata:
     app.kubernetes.io/name: spotizerr-redis
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app.kubernetes.io/name: spotizerr-redis
@@ -138,6 +140,8 @@ metadata:
     app.kubernetes.io/name: spotizerr
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app.kubernetes.io/name: spotizerr
