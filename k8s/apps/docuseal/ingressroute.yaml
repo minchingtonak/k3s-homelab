@@ -10,7 +10,7 @@ metadata:
     gethomepage.dev/group: "tools"
     gethomepage.dev/icon: "docuseal.png"
     gethomepage.dev/href: "https://docuseal.item.fyi"
-    gethomepage.dev/siteMonitor: "http://docuseal.docuseal.svc.cluster.local"
+    gethomepage.dev/siteMonitor: "http://docuseal.docuseal.svc.cluster.local/up"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=docuseal"
 spec:
   entryPoints:
