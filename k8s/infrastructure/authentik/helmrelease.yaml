@@ -8,7 +8,7 @@ spec:
   chart:
     spec:
       chart: authentik
-      version: "2026.5.0" # https://artifacthub.io/packages/helm/goauthentik/authentik
+      version: "2026.5.3" # https://artifacthub.io/packages/helm/goauthentik/authentik
       sourceRef:
         kind: HelmRepository
         name: authentik
