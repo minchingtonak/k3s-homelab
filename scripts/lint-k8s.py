@@ -15,12 +15,14 @@ import yaml
 sys.path.insert(0, str(Path(__file__).parent))
 
 from checks import Violation, _applies
-from checks import gatus_annotation, app_name_label, secret_stringdata
+from checks import gatus_annotation, app_name_label, secret_stringdata, ingressroute_deps, deployment_strategy
 
 CHECKS = [
     gatus_annotation,
     app_name_label,
     secret_stringdata,
+    ingressroute_deps,
+    deployment_strategy,
 ]
 
 
@@ -70,6 +72,13 @@ def run(paths: list[str]) -> bool:
     return False
 
 
+def _all_k8s_yaml() -> list[str]:
+    """All *.yaml/*.yml under k8s/ (repo-relative), sorted. Used when no paths are given."""
+    root = Path("k8s")
+    return sorted(str(p) for p in root.rglob("*") if p.suffix in (".yaml", ".yml"))
+
+
 if __name__ == "__main__":
-    if not run(sys.argv[1:]):
+    paths = sys.argv[1:] or _all_k8s_yaml()
+    if not run(paths):
         sys.exit(1)
