@@ -24,6 +24,10 @@ metadata:
     app.kubernetes.io/name: seerr
 spec:
   replicas: 1
+  # config is an RWO Longhorn volume; rolling updates would schedule the new
+  # pod before the old one releases the volume, causing a Multi-Attach error.
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app.kubernetes.io/name: seerr
