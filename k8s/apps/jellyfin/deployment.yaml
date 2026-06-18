@@ -73,6 +73,11 @@ spec:
               readOnly: true
             - name: dev-dri
               mountPath: /dev/dri
+            # Migrated config hardcodes <CachePath>/var/cache/jellyfin</CachePath>
+            # (baremetal path). Back it with ephemeral node storage so the non-root
+            # user can write it and transcode cache stays off the config PVC.
+            - name: cache
+              mountPath: /var/cache/jellyfin
       volumes:
         - name: config
           persistentVolumeClaim:
@@ -84,6 +89,8 @@ spec:
           hostPath:
             path: /dev/dri
             type: Directory
+        - name: cache
+          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
