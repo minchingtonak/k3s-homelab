@@ -13,6 +13,10 @@ metadata:
     gethomepage.dev/href: "https://qbittorrent.item.fyi"
     gethomepage.dev/siteMonitor: "http://qbittorrent.servarr.svc.cluster.local:8081"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=downloaders"
+    gethomepage.dev/widget.type: "qbittorrent"
+    gethomepage.dev/widget.url: "http://qbittorrent.servarr.svc.cluster.local:8081"
+    gethomepage.dev/widget.username: "{{HOMEPAGE_VAR_QBITTORRENT_USERNAME}}"
+    gethomepage.dev/widget.password: "{{HOMEPAGE_VAR_QBITTORRENT_PASSWORD}}"
 spec:
   entryPoints:
     - websecure
@@ -46,6 +50,10 @@ metadata:
     gethomepage.dev/href: "https://nzbget.item.fyi"
     gethomepage.dev/siteMonitor: "http://nzbget.servarr.svc.cluster.local:6789"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=downloaders"
+    gethomepage.dev/widget.type: "nzbget"
+    gethomepage.dev/widget.url: "http://nzbget.servarr.svc.cluster.local:6789"
+    gethomepage.dev/widget.username: "{{HOMEPAGE_VAR_NZBGET_USERNAME}}"
+    gethomepage.dev/widget.password: "{{HOMEPAGE_VAR_NZBGET_PASSWORD}}"
 spec:
   entryPoints:
     - websecure
@@ -79,6 +87,9 @@ metadata:
     gethomepage.dev/href: "https://slskd.item.fyi"
     gethomepage.dev/siteMonitor: "http://slskd.servarr.svc.cluster.local:5030"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=downloaders"
+    gethomepage.dev/widget.type: "slskd"
+    gethomepage.dev/widget.url: "http://slskd.servarr.svc.cluster.local:5030"
+    gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_SLSKD_API_KEY}}"
 spec:
   entryPoints:
     - websecure
@@ -107,6 +118,9 @@ metadata:
     gethomepage.dev/href: "https://prowlarr.item.fyi"
     gethomepage.dev/siteMonitor: "http://prowlarr.servarr.svc.cluster.local:9696"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=prowlarr"
+    gethomepage.dev/widget.type: "prowlarr"
+    gethomepage.dev/widget.url: "http://prowlarr.servarr.svc.cluster.local:9696"
+    gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_PROWLARR_API_KEY}}"
 spec:
   entryPoints:
     - websecure
@@ -140,6 +154,9 @@ metadata:
     gethomepage.dev/href: "https://sonarr.item.fyi"
     gethomepage.dev/siteMonitor: "http://sonarr.servarr.svc.cluster.local:8989"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=sonarr"
+    gethomepage.dev/widget.type: "sonarr"
+    gethomepage.dev/widget.url: "http://sonarr.servarr.svc.cluster.local:8989"
+    gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_SONARR_API_KEY}}"
 spec:
   entryPoints:
     - websecure
@@ -174,6 +191,9 @@ metadata:
     gethomepage.dev/href: "https://radarr.item.fyi"
     gethomepage.dev/siteMonitor: "http://radarr.servarr.svc.cluster.local:7878"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=radarr"
+    gethomepage.dev/widget.type: "radarr"
+    gethomepage.dev/widget.url: "http://radarr.servarr.svc.cluster.local:7878"
+    gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_RADARR_API_KEY}}"
 spec:
   entryPoints:
     - websecure
@@ -208,6 +228,9 @@ metadata:
     gethomepage.dev/href: "https://lidarr.item.fyi"
     gethomepage.dev/siteMonitor: "http://lidarr.servarr.svc.cluster.local:8686"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=lidarr"
+    gethomepage.dev/widget.type: "lidarr"
+    gethomepage.dev/widget.url: "http://lidarr.servarr.svc.cluster.local:8686"
+    gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_LIDARR_API_KEY}}"
 spec:
   entryPoints:
     - websecure
@@ -269,6 +292,9 @@ metadata:
     gethomepage.dev/href: "https://bazarr.item.fyi"
     gethomepage.dev/siteMonitor: "http://bazarr.servarr.svc.cluster.local:6767"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=bazarr"
+    gethomepage.dev/widget.type: "bazarr"
+    gethomepage.dev/widget.url: "http://bazarr.servarr.svc.cluster.local:6767"
+    gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_BAZARR_API_KEY}}"
 spec:
   entryPoints:
     - websecure
