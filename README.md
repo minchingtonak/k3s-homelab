@@ -28,6 +28,7 @@ flux `Kustomization` entrypoints for the homelab cluster. defines the reconcilia
 - [reloader](https://github.com/stakater/Reloader) to restart pods when config changes
 - [descheduler](https://github.com/kubernetes-sigs/descheduler) to dynamically schedule pods based on node metrics
 - [nfs-subdir-external-provisioner](https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner) for simple distributed storage
+- [Longhorn](https://github.com/longhorn/longhorn) for distributed block storage
 
 ## apps (`k8s/apps`)
 
