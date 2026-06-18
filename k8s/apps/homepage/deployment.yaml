@@ -64,10 +64,10 @@ data:
       columns: 4
       life: {}
       media: {}
-      servarr: {}
       infrastructure: {}
-      tools: {}
       monitoring: {}
+      servarr: {}
+      tools: {}
       development: {}
     quicklaunch:
       searchDescriptions: true
