@@ -34,7 +34,7 @@ spec:
     spec:
       containers:
         - name: mongo
-          image: mongo:6@sha256:8b6d8f5bbedb25cb73517b65cf99f13aeb75ad5b157a56c479287a840bbad3ac
+          image: mongo:6.0.28@sha256:8b6d8f5bbedb25cb73517b65cf99f13aeb75ad5b157a56c479287a840bbad3ac
           ports:
             - name: mongo
               containerPort: 27017
