@@ -521,6 +521,26 @@ data:
           # SSO-Auth plugin login entrypoint
           meta_launch_url: https://jellyfin.item.fyi/sso/OID/start/authentik
 
+  session-duration.yaml: |
+    version: 1
+    metadata:
+      name: session duration
+      labels:
+        blueprints.goauthentik.io/instantiate: "true"
+    entries:
+      # patch the built-in login stage to issue a persistent (not browser-session)
+      # cookie. the default is session_duration=seconds=0 ("until browser close"),
+      # whose non-persistent cookie gets dropped when browsers discard backgrounded
+      # tabs
+      - model: authentik_stages_user_login.userloginstage
+        state: present
+        identifiers:
+          name: default-authentication-login
+        attrs:
+          session_duration: "days=30"
+          # extra lifetime granted when "remember me" is ticked (0 = hide the option)
+          remember_me_offset: "seconds=0"
+
   user-akmin.yaml: |
     version: 1
     metadata:
