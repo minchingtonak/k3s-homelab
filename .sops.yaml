@@ -1,4 +1,8 @@
 creation_rules:
+  # Ansible vars files have arbitrary top-level keys, so encrypt the whole file.
+  # Must come before the generic rule below — sops uses the first matching rule.
+  - path_regex: ansible/.*\.sops\.ya?ml$
+    age: age1whm4tsad6ku4u4sdhnaa54tklt8hd9fzvelwem86pxfs9hzk0pjskru2jj
   - path_regex: .*\.sops\.yaml$
     encrypted_regex: ^(data|stringData)$
     age: age1whm4tsad6ku4u4sdhnaa54tklt8hd9fzvelwem86pxfs9hzk0pjskru2jj

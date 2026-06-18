@@ -1,0 +1,88 @@
+---
+- name: Require a cluster sync path
+  ansible.builtin.assert:
+    that:
+      - flux_cluster_path | length > 0
+    fail_msg: "flux_cluster_path must be set (e.g. k8s/clusters/minicluster)."
+
+# Apply the operator's published manifest directly. kubectl fetches the URL over
+# the node's host network (host DNS), so this works even before cluster CoreDNS is
+# up; the operator image is pulled by containerd (also host-level).
+- name: Install flux-operator (namespace + CRDs + controller)
+  ansible.builtin.command:
+    cmd: >-
+      k3s kubectl apply -f
+      https://github.com/controlplaneio-fluxcd/flux-operator/releases/download/v{{ flux_operator_version }}/install.yaml
+  register: flux_operator_apply
+  changed_when: "'created' in flux_operator_apply.stdout or 'configured' in flux_operator_apply.stdout"
+
+- name: Wait for the FluxInstance CRD to be established
+  ansible.builtin.command:
+    cmd: k3s kubectl wait --for=condition=established --timeout=10s crd/fluxinstances.fluxcd.controlplane.io
+  register: flux_crd_wait
+  until: flux_crd_wait.rc == 0
+  retries: 18
+  delay: 10
+  changed_when: false
+
+- name: Wait for flux-operator to be ready
+  ansible.builtin.command:
+    cmd: k3s kubectl -n {{ flux_operator_namespace }} rollout status deploy/flux-operator --timeout=30s
+  register: flux_operator_ready
+  until: flux_operator_ready.rc == 0
+  retries: 18
+  delay: 10
+  changed_when: false
+
+- name: Stage the SOPS age key on the node
+  ansible.builtin.copy:
+    content: "{{ lookup('file', flux_sops_age_key_file | expanduser) }}"
+    dest: /tmp/sops-age.agekey
+    mode: "0600"
+  no_log: true
+
+- name: Create or update the sops-age secret
+  ansible.builtin.shell:
+    cmd: >-
+      set -o pipefail &&
+      k3s kubectl create secret generic sops-age -n {{ flux_operator_namespace }}
+      --from-file=age.agekey=/tmp/sops-age.agekey
+      --dry-run=client -o yaml | k3s kubectl apply -f -
+    executable: /bin/bash
+  register: flux_sops_secret
+  changed_when: "'configured' in flux_sops_secret.stdout or 'created' in flux_sops_secret.stdout"
+  no_log: true
+
+- name: Remove the staged age key
+  ansible.builtin.file:
+    path: /tmp/sops-age.agekey
+    state: absent
+
+- name: Check whether the FluxInstance already exists
+  ansible.builtin.command:
+    cmd: k3s kubectl get fluxinstance flux -n {{ flux_operator_namespace }}
+  register: flux_instance_check
+  changed_when: false
+  failed_when: false
+
+# Apply the bootstrap FluxInstance only if absent — once it exists, Flux's
+# kustomize-controller owns its spec (reconciled from the repo). Re-applying would
+# fight that ownership.
+- name: Render the bootstrap FluxInstance
+  ansible.builtin.template:
+    src: flux-instance.yaml.j2
+    dest: /tmp/flux-instance.yaml
+    mode: "0644"
+  when: flux_instance_check.rc != 0
+
+- name: Apply the bootstrap FluxInstance
+  ansible.builtin.command:
+    cmd: k3s kubectl apply -f /tmp/flux-instance.yaml
+  when: flux_instance_check.rc != 0
+  changed_when: true
+
+- name: Remove the rendered FluxInstance manifest
+  ansible.builtin.file:
+    path: /tmp/flux-instance.yaml
+    state: absent
+  when: flux_instance_check.rc != 0

@@ -1,0 +1,14 @@
+---
+- name: Install sysctl tuning drop-ins
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "/etc/sysctl.d/{{ item }}"
+    owner: root
+    group: root
+    mode: "0644"
+  loop:
+    - 80_tcp_hardening.conf
+    - 85_network_optimizations.conf
+    - 85_memory_optimizations.conf
+    - 85_kernel_optimizations.conf
+  notify: Apply sysctl

@@ -1,0 +1,28 @@
+---
+# Provision baremetal k3s nodes. Mirrors the cloud-init init in pulumi/index.ts,
+# baremetal-focused (no qemu-guest-agent, no microcode purge).
+#
+# Always select a cluster explicitly, e.g.:
+#   ansible-playbook -i inventory/minicluster site.yml   # bootstrap a new cluster
+#   ansible-playbook -i inventory/proxmox   site.yml     # add nodes to existing cluster
+#
+# Plays run servers before agents. For a fresh cluster, the cluster-init server
+# (k3s_cluster_init: true) comes up first; joiners poll its /healthz before joining.
+
+- name: Base node init (all baremetal k3s nodes)
+  hosts: k3s_servers:k3s_agents
+  roles:
+    - common
+    - ssh_hardening
+    - sysctl_tuning
+    - kernel_tuning
+
+- name: Install k3s control-plane servers (HA join)
+  hosts: k3s_servers
+  roles:
+    - role: k3s
+
+- name: Install k3s agents
+  hosts: k3s_agents
+  roles:
+    - role: k3s

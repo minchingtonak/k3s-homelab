@@ -1,0 +1,174 @@
+---
+- name: Set the system hostname to the inventory name
+  ansible.builtin.hostname:
+    name: "{{ inventory_hostname }}"
+
+# Static-IP nodes: map the permanent IP to the hostname (Debian convention for a
+# host with a fixed address). This rewrites the installer's stale `<ip> <oldname>`
+# line in place rather than leaving it behind.
+- name: Compute node IP and FQDN for /etc/hosts
+  ansible.builtin.set_fact:
+    common_node_ip: "{{ ansible_host | default(ansible_facts.default_ipv4.address) }}"
+    common_node_fqdn: "{{ (inventory_hostname ~ '.' ~ common_domain) if (common_domain | length > 0) else inventory_hostname }}"
+
+- name: Map the node IP to its hostname in /etc/hosts
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: '^{{ common_node_ip | regex_escape }}\s'
+    line: "{{ common_node_ip }} {{ ([common_node_fqdn, inventory_hostname] | unique) | join(' ') }}"
+    state: present
+
+- name: Install base packages
+  ansible.builtin.apt:
+    name: "{{ common_packages }}"
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+# Free up the target UID/GID before creating the k3s user. A fresh Debian install
+# usually puts its first interactive user at UID/GID 1000, which would otherwise
+# block pinning k3s there. We connect as root, so removing this user is safe.
+- name: Look up any existing user occupying the target UID
+  ansible.builtin.getent:
+    database: passwd
+    key: "{{ common_uid }}"
+    fail_key: false
+
+- name: Record the conflicting user (if any)
+  ansible.builtin.set_fact:
+    common_uid_conflict: "{{ (ansible_facts['getent_passwd'] | default({})).keys() | list | first | default('') }}"
+
+- name: Remove the user occupying the target UID (and its home)
+  ansible.builtin.user:
+    name: "{{ common_uid_conflict }}"
+    state: absent
+    remove: true
+    force: true
+  when:
+    - common_uid_conflict | length > 0
+    - common_uid_conflict != common_user
+
+- name: Look up any existing group occupying the target GID
+  ansible.builtin.getent:
+    database: group
+    key: "{{ common_gid }}"
+    fail_key: false
+
+- name: Record the conflicting group (if any)
+  ansible.builtin.set_fact:
+    common_gid_conflict: "{{ (ansible_facts['getent_group'] | default({})).keys() | list | first | default('') }}"
+
+- name: Remove the group occupying the target GID
+  ansible.builtin.group:
+    name: "{{ common_gid_conflict }}"
+    state: absent
+  when:
+    - common_gid_conflict | length > 0
+    - common_gid_conflict != common_user
+
+- name: Ensure the k3s primary group has the target GID
+  ansible.builtin.group:
+    name: "{{ common_user }}"
+    gid: "{{ common_gid }}"
+    state: present
+
+- name: Create the k3s service user with the target UID/GID
+  ansible.builtin.user:
+    name: "{{ common_user }}"
+    uid: "{{ common_uid }}"
+    group: "{{ common_user }}"
+    groups: [sudo]
+    append: true
+    shell: /bin/bash
+    create_home: true
+
+- name: Grant passwordless sudo to the k3s user
+  ansible.builtin.copy:
+    dest: "/etc/sudoers.d/90-{{ common_user }}"
+    content: "{{ common_user }} ALL=(ALL) NOPASSWD:ALL\n"
+    owner: root
+    group: root
+    mode: "0440"
+    validate: "visudo -cf %s"
+
+- name: Authorize the SSH public key for the k3s user
+  ansible.posix.authorized_key:
+    user: "{{ common_user }}"
+    key: "{{ k3s_user_ssh_key }}"
+    # Explicit path + manage_dir avoids a getpwnam lookup that fails in --check
+    # (the user is only simulated, not yet created).
+    path: "/home/{{ common_user }}/.ssh/authorized_keys"
+    manage_dir: true
+    state: present
+  when: (k3s_user_ssh_key | default('')) | length > 0
+
+- name: Set the system timezone
+  community.general.timezone:
+    name: "{{ common_timezone }}"
+
+- name: Ensure the locale is generated
+  community.general.locale_gen:
+    name: "{{ common_locale }}"
+    state: present
+
+- name: Set the system default locale
+  ansible.builtin.copy:
+    dest: /etc/default/locale
+    content: "LANG={{ common_locale }}\n"
+    owner: root
+    group: root
+    mode: "0644"
+
+# --- Longhorn node prerequisites -------------------------------------------
+# open-iscsi is installed via common_packages. Longhorn needs the iscsid daemon
+# running and the iscsi_tcp module loaded (it attaches volumes over iSCSI), plus
+# a dedicated data disk mounted for its defaultDataPath.
+
+- name: Enable and start the iscsid daemon (Longhorn iSCSI volumes)
+  ansible.builtin.systemd:
+    name: iscsid
+    enabled: true
+    state: started
+  # In --check, open-iscsi is only simulated as installed, so the iscsid unit
+  # doesn't exist yet and the lookup hard-fails. Skip in check mode; a real run
+  # installs the package earlier in this play, so the unit is present by here.
+  when: not ansible_check_mode
+
+- name: Load the iscsi_tcp kernel module now
+  community.general.modprobe:
+    name: iscsi_tcp
+    state: present
+
+- name: Load iscsi_tcp on every boot
+  ansible.builtin.copy:
+    dest: /etc/modules-load.d/longhorn-iscsi.conf
+    content: "iscsi_tcp\n"
+    owner: root
+    group: root
+    mode: "0644"
+
+# force defaults to false, so an existing filesystem is never reformatted on
+# re-runs — the disk is only formatted the first time it is seen. The device is a
+# stable by-id path (data_mount_src); a bare nvmeXn1 node could point at the OS
+# disk after an enumeration swap and either fail ("in use") or be destructive.
+- name: Create an ext4 filesystem on the Longhorn data disk
+  community.general.filesystem:
+    fstype: ext4
+    dev: "{{ common_longhorn_data_device }}"
+  when: common_longhorn_data_device | length > 0
+
+- name: Mount the Longhorn data disk (and persist in fstab)
+  ansible.posix.mount:
+    path: "{{ common_longhorn_data_mount }}"
+    src: "{{ common_longhorn_data_device }}"
+    fstype: ext4
+    opts: defaults
+    state: mounted
+  when: common_longhorn_data_device | length > 0
+
+- name: Ensure the Longhorn data directory exists on the mount
+  ansible.builtin.file:
+    path: "{{ common_longhorn_data_mount }}/longhorn"
+    state: directory
+    mode: "0755"
+  when: common_longhorn_data_device | length > 0

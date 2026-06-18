@@ -2,3 +2,5 @@ pulumi/bin/
 node_modules/
 
 __pycache__/
+
+.ansible/

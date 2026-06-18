@@ -1,0 +1,28 @@
+---
+# Debian's /etc/default/grub sources /etc/default/grub.d/*.cfg, so a drop-in
+# appends to GRUB_CMDLINE_LINUX_DEFAULT without clobbering the base value.
+- name: Confirm grub.d is sourced by /etc/default/grub
+  ansible.builtin.command:
+    cmd: grep -q 'grub.d' /etc/default/grub
+  register: kernel_tuning_grub_d_sourced
+  changed_when: false
+  failed_when: false
+
+- name: Disable transparent hugepages via grub.d drop-in
+  ansible.builtin.copy:
+    dest: /etc/default/grub.d/99-thp.cfg
+    content: 'GRUB_CMDLINE_LINUX_DEFAULT="${GRUB_CMDLINE_LINUX_DEFAULT} transparent_hugepage=never"'
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Update grub
+  when: kernel_tuning_grub_d_sourced.rc == 0
+
+- name: Disable transparent hugepages via /etc/default/grub (fallback)
+  ansible.builtin.lineinfile:
+    path: /etc/default/grub
+    regexp: "^GRUB_CMDLINE_LINUX_DEFAULT="
+    line: 'GRUB_CMDLINE_LINUX_DEFAULT="quiet transparent_hugepage=never"'
+    backrefs: false
+  notify: Update grub
+  when: kernel_tuning_grub_d_sourced.rc != 0

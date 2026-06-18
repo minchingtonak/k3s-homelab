@@ -1,0 +1,7 @@
+---
+# Joiners (agents, and any future HA servers) register against the bootstrap
+# control node at 192.168.20.110. Ignored on the cluster-init server itself.
+k3s_server_url: "https://192.168.20.110:6443"
+
+# Flux GitOps sync path for this cluster (used by flux.yml).
+flux_cluster_path: "k8s/clusters/minicluster"

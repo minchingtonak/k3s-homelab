@@ -1,0 +1,15 @@
+---
+# One-time Flux GitOps bootstrap (mirrors the Pulumi bootstrap in pulumi/index.ts):
+# install flux-operator, create the sops-age decryption secret, and apply a
+# FluxInstance pointing Flux at this repo. Run AFTER site.yml has brought up k3s:
+#
+#   ansible-playbook -i inventory/minicluster flux.yml
+#
+# Runs only on the cluster-init server (k3s_cluster_init: true). After this, Flux
+# reconciles everything else from the repo.
+- name: Bootstrap Flux
+  hosts: k3s_servers
+  gather_facts: false
+  roles:
+    - role: flux
+      when: k3s_cluster_init | default(false)

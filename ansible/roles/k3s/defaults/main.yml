@@ -1,0 +1,18 @@
+---
+# Role-internal toggles only. Shared config (k3s_version, k3s_disable,
+# k3s_node_labels) lives in group_vars/all; per-cluster values (k3s_server_url,
+# k3s_token) live in inventory/<cluster>/. Those are intentionally NOT defaulted
+# here — a wrong default (e.g. a server URL pointing at the wrong cluster) is more
+# dangerous than a loud "undefined variable" error.
+
+# server | agent
+k3s_role: agent
+
+# true ONLY on the node that bootstraps a brand-new cluster (emits cluster-init).
+# Joiners — HA servers and agents — leave this false.
+k3s_cluster_init: false
+
+# Empty so the assert in tasks/main.yml reports a clean "token is empty" error if
+# the SOPS secret failed to load, instead of crashing on an undefined variable.
+# The real value comes from inventory/<cluster>/group_vars/all/secrets.sops.yml.
+k3s_token: ""

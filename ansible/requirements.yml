@@ -1,0 +1,5 @@
+---
+collections:
+  - name: community.sops
+  - name: community.general
+  - name: ansible.posix

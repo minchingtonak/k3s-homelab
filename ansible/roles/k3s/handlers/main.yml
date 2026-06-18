@@ -1,0 +1,8 @@
+---
+# Only restarts when config.yaml changes AND k3s is already installed (the unit
+# exists). On first install the install task starts the service itself.
+- name: Restart k3s
+  ansible.builtin.systemd_service:
+    name: "{{ 'k3s' if k3s_role == 'server' else 'k3s-agent' }}"
+    state: restarted
+  when: k3s_binary.stat.exists

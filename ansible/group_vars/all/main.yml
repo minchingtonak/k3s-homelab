@@ -1,0 +1,37 @@
+---
+# Playbook-level shared vars — apply to EVERY cluster/inventory.
+# Per-cluster values (k3s_server_url, k3s_token, hosts, which host is cluster-init)
+# live under inventory/<cluster>/.
+
+# Pin k3s. Keep consistent within a cluster.
+k3s_version: "v1.36.1+k3s1"
+
+# Public key authorized for the `k3s` user (same key as Pulumi `sshPublicKey`).
+k3s_user_ssh_key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAII9oTky42UcvuNV61rJdq9/afxQqxYi8Z/J1pRRJQRQq k3s@node.homelab.cloud"
+
+# Bundled k3s components disabled cluster-wide. Must match on every SERVER in a
+# cluster. Irrelevant on agents.
+k3s_disable:
+  - traefik
+  - servicelb
+  - local-storage
+  - metrics-server
+
+# Labels applied to every node.
+k3s_node_labels:
+  - "k3s-upgrade=true"
+
+# open-iscsi + nfs-common are Longhorn prerequisites (iSCSI block volumes and
+# NFSv4-backed RWX volumes / backups). Every node runs Longhorn, so both are base.
+common_packages:
+  - curl
+  - locales
+  - nfs-common
+  - open-iscsi
+  - ethtool
+  - gdisk
+  - htop
+  - net-tools
+  - sudo
+  - tree
+  - vim

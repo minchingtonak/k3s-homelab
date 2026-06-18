@@ -1,0 +1,28 @@
+{{ ansible_managed | comment }}
+{% if k3s_role == 'server' %}
+write-kubeconfig-mode: "0644"
+{% if k3s_cluster_init %}
+cluster-init: true
+{% else %}
+server: "{{ k3s_server_url }}"
+{% endif %}
+token: "{{ k3s_token }}"
+tls-san:
+  - "{{ inventory_hostname }}"
+  - "{{ ansible_host }}"
+disable:
+{% for item in k3s_disable %}
+  - {{ item }}
+{% endfor %}
+node-label:
+{% for label in k3s_node_labels %}
+  - "{{ label }}"
+{% endfor %}
+{% else %}
+server: "{{ k3s_server_url }}"
+token: "{{ k3s_token }}"
+node-label:
+{% for label in k3s_node_labels %}
+  - "{{ label }}"
+{% endfor %}
+{% endif %}

@@ -1,0 +1,18 @@
+{{ ansible_managed | comment }}
+# Bootstrap-only FluxInstance. Once Flux syncs the repo, the in-repo
+# {{ flux_cluster_path }}/flux-system/flux-instance.yaml is the source of truth.
+apiVersion: fluxcd.controlplane.io/v1
+kind: FluxInstance
+metadata:
+  name: flux
+  namespace: flux-system
+spec:
+  distribution:
+    version: "{{ flux_distribution_version }}"
+    registry: "{{ flux_distribution_registry }}"
+    artifact: "{{ flux_distribution_artifact }}"
+  sync:
+    kind: GitRepository
+    url: "{{ flux_git_url }}"
+    ref: "{{ flux_git_ref }}"
+    path: "{{ flux_cluster_path }}"

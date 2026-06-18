@@ -1,0 +1,26 @@
+---
+# flux-operator version. Installed from the project's published install.yaml
+# (a plain manifest: namespace + CRDs + controller) via `kubectl apply -f`, fetched
+# over the node's HOST network — so it works before cluster DNS/CoreDNS is up, and
+# avoids k3s helm-controller's broken OCI `helm repo add` handling.
+flux_operator_version: "0.46.0"
+flux_operator_namespace: "flux-system"
+
+# Distribution the bootstrap FluxInstance requests. Once Flux syncs the repo, the
+# in-repo flux-instance.yaml becomes the source of truth and may override this.
+# `artifact` is REQUIRED for flux versions the operator doesn't embed (it fetches
+# the distribution manifests from this OCI source) — must match the repo's
+# flux-instance.yaml or the operator fails with "no match found for semver".
+flux_distribution_version: "2.8.8"
+flux_distribution_registry: "ghcr.io/fluxcd"
+flux_distribution_artifact: "oci://ghcr.io/controlplaneio-fluxcd/flux-operator-manifests"
+
+# Git source. Same repo for every cluster; only the path differs per cluster.
+flux_git_url: "https://github.com/minchingtonak/k3s-homelab.git"
+flux_git_ref: "refs/heads/main"
+# REQUIRED per cluster (set in inventory/<cluster>/group_vars), e.g. k8s/clusters/minicluster
+flux_cluster_path: ""
+
+# SOPS age PRIVATE key, read from the Ansible control node, installed as the
+# `sops-age` secret kustomize-controller uses to decrypt *.sops.yaml at reconcile.
+flux_sops_age_key_file: "~/.config/sops/age/keys.txt"

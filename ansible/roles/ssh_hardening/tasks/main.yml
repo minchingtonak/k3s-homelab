@@ -1,0 +1,14 @@
+---
+- name: Install hardened sshd_config
+  ansible.builtin.copy:
+    src: sshd_config
+    dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: "0644"
+    validate: "sshd -t -f %s"
+  notify: Restart ssh
+
+# NOTE: root is intentionally NOT locked/nologin — it is the management account
+# (key-only via PermitRootLogin prohibit-password). PasswordAuthentication is
+# already disabled in sshd_config, so root cannot be reached by password.

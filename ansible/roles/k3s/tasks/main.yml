@@ -1,0 +1,132 @@
+---
+- name: Fail if the k3s token is unset
+  ansible.builtin.assert:
+    that:
+      - k3s_token | length > 0
+    fail_msg: >-
+      k3s_token is empty. Populate inventory/<cluster>/group_vars/all/secrets.sops.yml
+      and ensure the community.sops vars plugin is enabled.
+
+- name: Check whether k3s is already installed
+  ansible.builtin.stat:
+    path: /usr/local/bin/k3s
+  register: k3s_binary
+
+- name: Ensure k3s config directory exists
+  ansible.builtin.file:
+    path: /etc/rancher/k3s
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Render k3s config.yaml
+  ansible.builtin.template:
+    src: config.yaml.j2
+    dest: /etc/rancher/k3s/config.yaml
+    owner: root
+    group: root
+    mode: "{{ '0644' if k3s_role == 'server' else '0600' }}"
+  notify: Restart k3s
+
+# Joiners (HA servers and agents) must not register before the bootstrap
+# control plane is serving. The cluster-init server skips this. Mirrors the
+# `until curl .../healthz` loop the cloud-init used for VM agents.
+- name: Wait for the control-plane API to be ready before joining
+  ansible.builtin.uri:
+    url: "{{ k3s_server_url }}/healthz"
+    method: GET
+    validate_certs: false
+    # k3s disables anonymous access to /healthz, so a ready apiserver answers 401
+    # (it processed the request and rejected anon auth). 200 or 401 both mean the
+    # control plane is serving and we can join; a connection error keeps retrying.
+    status_code: [200, 401]
+  register: k3s_api_health
+  until: (k3s_api_health.status | default(0)) in [200, 401]
+  retries: 60
+  delay: 10
+  when:
+    - not (k3s_cluster_init | default(false))
+    - not k3s_binary.stat.exists
+    - not ansible_check_mode
+    - not ansible_check_mode
+
+- name: Download the k3s install script
+  ansible.builtin.get_url:
+    url: https://get.k3s.io
+    dest: /tmp/k3s-install.sh
+    mode: "0755"
+  when: not k3s_binary.stat.exists
+
+- name: Install k3s
+  ansible.builtin.command:
+    cmd: /tmp/k3s-install.sh
+  environment:
+    INSTALL_K3S_VERSION: "{{ k3s_version }}"
+    INSTALL_K3S_EXEC: "{{ 'server' if k3s_role == 'server' else 'agent' }}"
+  when: not k3s_binary.stat.exists
+  changed_when: true
+
+# The tasks below depend on a real k3s install (a running service, the manifests
+# dir, /etc/rancher/k3s/k3s.yaml). None of that exists under --check on a fresh
+# node, so skip them in check mode rather than fail on missing prerequisites.
+- name: Ensure the k3s service is enabled and running
+  ansible.builtin.systemd_service:
+    name: "{{ 'k3s' if k3s_role == 'server' else 'k3s-agent' }}"
+    enabled: true
+    state: started
+  when: not ansible_check_mode
+
+# Bundled CoreDNS must be deployed BEFORE we skip it, otherwise the cluster has no
+# DNS during bootstrap (Flux can't resolve git/registries to take CoreDNS over).
+# Wait for the bundled deployment to land, then drop the .skip sentinel so k3s
+# stops reverting Flux's CoreDNS afterward.
+- name: Wait for bundled CoreDNS to be deployed
+  ansible.builtin.command:
+    cmd: k3s kubectl -n kube-system rollout status deploy/coredns --timeout=30s
+  register: k3s_coredns_ready
+  until: k3s_coredns_ready.rc == 0
+  retries: 18
+  delay: 10
+  changed_when: false
+  when:
+    - k3s_role == 'server'
+    - not ansible_check_mode
+
+# k3s re-applies its bundled CoreDNS manifest on every restart; the .skip sentinel
+# stops that so Flux owns CoreDNS instead
+- name: Prevent k3s from reapplying bundled CoreDNS (Flux manages it)
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/coredns.yaml.skip
+    state: touch
+    owner: root
+    group: root
+    mode: "0644"
+    modification_time: preserve
+    access_time: preserve
+  when:
+    - k3s_role == 'server'
+    - not ansible_check_mode
+
+- name: Create .kube directory for the k3s user
+  ansible.builtin.file:
+    path: /home/k3s/.kube
+    state: directory
+    owner: k3s
+    group: k3s
+    mode: "0700"
+  when:
+    - k3s_role == 'server'
+    - not ansible_check_mode
+
+- name: Install kubeconfig for the k3s user
+  ansible.builtin.copy:
+    src: /etc/rancher/k3s/k3s.yaml
+    dest: /home/k3s/.kube/config
+    remote_src: true
+    owner: k3s
+    group: k3s
+    mode: "0600"
+  when:
+    - k3s_role == 'server'
+    - not ansible_check_mode

@@ -1,0 +1,21 @@
+---
+common_user: k3s
+# Pin the k3s user/group to a fixed UID/GID for consistent file ownership across
+# nodes (e.g. NFS mounts). Any existing occupant of these IDs is removed first.
+common_uid: 1000
+common_gid: 1000
+common_timezone: America/New_York
+common_locale: en_US.UTF-8
+# Optional DNS domain used to build the FQDN in /etc/hosts. Empty = short name only.
+common_domain: ""
+common_packages: []
+
+# Longhorn-managed data disk. Every node dedicates a disk to Longhorn, formatted
+# ext4 and mounted here; Longhorn's defaultDataPath lives under this mount.
+# Identified by the per-host STABLE /dev/disk/by-id path from inventory
+# (data_mount_src) — NEVER a bare nvmeXn1 node, which swaps across reboots.
+# Empty (host has no data_mount_src) => the disk tasks below are skipped.
+common_longhorn_data_device: "{{ data_mount_src | default('') }}"
+common_longhorn_data_mount: /mnt/data
+# k3s_user_ssh_key is a project-global var (inventory/group_vars/all/main.yml),
+# referenced here via a default() filter so it is not redeclared as a role var.
