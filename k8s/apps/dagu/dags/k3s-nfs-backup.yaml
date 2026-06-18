@@ -1,5 +1,5 @@
 description: back up k3s NFS PVC data (ZFS snapshot -> PBS)
-schedule: "0 2 * * *" # 02:00am, 2h after existing midnight backup
+# schedule: "0 2 * * *" # 02:00am, 2h after existing midnight backup
 
 handler_on:
   exit: # always runs
