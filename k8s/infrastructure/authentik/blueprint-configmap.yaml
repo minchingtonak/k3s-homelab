@@ -476,6 +476,21 @@ data:
       labels:
         blueprints.goauthentik.io/instantiate: "true"
     entries:
+      # groups consumed by the jellyfin SSO-Auth plugin via the `groups` claim
+      # (emitted by the default profile scope). plugin config: RoleClaim=groups,
+      # Roles=["JellyfinUser"], AdminRoles=["JellyfinAdmin"]
+      - model: authentik_core.group
+        identifiers:
+          name: JellyfinUser
+      - model: authentik_core.group
+        identifiers:
+          name: JellyfinAdmin
+        attrs:
+          # Find resolves the user created by the user-akmin blueprint (authentik retries
+          # blueprint application until the cross-blueprint reference resolves).
+          users:
+            - !Find [authentik_core.user, [username, akmin]]
+
       - model: authentik_providers_oauth2.oauth2provider
         id: jellyfin-provider
         identifiers:
