@@ -1,0 +1,29 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: jellyfin
+  namespace: jellyfin
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Jellyfin"
+    gethomepage.dev/description: "Media server"
+    gethomepage.dev/group: "media"
+    gethomepage.dev/icon: "jellyfin.png"
+    gethomepage.dev/href: "https://jellyfin.item.fyi"
+    gethomepage.dev/siteMonitor: "http://jellyfin.jellyfin.svc.cluster.local:8096"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=jellyfin"
+    gethomepage.dev/widget.type: "jellyfin"
+    gethomepage.dev/widget.url: "http://jellyfin.jellyfin.svc.cluster.local:8096"
+    gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_JELLYFIN_TOKEN}}"
+    gethomepage.dev/widget.enableBlocks: "true"
+    gethomepage.dev/widget.enableNowPlaying: "true"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`jellyfin.item.fyi`)
+      services:
+        - name: jellyfin
+          port: 8096
+  tls: {}

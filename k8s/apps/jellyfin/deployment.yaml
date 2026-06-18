@@ -1,0 +1,103 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jellyfin
+  namespace: jellyfin
+  labels:
+    app.kubernetes.io/name: jellyfin
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: jellyfin
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: jellyfin
+    spec:
+      securityContext:
+        # Non-root runtime (PUID/PGID 100000) needs the volume root group-owned + writable;
+        # kubelet applies fsGroup to the fresh Longhorn config volume (servarr/seerr pattern).
+        fsGroup: 100000
+        # video + render groups on the minicluster nodes — grants access to the
+        # bind-mounted /dev/dri (renderD128) for AMD VAAPI hardware transcoding.
+        supplementalGroups:
+          - 44
+          - 992
+      containers:
+        - name: jellyfin
+          image: ghcr.io/linuxserver/jellyfin:10.11.8@sha256:e622a48adf7193c7d626c2325a40f9b01c932c8e7bf3f50ffa40e7e9b6ce1d39
+          env:
+            - name: PUID
+              value: "100000"
+            - name: PGID
+              value: "100000"
+            - name: TZ
+              value: America/New_York
+            - name: JELLYFIN_PublishedServerUrl
+              value: https://jellyfin.item.fyi
+          ports:
+            - name: http
+              containerPort: 8096
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8096
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            failureThreshold: 5
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8096
+            initialDelaySeconds: 15
+            periodSeconds: 15
+            failureThreshold: 5
+            timeoutSeconds: 5
+          volumeMounts:
+            # Reproduce the compose's overlapping mounts so the migrated config's
+            # absolute paths resolve (baremetal-style /var/lib + /etc layout).
+            - name: config
+              mountPath: /config
+            - name: config
+              mountPath: /etc/jellyfin
+            - name: config
+              mountPath: /var/lib/jellyfin
+              subPath: data
+            - name: media
+              mountPath: /mnt/media
+              readOnly: true
+            - name: dev-dri
+              mountPath: /dev/dri
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: jellyfin-config
+        - name: media
+          persistentVolumeClaim:
+            claimName: jellyfin-media
+        - name: dev-dri
+          hostPath:
+            path: /dev/dri
+            type: Directory
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jellyfin
+  namespace: jellyfin
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
+spec:
+  selector:
+    app.kubernetes.io/name: jellyfin
+  ports:
+    - port: 8096
+      targetPort: 8096
+      name: http
