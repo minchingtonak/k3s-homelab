@@ -48,7 +48,6 @@
     { matchFileNames: ["k8s/apps/tandoor/**"],      matchPackageNames: ["postgres"],         allowedVersions: "<17" },
     { matchFileNames: ["k8s/apps/docuseal/**"],     matchPackageNames: ["postgres"],         allowedVersions: "<16" },
     { matchFileNames: ["k8s/apps/windmill/**"],     matchPackageNames: ["postgres"],         allowedVersions: "<17" },
-    { matchFileNames: ["k8s/apps/immich/**"],       matchPackageNames: ["ghcr.io/immich-app/postgres"], allowedVersions: "/^14-/" },
     { matchFileNames: ["k8s/apps/immich/**"],       matchPackageNames: ["redis"],            allowedVersions: "<7" },
     { matchFileNames: ["k8s/apps/dawarich/**"],     matchPackageNames: ["postgis/postgis"],  allowedVersions: "/^17-/" },
     { matchFileNames: ["k8s/apps/dawarich/**"],     matchPackageNames: ["redis"],            allowedVersions: "<8" },
@@ -99,14 +98,23 @@
       dependencyDashboardApproval: true,
     },
 
-    // immich: group server, ML, postgres sidecar, and redis sidecar into one PR.
-    // Placed last so groupName + schedule override the "stateful: *" rules above,
-    // pulling immich's postgres/redis out of the monthly stateful batch.
+    // immich: server + ML release in lockstep on identical version tags — group
+    // them so a single PR bumps both to the same version. Placed last so groupName
+    // + schedule win over the "stateful: *" rules. redis is intentionally NOT here:
+    // it falls into the monthly "stateful: caches" batch (capped at <7 above).
     {
       matchFileNames: ["k8s/apps/immich/**"],
       matchDatasources: ["docker"],
+      matchPackageNames: ["ghcr.io/immich-app/immich-server", "ghcr.io/immich-app/immich-machine-learning"],
       groupName: "immich",
       schedule: ["on saturday"],
+    },
+    // immich postgres: pinned exactly to the vectorchord/pgvectors build immich
+    // currently supports. Freeze it — a bump is a manual, deliberate migration.
+    {
+      matchFileNames: ["k8s/apps/immich/**"],
+      matchPackageNames: ["ghcr.io/immich-app/postgres"],
+      enabled: false,
     },
   ],
 }
