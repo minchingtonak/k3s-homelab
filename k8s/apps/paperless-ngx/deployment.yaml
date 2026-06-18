@@ -323,6 +323,8 @@ spec:
     spec:
       containers:
         - name: tika
+          # upstream compose uses 'latest' tag for tika
+          # https://github.com/paperless-ngx/paperless-ngx/blob/dev/docker/compose/docker-compose.postgres-tika.yml
           image: docker.io/apache/tika:3.3.1.0@sha256:90b7fa1dc018434075fce9e1d9b88b1e3d0ea6979d0cf86e116c79a8073ae973
           ports:
             - name: http
