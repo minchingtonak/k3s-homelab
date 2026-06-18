@@ -383,6 +383,12 @@ data:
           client_id: immich
           client_secret: ${SECRET_AUTHENTIK_IMMICH_CLIENT_SECRET}
           client_type: confidential
+          # grant_types defaults to an empty list for blueprint-created providers
+          # (authentik rejects authorization_code without this). refresh_token
+          # enables offline token renewal.
+          grant_types:
+            - authorization_code
+            - refresh_token
           redirect_uris:
             - url: https://immich.item.fyi/auth/login
               matching_mode: strict
