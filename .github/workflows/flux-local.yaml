@@ -33,6 +33,12 @@ jobs:
     needs: filter
     name: Flux Local - Test
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        cluster:
+          - minicluster
+          - proxmox
+      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
@@ -46,7 +52,7 @@ jobs:
             test
             --all-namespaces
             --enable-helm
-            --path /github/workspace/k8s/clusters/homelab
+            --path /github/workspace/k8s/clusters/${{ matrix.cluster }}
             --sources flux-system
             --verbose
 
@@ -60,6 +66,9 @@ jobs:
       pull-requests: write
     strategy:
       matrix:
+        cluster:
+          - minicluster
+          - proxmox
         resource:
           - helmrelease
           - kustomization
@@ -84,8 +93,8 @@ jobs:
           args: >-
             diff ${{ matrix.resource }}
             --unified 6
-            --path /github/workspace/pull/k8s/clusters/homelab
-            --path-orig /github/workspace/default/k8s/clusters/homelab
+            --path /github/workspace/pull/k8s/clusters/${{ matrix.cluster }}
+            --path-orig /github/workspace/default/k8s/clusters/${{ matrix.cluster }}
             --strip-attrs "helm.sh/chart,checksum/config,app.kubernetes.io/version,chart"
             --limit-bytes 10000
             --all-namespaces
@@ -103,7 +112,7 @@ jobs:
         name: Add Comment
         uses: marocchino/sticky-pull-request-comment@0ea0beb66eb9baf113663a64ec522f60e49231c0 # v3.0.4
         with:
-          header: ${{ github.event.pull_request.number }}/k8s/${{ matrix.resource }}
+          header: ${{ github.event.pull_request.number }}/k8s/${{ matrix.cluster }}/${{ matrix.resource }}
           message: |
             ```diff
             ${{ steps.diff.outputs.diff }}
