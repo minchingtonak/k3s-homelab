@@ -55,6 +55,10 @@
     { matchFileNames: ["k8s/apps/fittrackee/**"],   matchPackageNames: ["postgis/postgis"],  allowedVersions: "/^17-/" },
     { matchFileNames: ["k8s/apps/your-spotify/**"], matchPackageNames: ["mongo"],            allowedVersions: "<7" },
     { matchFileNames: ["k8s/apps/paperless-ngx/**"], matchPackageNames: ["gotenberg/gotenberg"], allowedVersions: "<9" },
+    { matchFileNames: ["k8s/apps/paperless-ngx/**"], matchPackageNames: ["postgres"],         allowedVersions: "<19" },
+    { matchFileNames: ["k8s/apps/paperless-ngx/**"], matchPackageNames: ["redis"],            allowedVersions: "<9" },
+    { matchFileNames: ["k8s/apps/forgejo/**"],      matchPackageNames: ["postgres"],         allowedVersions: "<19" },
+    { matchFileNames: ["k8s/apps/spotizerr/**"],    matchPackageNames: ["redis"],            allowedVersions: "<9" },
 
     // group + slow down stateful bumps to one batched PR per category per month
     {
