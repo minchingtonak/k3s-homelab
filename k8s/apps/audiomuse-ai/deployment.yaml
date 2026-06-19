@@ -197,7 +197,7 @@ metadata:
   labels:
     app.kubernetes.io/name: audiomuse-flask
   annotations:
-    secret.reloader.stakater.com/reload: audiomuse
+    reloader.stakater.com/auto: "true"
 spec:
   replicas: 1
   strategy:
@@ -277,7 +277,9 @@ metadata:
   labels:
     app.kubernetes.io/name: audiomuse-worker
   annotations:
-    secret.reloader.stakater.com/reload: audiomuse
+    # watch both the referenced ConfigMap (audiomuse-config) and Secret (audiomuse)
+    # so env changes to either trigger a rollout — envFrom is only read at pod start.
+    reloader.stakater.com/auto: "true"
 spec:
   replicas: 1
   strategy:
