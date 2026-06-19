@@ -1,0 +1,30 @@
+# Flux manages the flux-operator itself (GitOps self-management). The operator and
+# the Flux toolkit controllers (source/kustomize/helm) are disjoint: helm-controller
+# upgrading the operator is just a rolling restart, no circular hazard.
+#
+# Bootstrap (pulumi helm.v3.Release on proxmox, ansible `helm install` on minicluster)
+# still installs the operator on fresh clusters — the operator must exist before Flux
+# can reconcile anything. Both bootstrap paths write a real Helm release Secret, so
+# helm-controller adopts the release in place via the matching releaseName below.
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: flux-operator
+  namespace: flux-system
+spec:
+  interval: 1h
+  releaseName: flux-operator # must match the bootstrap release name for clean adoption
+  chart:
+    spec:
+      chart: flux-operator
+      version: "0.46.0" # https://github.com/controlplaneio-fluxcd/flux-operator/releases
+      sourceRef:
+        kind: HelmRepository
+        name: flux-operator
+      interval: 1h
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3

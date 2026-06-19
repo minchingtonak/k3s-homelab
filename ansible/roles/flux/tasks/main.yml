@@ -5,16 +5,92 @@
       - flux_cluster_path | length > 0
     fail_msg: "flux_cluster_path must be set (e.g. k8s/clusters/minicluster)."
 
-# Apply the operator's published manifest directly. kubectl fetches the URL over
-# the node's host network (host DNS), so this works even before cluster CoreDNS is
-# up; the operator image is pulled by containerd (also host-level).
+# Install helm on the node so the operator can be installed as a real Helm release
+# (see defaults/main.yml for why helm rather than `kubectl apply install.yaml`).
+- name: Check installed helm version
+  ansible.builtin.command:
+    cmd: helm version --short --client
+  register: flux_helm_installed
+  changed_when: false
+  failed_when: false
+
+- name: Install pinned helm binary
+  when: flux_helm_version | regex_replace('^v', '') not in (flux_helm_installed.stdout | default(''))
+  block:
+    - name: Download and extract helm release tarball
+      ansible.builtin.unarchive:
+        src: "https://get.helm.sh/helm-{{ flux_helm_version }}-linux-{{ flux_helm_arch }}.tar.gz"
+        dest: /tmp
+        remote_src: true
+        creates: "/tmp/linux-{{ flux_helm_arch }}/helm"
+
+    - name: Install helm binary to /usr/local/bin
+      ansible.builtin.copy:
+        src: "/tmp/linux-{{ flux_helm_arch }}/helm"
+        dest: /usr/local/bin/helm
+        remote_src: true
+        mode: "0755"
+
+    - name: Remove extracted helm tarball contents
+      ansible.builtin.file:
+        path: "/tmp/linux-{{ flux_helm_arch }}"
+        state: absent
+
+# One-time migration off the original `kubectl apply install.yaml` bootstrap. That
+# Deployment's pod selector differs from the Helm chart's, and Deployment.spec.selector
+# is immutable, so helm cannot adopt it in place (`--take-ownership` fails patching it).
+# When the live Deployment is not yet Helm-managed we therefore: purge any leftover Helm
+# release Secret (a failed earlier `helm install` leaves a `failed` release, which makes
+# the next `upgrade --install` error with "has no deployed releases"), then delete the
+# Deployment so helm recreates it cleanly. Only the Deployment is removed (brief operator
+# downtime; the Flux toolkit controllers keep running); CRDs/RBAC/Service are adopted in
+# place by `--take-ownership`. No-op on a fresh cluster (nothing exists) and on an
+# already-migrated cluster (Deployment is Helm-managed → block is skipped).
+- name: Detect whether the flux-operator Deployment is Helm-managed
+  ansible.builtin.shell:
+    cmd: >-
+      set -o pipefail &&
+      k3s kubectl get deploy flux-operator -n {{ flux_operator_namespace }}
+      -o jsonpath='{.metadata.labels.app\.kubernetes\.io/managed-by}' 2>/dev/null || true
+    executable: /bin/bash
+  register: flux_operator_managed_by
+  changed_when: false
+
+- name: Migrate flux-operator off the kubectl-apply bootstrap
+  when: (flux_operator_managed_by.stdout | trim) != "Helm"
+  block:
+    - name: Purge any leftover (non-deployed) flux-operator Helm release Secret
+      ansible.builtin.command:
+        cmd: >-
+          k3s kubectl delete secret -n {{ flux_operator_namespace }}
+          -l owner=helm,name=flux-operator --ignore-not-found
+      changed_when: true
+
+    - name: Delete the pre-Helm flux-operator Deployment (immutable selector)
+      ansible.builtin.command:
+        cmd: >-
+          k3s kubectl delete deploy flux-operator -n {{ flux_operator_namespace }}
+          --ignore-not-found --wait=true
+      changed_when: true
+
+# Install the operator as a Helm release. helm pulls the OCI chart and the operator
+# image over the node's host network and applies the release to the local
+# kube-apiserver, so this works before cluster CoreDNS is up. Unlike a plain
+# `kubectl apply`, this writes a Helm release Secret that Flux's helm-controller
+# adopts, letting Flux self-manage the operator afterwards
+# (k8s/infrastructure/flux-operator). `--take-ownership` adopts the remaining
+# install.yaml resources (CRDs/RBAC/Service) into the new release.
 - name: Install flux-operator (namespace + CRDs + controller)
   ansible.builtin.command:
     cmd: >-
-      k3s kubectl apply -f
-      https://github.com/controlplaneio-fluxcd/flux-operator/releases/download/v{{ flux_operator_version }}/install.yaml
+      helm upgrade --install flux-operator {{ flux_operator_chart }}
+      --version {{ flux_operator_version }}
+      --namespace {{ flux_operator_namespace }} --create-namespace
+      --take-ownership --wait
+  environment:
+    KUBECONFIG: /etc/rancher/k3s/k3s.yaml
   register: flux_operator_apply
-  changed_when: "'created' in flux_operator_apply.stdout or 'configured' in flux_operator_apply.stdout"
+  changed_when: "'has been upgraded' in flux_operator_apply.stdout or 'has been installed' in flux_operator_apply.stdout"
 
 - name: Wait for the FluxInstance CRD to be established
   ansible.builtin.command:

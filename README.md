@@ -22,7 +22,7 @@ flux `Kustomization` entrypoints for the homelab cluster. defines the reconcilia
   - [Grafana](https://github.com/grafana/grafana) for metric & log display
 - [Loki](https://github.com/grafana/loki) for log storage & querying
 - [Grafana Alloy](https://github.com/grafana/alloy) for log collection and forwarding
-- [FluxCD](https://github.com/fluxcd/flux2) for GitOps continuous delivery
+- [FluxCD](https://github.com/fluxcd/flux2) for GitOps continuous delivery with [flux-operator](https://github.com/controlplaneio-fluxcd/flux-operator)
 - [SOPS](https://github.com/getsops/sops) (with age) for encrypted secret management in Git, decrypted by Flux at reconcile time
 - [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller) for automated k3s node upgrades via GitOps
 - [reloader](https://github.com/stakater/Reloader) to restart pods when config changes

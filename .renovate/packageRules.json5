@@ -7,10 +7,18 @@
     { matchDepNames: ["k3s-io/k3s"], groupName: "k3s version" },
     // group flux distribution bumps (flux-instance.yaml + ansible role) into one PR
     { matchDepNames: ["fluxcd/flux2"], groupName: "flux version" },
-    // group flux-operator bumps (pulumi IaC + ansible role) into one PR
-    { matchDepNames: ["controlplaneio-fluxcd/flux-operator"], groupName: "flux-operator version" },
+    // group flux-operator bumps into one PR: the github-releases pins in pulumi IaC +
+    // ansible role (bootstrap) and the OCI helm chart Flux self-manages
+    // (k8s/infrastructure/flux-operator). Chart tags track the GitHub releases 1:1.
+    {
+      matchPackageNames: ["controlplaneio-fluxcd/flux-operator", "ghcr.io/controlplaneio-fluxcd/charts/flux-operator"],
+      groupName: "flux-operator version",
+    },
     // group all node version bumps (CI node-version + @types/node) into one PR
     { matchDepNames: ["node", "@types/node"], groupName: "node version" },
+    // helm bootstrap binary must stay on the v3 line: Flux's helm-controller uses the
+    // Helm v3 release-storage format, so a v4-written release Secret breaks adoption.
+    { matchDepNames: ["helm/helm"], allowedVersions: "<4" },
 
     { matchPackagePatterns: ["^lavaforge\\.org/"], enabled: false },
     {

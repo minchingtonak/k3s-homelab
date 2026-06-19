@@ -65,7 +65,7 @@ All infrastructure is defined in a single `pulumi/index.ts` with these sections:
 
 6. **K3s agent nodes** (vmId 101+) — Worker nodes. 4 CPU / 8GB RAM / 50GB disk. Health-check loop waits for server at `192.168.20.100:6443` before joining. Currently `agentCount = 1`.
 
-7. **Flux bootstrap** — Fetches kubeconfig from the server node via SSH (replacing `127.0.0.1` with the external IP), writes it to `~/.kube/k3s-homelab`, installs the Flux Operator via Helm, then applies a `FluxInstance` CRD that bootstraps Flux against the git repository. Flux manages `clusters/homelab` path.
+7. **Flux bootstrap** — Fetches kubeconfig from the server node via SSH (replacing `127.0.0.1` with the external IP), writes it to `~/.kube/k3s-homelab`, installs the Flux Operator via Helm, then applies a `FluxInstance` CRD that bootstraps Flux against the git repository. Flux manages `clusters/homelab` path. The bootstrap operator install is only for fresh-cluster bring-up: in steady state the operator is a first-class Flux-managed component (`infrastructure/flux-operator`, a HelmRelease Flux adopts via matching `releaseName`), so Renovate bumps actually upgrade the running operator. The minicluster's ansible bootstrap uses `helm install` (not `kubectl apply install.yaml`) so a Helm release Secret exists for that adoption.
 
 ## GitOps Manifest Layout
 

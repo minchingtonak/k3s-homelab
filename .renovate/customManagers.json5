@@ -60,5 +60,14 @@
       depNameTemplate: "controlplaneio-fluxcd/flux-operator",
       datasourceTemplate: "github-releases",
     },
+    // track the helm binary pinned in the ansible flux role (used to bootstrap the
+    // operator as a Helm release). Pinned to the v3 line; see defaults/main.yml.
+    {
+      customType: "regex",
+      managerFilePatterns: ["/ansible/roles/flux/defaults/main\\.ya?ml$/"],
+      matchStrings: ["flux_helm_version:\\s*\"(?<currentValue>[^\"]+)\""],
+      depNameTemplate: "helm/helm",
+      datasourceTemplate: "github-releases",
+    },
   ],
 }
