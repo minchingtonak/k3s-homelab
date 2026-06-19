@@ -713,7 +713,7 @@ const fluxOperator = new k8s.helm.v3.Release(
   {
     name: 'flux-operator',
     chart: 'oci://ghcr.io/controlplaneio-fluxcd/charts/flux-operator',
-    version: '0.46.0',
+    version: '0.52.0',
     namespace: 'flux-system',
     createNamespace: true,
   },
