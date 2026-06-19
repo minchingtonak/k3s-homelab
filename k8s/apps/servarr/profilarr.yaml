@@ -42,6 +42,10 @@ spec:
               value: America/New_York
             - name: AUTH
               value: off
+            # profilarr 2.x rejects requests whose Origin doesn't match this
+            # when behind a reverse proxy (scheme + host + port)
+            - name: ORIGIN
+              value: https://profilarr.item.fyi
           ports:
             - name: http
               containerPort: 6868
