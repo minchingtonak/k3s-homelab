@@ -15,6 +15,5 @@ resources:
   - subsyncarr.yaml
   - profilarr.yaml
   - cleanuparr.yaml
-  - triggarr.yaml
   - apprise.yaml
   - ingressroutes.yaml
