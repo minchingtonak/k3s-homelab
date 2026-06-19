@@ -1,0 +1,24 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: audiomuse
+  namespace: audiomuse
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "AudioMuse-AI"
+    gethomepage.dev/description: "Sonic analysis & smart playlists"
+    gethomepage.dev/group: "media"
+    gethomepage.dev/icon: "mdi-music-box-multiple"
+    gethomepage.dev/href: "https://audiomuse.item.fyi"
+    gethomepage.dev/siteMonitor: "http://audiomuse.audiomuse.svc.cluster.local:8000"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=audiomuse-flask"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`audiomuse.item.fyi`)
+      services:
+        - name: audiomuse
+          port: 8000
+  tls: {}

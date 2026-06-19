@@ -66,6 +66,8 @@
     { matchFileNames: ["k8s/apps/paperless-ngx/**"], matchPackageNames: ["redis"],            allowedVersions: "<9" },
     { matchFileNames: ["k8s/apps/forgejo/**"],      matchPackageNames: ["postgres"],         allowedVersions: "<19" },
     { matchFileNames: ["k8s/apps/spotizerr/**"],    matchPackageNames: ["redis"],            allowedVersions: "<9" },
+    { matchFileNames: ["k8s/apps/audiomuse-ai/**"], matchPackageNames: ["postgres"],         allowedVersions: "<16" },
+    { matchFileNames: ["k8s/apps/audiomuse-ai/**"], matchPackageNames: ["redis"],            allowedVersions: "<8"  },
 
     // group + slow down stateful bumps to one batched PR per category per month
     {
