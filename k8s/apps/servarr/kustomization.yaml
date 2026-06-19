@@ -13,7 +13,7 @@ resources:
   - listenarr.yaml
   - bazarr.yaml
   - subsyncarr.yaml
-  # - profilarr.yaml
+  - profilarr.yaml
   - cleanuparr.yaml
   - triggarr.yaml
   - apprise.yaml
