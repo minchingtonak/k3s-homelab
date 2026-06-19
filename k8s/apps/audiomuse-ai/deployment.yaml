@@ -313,8 +313,7 @@ spec:
             limits:
               # analysis (librosa/CLAP) is CPU- and memory-heavy; give the worker
               # headroom so it isn't OOM-killed mid-track.
-              memory: "4Gi"
-              cpu: "2000m"
+              memory: "12Gi"
       volumes:
         - name: temp-audio
           emptyDir: {}
