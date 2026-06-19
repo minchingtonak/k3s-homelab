@@ -254,7 +254,6 @@ spec:
               cpu: "50m"
             limits:
               memory: "512Mi"
-              cpu: "500m"
       volumes:
         - name: config
           configMap:

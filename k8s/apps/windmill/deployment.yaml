@@ -71,7 +71,6 @@ spec:
               cpu: "50m"
             limits:
               memory: "2048Mi"
-              cpu: "500m"
       volumes:
         - name: postgres-data
           persistentVolumeClaim:
@@ -147,7 +146,6 @@ spec:
               cpu: "100m"
             limits:
               memory: "2Gi"
-              cpu: "1000m"
 ---
 apiVersion: v1
 kind: Service
@@ -209,7 +207,6 @@ spec:
               cpu: "100m"
             limits:
               memory: "2Gi"
-              cpu: "1000m"
       volumes:
         - name: worker-cache
           emptyDir: {}
@@ -258,7 +255,6 @@ spec:
               cpu: "50m"
             limits:
               memory: "2Gi"
-              cpu: "1000m"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -303,7 +299,6 @@ spec:
               cpu: "100m"
             limits:
               memory: "2Gi"
-              cpu: "1000m"
       volumes:
         - name: worker-cache
           emptyDir: {}
@@ -339,7 +334,6 @@ spec:
               cpu: "50m"
             limits:
               memory: "512Mi"
-              cpu: "500m"
 ---
 apiVersion: v1
 kind: Service

@@ -79,7 +79,6 @@ spec:
               cpu: "50m"
             limits:
               memory: "512Mi"
-              cpu: "500m"
       volumes:
         - name: postgres-data
           persistentVolumeClaim:
@@ -186,7 +185,6 @@ spec:
               cpu: "100m"
             limits:
               memory: "1Gi"
-              cpu: "1000m"
       volumes:
         - name: data
           persistentVolumeClaim:

@@ -98,7 +98,6 @@ spec:
               cpu: "50m"
             limits:
               memory: "1Gi"
-              cpu: "500m"
       volumes:
         - name: postgres-data
           persistentVolumeClaim:
@@ -166,7 +165,6 @@ spec:
               cpu: "25m"
             limits:
               memory: "256Mi"
-              cpu: "250m"
       volumes:
         - name: redis-data
           persistentVolumeClaim:
@@ -247,7 +245,6 @@ spec:
               cpu: "100m"
             limits:
               memory: "1Gi"
-              cpu: "1000m"
       volumes:
         - name: temp-audio
           emptyDir: {}

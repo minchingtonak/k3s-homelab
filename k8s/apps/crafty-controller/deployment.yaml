@@ -114,7 +114,6 @@ spec:
               cpu: "100m"
             limits:
               memory: "10Gi"
-              cpu: "2000m"
       volumes:
         - name: backups
           persistentVolumeClaim:
