@@ -397,34 +397,34 @@ spec:
         - name: cleanuparr
           port: 11011
   tls: {}
----
-apiVersion: traefik.io/v1alpha1
-kind: IngressRoute
-metadata:
-  name: triggarr
-  namespace: servarr
-  annotations:
-    gethomepage.dev/enabled: "true"
-    gethomepage.dev/name: "Triggarr"
-    gethomepage.dev/description: "Automated search scheduler"
-    gethomepage.dev/group: "servarr"
-    gethomepage.dev/icon: "triggarr.png"
-    gethomepage.dev/href: "https://triggarr.item.fyi"
-    gethomepage.dev/siteMonitor: "http://triggarr.servarr.svc.cluster.local:8484"
-    gethomepage.dev/pod-selector: "app.kubernetes.io/name=triggarr"
-spec:
-  entryPoints:
-    - websecure
-  routes:
-    - kind: Rule
-      match: Host(`triggarr.item.fyi`)
-      middlewares:
-        - name: authentik
-          namespace: authentik
-      services:
-        - name: triggarr
-          port: 8484
-  tls: {}
+# ---
+# apiVersion: traefik.io/v1alpha1
+# kind: IngressRoute
+# metadata:
+#   name: triggarr
+#   namespace: servarr
+#   annotations:
+#     gethomepage.dev/enabled: "true"
+#     gethomepage.dev/name: "Triggarr"
+#     gethomepage.dev/description: "Automated search scheduler"
+#     gethomepage.dev/group: "servarr"
+#     gethomepage.dev/icon: "triggarr.png"
+#     gethomepage.dev/href: "https://triggarr.item.fyi"
+#     gethomepage.dev/siteMonitor: "http://triggarr.servarr.svc.cluster.local:8484"
+#     gethomepage.dev/pod-selector: "app.kubernetes.io/name=triggarr"
+# spec:
+#   entryPoints:
+#     - websecure
+#   routes:
+#     - kind: Rule
+#       match: Host(`triggarr.item.fyi`)
+#       middlewares:
+#         - name: authentik
+#           namespace: authentik
+#       services:
+#         - name: triggarr
+#           port: 8484
+#   tls: {}
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
