@@ -65,6 +65,7 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: navidrome
+        newt.homelab/allow: "true"
     spec:
       securityContext:
         runAsUser: 100000

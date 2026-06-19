@@ -17,6 +17,7 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: jellyfin
+        newt.homelab/allow: "true"
     spec:
       securityContext:
         # Non-root runtime (PUID/PGID 100000) needs the volume root group-owned + writable;
