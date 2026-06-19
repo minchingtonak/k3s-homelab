@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
   - deployment.yaml
   - newt-secret.sops.yaml
+  - netpol
