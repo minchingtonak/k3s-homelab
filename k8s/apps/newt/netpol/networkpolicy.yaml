@@ -1,0 +1,50 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: newt-egress-allowlist
+  namespace: newt
+spec:
+  # Default-deny egress for the newt tunnel client, with three carve-outs:
+  #   1. DNS to CoreDNS (kube-system) so newt can resolve names at all.
+  #   2. WAN egress (everything except RFC1918) so newt can reach its
+  #      external Pangolin server. NOTE: assumes the Pangolin endpoint is
+  #      public. If it lives on the LAN, add its IP as an ipBlock peer below.
+  #   3. Opt-in internal pods only: a pod in ANY namespace becomes reachable
+  #      from newt the moment it carries the label `newt.homelab/allow: "true"`
+  #      on its pod template. Anything without the label is denied — this is
+  #      what contains newt to the handful of services it actually fronts.
+  #
+  # Because this selects newt for Egress, ALL egress not listed here is dropped.
+  # Until you label the pods newt currently proxies to, those Pangolin routes
+  # will fail. Pangolin targets are configured in the dashboard, not this repo,
+  # so they cannot be enumerated automatically — label them deliberately.
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: newt
+  policyTypes:
+    - Egress
+  egress:
+    # 1. DNS resolution via CoreDNS
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+    # 2. WAN (external) egress — reach the Pangolin server, deny all internal
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+    # 3. Opt-in internal pods (any namespace) bearing newt.homelab/allow=true
+    - to:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              newt.homelab/allow: "true"
