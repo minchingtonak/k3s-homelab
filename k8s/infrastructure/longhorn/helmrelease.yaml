@@ -14,7 +14,8 @@ spec:
         name: longhorn
       interval: 1h
   values:
-    timezone: America/New_York
+    global:
+      timezone: America/New_York
     # S3 backup target (Backblaze B2). Credentials live in the aws-secret Secret
     # (backup-secret.sops.yaml), decrypted by Flux via the longhorn Kustomization's
     # sops provider. pollInterval is how often Longhorn syncs backup volume state.
