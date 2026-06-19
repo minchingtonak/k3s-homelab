@@ -39,6 +39,7 @@ data:
   POSTGRES_DB: audiomuse
   POSTGRES_USER: audiomuse
   REDIS_URL: redis://audiomuse-redis:6379/0
+  MEDIASERVER_TYPE: navidrome
   NAVIDROME_URL: http://navidrome.navidrome.svc.cluster.local:4533
 ---
 apiVersion: apps/v1
