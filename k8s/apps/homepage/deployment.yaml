@@ -113,9 +113,9 @@ data:
   docker.yaml: ""
   bookmarks.yaml: |
     - infrastructure:
-      - router:
+      - unifi router:
           - icon: unifi.svg
-            href: https://192.168.20.1
+            href: https://192.168.10.1
       - proxmox:
           - icon: proxmox.png
             href: https://192.168.20.89:8006
@@ -137,6 +137,9 @@ data:
       - pushover:
           - icon: pushover.png
             href: https://client.pushover.net
+      - pushover api:
+          - icon: pushover.png
+            href: https://api.pushover.net
       - healthchecks:
           - icon: healthchecks.png
             href: https://healthchecks.io
