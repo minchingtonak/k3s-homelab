@@ -46,7 +46,7 @@ data:
       auto: no               # run explicitly post-import (auto-on-import doesn't fire under autotag:no)
       backend: ffmpeg
       peak: "true"
-      overwrite: yes
+      overwrite: no
 ---
 apiVersion: batch/v1
 kind: CronJob
@@ -85,7 +85,7 @@ spec:
               command: ["/bin/sh", "-c"]
               args:
                 - |
-                  set -e
+                  set -ex
                   cp /config.yaml.src /config/config.yaml
                   # Import-stage plugin auto-hooks are unreliable under autotag:no
                   # (replaygain never fires; lastgenre computes but doesn't write to
@@ -95,7 +95,7 @@ spec:
                   # parallelism (NFS-friendly; default is all host cores), -w writes.
                   /lsiopy/bin/beet import /music
                   # /lsiopy/bin/beet lastgenre
-                  /lsiopy/bin/beet replaygain -a -f -t 8 -w
+                  /lsiopy/bin/beet replaygain -a -t 12 -w
               env:
                 - name: TZ
                   value: America/New_York
