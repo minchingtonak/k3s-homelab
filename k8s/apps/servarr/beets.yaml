@@ -46,7 +46,7 @@ data:
       auto: no               # run explicitly post-import (auto-on-import doesn't fire under autotag:no)
       backend: ffmpeg
       peak: "true"
-      overwrite: no
+      overwrite: yes
 ---
 apiVersion: batch/v1
 kind: CronJob
@@ -59,8 +59,8 @@ spec:
   schedule: "0 * * * *"
   timeZone: America/New_York
   concurrencyPolicy: Forbid
-  successfulJobsHistoryLimit: 3
-  failedJobsHistoryLimit: 3
+  successfulJobsHistoryLimit: 10
+  failedJobsHistoryLimit: 10
   jobTemplate:
     spec:
       template:
@@ -93,7 +93,7 @@ spec:
                   # command that writes tags straight to disk. replaygain overwrite:no
                   # keeps reruns cheap; lastgenre force:yes re-fetches every run.
                   /lsiopy/bin/beet import /music
-                  /lsiopy/bin/beet lastgenre
+                  # /lsiopy/bin/beet lastgenre
                   /lsiopy/bin/beet replaygain
               env:
                 - name: TZ
