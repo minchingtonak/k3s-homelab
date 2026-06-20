@@ -90,11 +90,12 @@ spec:
                   # Import-stage plugin auto-hooks are unreliable under autotag:no
                   # (replaygain never fires; lastgenre computes but doesn't write to
                   # files). So import as-is, then run each plugin explicitly as a
-                  # command that writes tags straight to disk. replaygain overwrite:no
-                  # keeps reruns cheap; lastgenre force:yes re-fetches every run.
+                  # command that writes tags straight to disk. replaygain -a runs in
+                  # album mode (album+track gain, writes per-album), -t caps ffmpeg
+                  # parallelism (NFS-friendly; default is all host cores), -w writes.
                   /lsiopy/bin/beet import /music
                   # /lsiopy/bin/beet lastgenre
-                  /lsiopy/bin/beet replaygain
+                  /lsiopy/bin/beet replaygain -a -f -t 8 -w
               env:
                 - name: TZ
                   value: America/New_York
