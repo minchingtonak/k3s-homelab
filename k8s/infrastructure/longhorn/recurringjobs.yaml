@@ -4,7 +4,7 @@ metadata:
   name: backup-daily
   namespace: longhorn-system
 spec:
-  cron: "0 2 * * *"
+  cron: "0 6 * * *" # 2:00 AM EDT (summer, UTC−4)
   task: backup
   groups:
     - default
@@ -17,7 +17,7 @@ metadata:
   name: backup-weekly
   namespace: longhorn-system
 spec:
-  cron: "0 3 * * 0"
+  cron: "0 7 * * 0" # 3:00 AM EDT (summer, UTC−4)
   task: backup
   groups:
     - default
@@ -30,7 +30,7 @@ metadata:
   name: backup-monthly
   namespace: longhorn-system
 spec:
-  cron: "0 4 1 * *"
+  cron: "0 8 1 * *" # 4:00 AM EDT (summer, UTC−4)
   task: backup
   groups:
     - default
