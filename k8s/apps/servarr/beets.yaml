@@ -38,7 +38,7 @@ data:
       auto: yes
       title_case: yes
       source: album
-      count: 3
+      count: 5
       force: yes
       keep_existing: yes
 
@@ -46,7 +46,7 @@ data:
       backend: ffmpeg
       peak: "true"
       auto: yes
-      overwrite: yes
+      overwrite: no
 ---
 apiVersion: batch/v1
 kind: CronJob
@@ -88,6 +88,10 @@ spec:
                   set -e
                   cp /config.yaml.src /config/config.yaml
                   /lsiopy/bin/beet import /music
+                  # replaygain's auto-on-import stage doesn't fire under autotag:no,
+                  # so compute it explicitly; overwrite:no makes this skip tracks that
+                  # already have RG
+                  # /lsiopy/bin/beet replaygain
               env:
                 - name: TZ
                   value: America/New_York
