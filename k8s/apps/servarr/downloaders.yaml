@@ -68,6 +68,14 @@ spec:
       labels:
         app.kubernetes.io/name: downloaders
     spec:
+      # downloader containers route DNS through gluetun (127.0.0.1 -> cloudflare),
+      # so the cluster search domains never resolve. ndots:1 stops external
+      # hostnames (newsservers, trackers) from being expanded into 8 queries each,
+      # which was saturating gluetun's forwarder during heavy downloads.
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "1"
       securityContext:
         fsGroup: 100000
       initContainers:
