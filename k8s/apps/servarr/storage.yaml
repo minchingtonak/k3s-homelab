@@ -98,6 +98,38 @@ spec:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
+  name: beets-music
+spec:
+  capacity:
+    storage: 500Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  claimRef:
+    name: beets-music
+    namespace: servarr
+  nfs:
+    server: 192.168.20.89
+    path: /void/media/music
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: beets-music
+  namespace: servarr
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  volumeName: beets-music
+  resources:
+    requests:
+      storage: 500Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
   name: servarr-downloads
 spec:
   capacity:

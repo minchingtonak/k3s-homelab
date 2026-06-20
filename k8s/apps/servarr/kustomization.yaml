@@ -10,6 +10,7 @@ resources:
   - sonarr.yaml
   - radarr.yaml
   - lidarr.yaml
+  - beets.yaml
   - listenarr.yaml
   - bazarr.yaml
   - subsyncarr.yaml
