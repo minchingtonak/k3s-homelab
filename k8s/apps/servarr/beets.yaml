@@ -85,17 +85,24 @@ spec:
               command: ["/bin/sh", "-c"]
               args:
                 - |
-                  set -ex
+                  set -x
                   cp /config.yaml.src /config/config.yaml
-                  # Import-stage plugin auto-hooks are unreliable under autotag:no
-                  # (replaygain never fires; lastgenre computes but doesn't write to
-                  # files). So import as-is, then run each plugin explicitly as a
-                  # command that writes tags straight to disk. replaygain -a runs in
-                  # album mode (album+track gain, writes per-album), -t caps ffmpeg
-                  # parallelism (NFS-friendly; default is all host cores), -w writes.
+                  # Import-stage plugin auto-hooks are unreliable under autotag:no, so
+                  # import as-is then run replaygain explicitly (writes tags to disk).
+                  # replaygain runs PER LETTER: the threaded ffmpeg backend can wedge on
+                  # one bad file and hang pool.join() forever (its busy-wait watcher
+                  # pegs a core). Batching by first letter + `timeout` isolates a stuck
+                  # batch so one file can't block the whole library, and the loop
+                  # continues. No -f -> already-tagged albums are skipped (cheap reruns).
                   /lsiopy/bin/beet import /music
                   # /lsiopy/bin/beet lastgenre
-                  /lsiopy/bin/beet replaygain -a -t 12 -w
+                  for c in 0 1 2 3 4 5 6 7 8 9 a b c d e f g h i j k l m n o p q r s t u v w x y z; do
+                    echo ">>> replaygain batch: ^$c"
+                    timeout 1800 /lsiopy/bin/beet replaygain -a -t 8 -w "albumartist::(?i)^$c" || echo "!!! batch $c failed/timed out, continuing"
+                  done
+                  # catch-all: artists not starting with an ASCII letter/digit (non-latin, symbols)
+                  echo ">>> replaygain batch: non-latin/other"
+                  timeout 1800 /lsiopy/bin/beet replaygain -a -t 8 -w 'albumartist::^[^0-9A-Za-z]' || echo "!!! non-latin batch failed/timed out, continuing"
               env:
                 - name: TZ
                   value: America/New_York
