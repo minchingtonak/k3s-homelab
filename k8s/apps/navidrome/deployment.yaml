@@ -85,6 +85,12 @@ spec:
               value: "50"
             - name: ND_AUTOIMPORTPLAYLISTS
               value: "true"
+            - name: ND_PLUGINS_ENABLED
+              value: "true"
+            - name: ND_PLUGINS_AUTORELOAD
+              value: "true"
+            - name: ND_AGENTS
+              value: "audiomuseai,deezer,lastfm,listenbrainz"
             - name: ND_LASTFM_APIKEY
               valueFrom:
                 secretKeyRef:
