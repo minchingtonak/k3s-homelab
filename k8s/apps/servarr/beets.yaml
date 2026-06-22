@@ -38,7 +38,7 @@ data:
       auto: no              # run explicitly post-import (import-stage write is unreliable under autotag:no)
       title_case: yes
       source: album
-      count: 5
+      count: 3
       force: yes
       keep_existing: yes
 
@@ -90,7 +90,7 @@ spec:
                   # Import-stage plugin auto-hooks are unreliable under autotag:no, so
                   # import as-is then run plugins explicitly (writes tags to disk).
                   /lsiopy/bin/beet import /music
-                  # /lsiopy/bin/beet lastgenre
+                  /lsiopy/bin/beet lastgenre
                   /lsiopy/bin/beet replaygain -a -t 0 -w
               env:
                 - name: TZ
