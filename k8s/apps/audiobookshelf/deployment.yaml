@@ -113,6 +113,7 @@ spec:
       securityContext:
         runAsUser: 100000
         runAsGroup: 100000
+        fsGroup: 100000
       containers:
         - name: audiobookshelf
           image: ghcr.io/advplyr/audiobookshelf:2.35.1@sha256:1eef6716183c52abafe5405e7d6be8390248ecd59c7488c44af871757ac8fc4d
