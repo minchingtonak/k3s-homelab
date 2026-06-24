@@ -4,7 +4,6 @@ metadata:
   name: servarr
   namespace: flux-system
 spec:
-  suspend: true
   interval: 1h
   retryInterval: 1m
   dependsOn:
