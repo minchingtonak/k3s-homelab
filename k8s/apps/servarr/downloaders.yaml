@@ -110,8 +110,11 @@ spec:
               value: "29730,50300"
             - name: FIREWALL_OUTBOUND_SUBNETS
               value: 10.42.0.0/16,10.43.0.0/16
-            - name: SERVER_CITIES
-              value: Chicago Illinois,Toronto Ontario,New York City,Atlanta Georgia
+            # using multiple values means VPN reconnects change VPN IP frequently, which usenet providers do not like
+            # - name: SERVER_CITIES
+            #   value: Chicago Illinois,Toronto Ontario,New York City,Atlanta Georgia
+            - name: SERVER_NAMES
+              value: Meridiana
             - name: HEALTH_VPN_DURATION_INITIAL
               value: 120s
             - name: UPDATER_PERIOD
