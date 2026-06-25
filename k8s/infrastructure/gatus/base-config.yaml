@@ -35,5 +35,6 @@ data:
           send-on-resolved: true
           failure-threshold: 2
           success-threshold: 1
+          minimum-reminder-interval: 1h
 
     # No static endpoints — all auto-discovered via gatus-sidecar
