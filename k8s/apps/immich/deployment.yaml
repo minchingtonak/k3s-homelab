@@ -224,7 +224,6 @@ spec:
     spec:
       containers:
         - name: redis
-          # pinned — same digest as hac compose
           image: docker.io/redis:6.2-alpine@sha256:c9ab371a96b057d3642be9bd71cb1b3fe97920d345dc949860578bffb3d54460
           command: ["redis-server"]
           ports:
@@ -288,7 +287,6 @@ spec:
     spec:
       containers:
         - name: immich-machine-learning
-          # pinned — same digest as hac compose
           image: ghcr.io/immich-app/immich-machine-learning:v2.7.5@sha256:a2501141440f10516d329fdfba2c68082e19eb9ba6016c061ac80d23beadf7f3
           env:
             - name: IMMICH_HOST
@@ -299,6 +297,19 @@ spec:
             - name: http
               containerPort: 3003
               protocol: TCP
+          startupProbe:
+            httpGet:
+              path: /ping
+              port: http
+            periodSeconds: 10
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: http
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
           volumeMounts:
             - name: ml-cache
               mountPath: /cache
@@ -353,7 +364,6 @@ spec:
     spec:
       containers:
         - name: immich-server
-          # pinned — same digest as hac compose
           image: ghcr.io/immich-app/immich-server:v2.7.5@sha256:c15bff75068effb03f4355997d03dc7e0fc58720c2b54ad6f7f10d1bc57efaa5
           env:
             - name: DB_HOSTNAME
