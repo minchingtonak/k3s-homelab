@@ -119,6 +119,14 @@ spec:
               value: 120s
             - name: UPDATER_PERIOD
               value: 24h
+            # use plaintext UDP DNS instead of the default DNS-over-TLS. the DoT
+            # forwarder kept a long-lived TLS connection to cloudflare on tcp 853
+            # through the tunnel; when it wedged it
+            # killed all client DNS and hung gluetun's dns goroutine on shutdown,
+            # crashing it. DNS still travels
+            # inside the wireguard tunnel, so DoT's encryption was redundant.
+            - name: DNS_UPSTREAM_RESOLVER_TYPE
+              value: plain
             - name: BLOCK_MALICIOUS
               value: on
             - name: HEALTH_SERVER_ADDRESS
