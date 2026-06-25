@@ -6,6 +6,7 @@ resources:
   - secrets.yaml
   - gluetun-wireguard-secret.sops.yaml
   - downloaders.yaml
+  - nzbget.yaml
   - prowlarr.yaml
   - sonarr.yaml
   - radarr.yaml
