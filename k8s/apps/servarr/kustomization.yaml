@@ -11,6 +11,7 @@ resources:
   - radarr.yaml
   - lidarr.yaml
   - beets.yaml
+  - triggarr.yaml
   - listenarr.yaml
   - bazarr.yaml
   - subsyncarr.yaml
