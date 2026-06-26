@@ -119,7 +119,7 @@ spec:
     spec:
       containers:
         - name: docuseal
-          image: docuseal/docuseal:3.0.3@sha256:4d029dd71693924fe4c03e4caf01428b9c967cb10708ceab993aa6dfb556e9b0
+          image: docuseal/docuseal:3.1.1@sha256:0db707ba6dda8c5a937fec1a1722af4f926a4e575c0edaf994cab91a4333e6a5
           ports:
             - name: http
               containerPort: 3000
