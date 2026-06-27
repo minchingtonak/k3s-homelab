@@ -356,7 +356,7 @@ spec:
         runAsGroup: 100000
       containers:
         - name: copyparty
-          image: copyparty/ac:1.20.16@sha256:1d6839e391ba80f397eb59a662cf4fec549b4e9346ac2165b44e594b628cdabb
+          image: copyparty/ac:1.20.16@sha256:cc28e26fd2c8b25d0f71b351c28ed32538b060bb6e3579bbc17972ca5269d936
           ports:
             - containerPort: 3939
           volumeMounts:
