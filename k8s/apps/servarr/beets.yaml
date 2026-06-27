@@ -75,7 +75,7 @@ spec:
             fsGroup: 100000
           containers:
             - name: beets
-              image: ghcr.io/linuxserver/beets:2.11.0@sha256:14bfcf3993230b1ce416a54188e297fc3d20af249cabb5379ae5eb8c1528b7a9
+              image: ghcr.io/linuxserver/beets:2.12.0@sha256:9d7953d6afc7469e6314c25d9952374338de792171857dc5ff6dc482d488c658
               # The image's default s6 entrypoint runs `beet web` as a longrun
               # service (never exits) — unusable for a one-shot CronJob. We override
               # it to run a single `beet import` that exits so the Job completes.
