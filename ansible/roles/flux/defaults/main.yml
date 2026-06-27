@@ -14,7 +14,7 @@ flux_operator_chart: "oci://ghcr.io/controlplaneio-fluxcd/charts/flux-operator"
 # v3 line: Flux's helm-controller (and Pulumi's helm.v3 bootstrap on the other
 # cluster) use the Helm v3 release-storage format, so the bootstrap release Secret
 # must be v3 for clean adoption. https://github.com/helm/helm/releases
-flux_helm_version: "v3.21.1"
+flux_helm_version: "v3.21.2"
 flux_helm_arch: "amd64"
 
 # Distribution the bootstrap FluxInstance requests. Once Flux syncs the repo, the
