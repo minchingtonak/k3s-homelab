@@ -244,7 +244,7 @@ spec:
               memory: "256Mi"
               cpu: "100m"
             limits:
-              memory: "1Gi"
+              memory: "6Gi"
       volumes:
         - name: temp-audio
           emptyDir: {}
