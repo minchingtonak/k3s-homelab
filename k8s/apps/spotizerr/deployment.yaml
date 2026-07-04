@@ -80,7 +80,7 @@ spec:
     spec:
       containers:
         - name: redis
-          image: redis:8.6.4-alpine@sha256:d103b9cd0b54b98b2c38e2b19220ee7adfe4b0fb22c406baa75f321179da2f00
+          image: redis:8.6.4-alpine@sha256:2cc044fc5a07c9b701f8f1255a309ae9ad7856e694ac03513bf3648c01e40763
           command: [
             "sh",
             "-c",
