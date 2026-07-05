@@ -7,7 +7,8 @@ export PATH="${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua
 mapfile -t staged < <(git diff --cached --name-only --diff-filter=ACM || true)
 
 if [ "${#staged[@]}" -gt 0 ]; then
-    dprint check --allow-no-files "${staged[@]}"
+    # strip ANSI control chars
+    dprint check --allow-no-files "${staged[@]}" 2>&1 | sed 's/\x1b\[[0-9;]*[a-zA-Z]//g'; exit "${PIPESTATUS[0]}"
 fi
 
 # Collect staged YAML files under k8s/
