@@ -17,7 +17,7 @@ spec:
   chart:
     spec:
       chart: flux-operator
-      version: "0.52.0" # https://github.com/controlplaneio-fluxcd/flux-operator/releases
+      version: "0.53.0" # https://github.com/controlplaneio-fluxcd/flux-operator/releases
       sourceRef:
         kind: HelmRepository
         name: flux-operator
