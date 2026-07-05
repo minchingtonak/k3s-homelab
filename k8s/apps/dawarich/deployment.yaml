@@ -60,7 +60,7 @@ spec:
     spec:
       containers:
         - name: postgres
-          image: postgis/postgis:17-3.5-alpine@sha256:6ddb37be50a54e5a3f940dd6296253105b31e01d688fa74e0f0a1d16d915d8c5
+          image: postgis/postgis:17-3.5-alpine@sha256:697504b61e8e172a5bc8e1bde7af3ea888a63d5c0af8f15889f0c4202bbc949e
           env:
             - name: POSTGRES_USER
               value: postgres
