@@ -6,10 +6,9 @@
     // group all k3s version bumps (Plans + pulumi IaC + ansible) into one PR
     { matchDepNames: ["k3s-io/k3s"], groupName: "k3s version" },
     // group flux distribution bumps (flux-instance.yaml + ansible role) into one PR
-    { matchDepNames: ["fluxcd/flux2"], groupName: "flux version" },
+    { matchDepNames: ["fluxcd/flux2", "ghcr.io/fluxcd"], groupName: "flux version" },
     // group flux-operator bumps into one PR: the github-releases pins in pulumi IaC +
     // ansible role (bootstrap) and the OCI helm chart Flux self-manages
-    // (k8s/infrastructure/flux-operator). Chart tags track the GitHub releases 1:1.
     {
       matchPackageNames: ["controlplaneio-fluxcd/flux-operator", "ghcr.io/controlplaneio-fluxcd/charts/flux-operator"],
       groupName: "flux-operator version",
