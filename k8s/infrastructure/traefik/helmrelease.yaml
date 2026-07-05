@@ -8,7 +8,7 @@ spec:
   chart:
     spec:
       chart: traefik
-      version: "40.3.0" # https://github.com/traefik/traefik-helm-chart/releases
+      version: "41.0.1" # https://github.com/traefik/traefik-helm-chart/releases
       sourceRef:
         kind: HelmRepository
         name: traefik
@@ -70,12 +70,11 @@ spec:
     ingressRoute:
       dashboard:
         enabled: false # managed via ingressroute-dashboard.yaml instead
-    logs:
-      access:
-        enabled: true
-        format: json
-        filters:
-          statuscodes: "400-599"
+    accessLog:
+      enabled: true
+      format: json
+      filters:
+        statusCodes: "400-599"
     metrics:
       prometheus:
         addEntryPointsLabels: true
