@@ -56,7 +56,7 @@ spec:
     spec:
       containers:
         - name: metube
-          image: ghcr.io/alexta69/metube:2026.06.18@sha256:9bb4b82e76b45dc6f19b14f55b12c77333a02448b2f3791eb1f163ae451733bf
+          image: ghcr.io/alexta69/metube:2026.07.05@sha256:52a786ba32bc8bb007a7b9d1104e8804da11eb60b37fd9c45d0dcd4b535df704
           env:
             - name: PUID
               value: "100000"
