@@ -70,12 +70,11 @@ spec:
     ingressRoute:
       dashboard:
         enabled: false # managed via ingressroute-dashboard.yaml instead
-    logs:
-      access:
-        enabled: true
-        format: json
-        filters:
-          statuscodes: "400-599"
+    accessLog:
+      enabled: true
+      format: json
+      filters:
+        statusCodes: "400-599"
     metrics:
       prometheus:
         addEntryPointsLabels: true
