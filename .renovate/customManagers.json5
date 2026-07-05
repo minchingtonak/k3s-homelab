@@ -5,7 +5,7 @@
     {
       customType: "regex",
       managerFilePatterns: ["/flux-instance\\.yaml$/"],
-      matchStrings: ["version:\\s*'(?<currentValue>[^']+)'"],
+      matchStrings: ["version:\\s*\"(?<currentValue>[^\"]+)\""],
       depNameTemplate: "fluxcd/flux2",
       datasourceTemplate: "github-releases",
     },
