@@ -4,7 +4,7 @@
 # live under inventory/<cluster>/.
 
 # Pin k3s. Keep consistent within a cluster.
-k3s_version: "v1.36.1+k3s1"
+k3s_version: "v1.36.2+k3s1"
 
 # Public key authorized for the `k3s` user (same key as Pulumi `sshPublicKey`).
 k3s_user_ssh_key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAII9oTky42UcvuNV61rJdq9/afxQqxYi8Z/J1pRRJQRQq k3s@node.homelab.cloud"

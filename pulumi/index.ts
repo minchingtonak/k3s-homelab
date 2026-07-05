@@ -13,7 +13,7 @@ const sshPrivateKey = config.requireSecret('sshPrivateKey');
 // to decrypt SOPS-encrypted resources at reconcile time.
 const sopsAgeKey = config.requireSecret('sopsAgeKey');
 
-const k3sVersion = 'v1.36.1+k3s1';
+const k3sVersion = 'v1.36.2+k3s1';
 
 const nodeName = 'homelab';
 const datastoreId = 'fast';
