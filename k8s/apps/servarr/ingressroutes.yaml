@@ -429,6 +429,34 @@ spec:
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
+  name: beets
+  namespace: servarr
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Beets"
+    gethomepage.dev/description: "Music library tagger"
+    gethomepage.dev/group: "servarr"
+    gethomepage.dev/icon: "beets.png"
+    gethomepage.dev/href: "https://beets.item.fyi"
+    gethomepage.dev/siteMonitor: "http://beets.servarr.svc.cluster.local:8337"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=beets"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`beets.item.fyi`)
+      middlewares:
+        - name: authentik
+          namespace: authentik
+      services:
+        - name: beets
+          port: 8337
+  tls: {}
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
   name: apprise
   namespace: servarr
   annotations:

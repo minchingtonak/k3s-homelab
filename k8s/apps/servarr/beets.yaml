@@ -9,7 +9,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 1Gi
+      storage: 4Gi
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -25,6 +25,7 @@ data:
       copy: no
       move: no
       write: yes
+      timid: no
       autotag: no           # trust Lidarr's MusicBrainz tags; only enrich
       quiet: yes
       incremental: yes      # skip album dirs already processed
@@ -32,7 +33,11 @@ data:
       log: /config/import.log
 
     # https://beets.readthedocs.io/en/stable/plugins/index.html
-    plugins: lastgenre replaygain
+    plugins: lastgenre replaygain web
+
+    web:
+      host: 0.0.0.0
+      port: 8337
 
     lastgenre:
       auto: no              # run explicitly post-import (import-stage write is unreliable under autotag:no)
@@ -48,75 +53,78 @@ data:
       peak: "true"
       overwrite: no
 ---
-apiVersion: batch/v1
-kind: CronJob
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: beets
   namespace: servarr
   labels:
     app.kubernetes.io/name: beets
 spec:
-  schedule: "0 * * * *"
-  timeZone: America/New_York
-  concurrencyPolicy: Forbid
-  successfulJobsHistoryLimit: 10
-  failedJobsHistoryLimit: 10
-  jobTemplate:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: beets
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: beets
     spec:
-      template:
-        metadata:
-          labels:
-            app.kubernetes.io/name: beets
-        spec:
-          restartPolicy: Never
-          securityContext:
-            runAsUser: 100000
-            runAsGroup: 100000
-            fsGroup: 100000
-          containers:
-            - name: beets
-              image: ghcr.io/linuxserver/beets:2.12.0@sha256:1da97d79bc39a002ca32099ddf9e3a94a3f6809c9a661e079691701ecc1bf67e
-              # The image's default s6 entrypoint runs `beet web` as a longrun
-              # service (never exits) — unusable for a one-shot CronJob. We override
-              # it to run a single `beet import` that exits so the Job completes.
-              # Overriding bypasses s6 init-adduser, so PUID/PGID env vars are no-ops
-              # here; ownership is set via securityContext.runAs* (100000) instead, so
-              # in-place tag writes match Lidarr's ownership on the shared NFS lib.
-              command: ["/bin/sh", "-c"]
-              args:
-                - |
-                  set -ex
-                  cp /config.yaml.src /config/config.yaml
-                  # Import-stage plugin auto-hooks are unreliable under autotag:no, so
-                  # import as-is then run plugins explicitly (writes tags to disk).
-                  /lsiopy/bin/beet import /music
-                  /lsiopy/bin/beet lastgenre
-                  /lsiopy/bin/beet replaygain -a -t 0 -w
-              env:
-                - name: TZ
-                  value: America/New_York
-                - name: BEETSDIR
-                  value: /config
-                - name: HOME
-                  value: /config
-              resources:
-                limits:
-                  memory: 4Gi
-              volumeMounts:
-                - name: config
-                  mountPath: /config
-                - name: config-src
-                  mountPath: /config.yaml.src
-                  subPath: config.yaml
-                - name: music
-                  mountPath: /music
-          volumes:
+      securityContext:
+        fsGroup: 100000
+      initContainers:
+        - name: copy-config
+          image: busybox:1.38.0
+          command: ["cp", "/config.yaml.src", "/config/config.yaml"]
+          volumeMounts:
             - name: config
-              persistentVolumeClaim:
-                claimName: beets-config
+              mountPath: /config
             - name: config-src
-              configMap:
-                name: beets-config
+              mountPath: /config.yaml.src
+              subPath: config.yaml
+      containers:
+        - name: beets
+          image: ghcr.io/linuxserver/beets:2.12.0@sha256:1da97d79bc39a002ca32099ddf9e3a94a3f6809c9a661e079691701ecc1bf67e
+          ports:
+            - containerPort: 8337
+          env:
+            - name: TZ
+              value: America/New_York
+            - name: PUID
+              value: "100000"
+            - name: PGID
+              value: "100000"
+            - name: BEETSDIR
+              value: /config
+            - name: HOME
+              value: /config
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: config-src
+              mountPath: /config.yaml.src
+              subPath: config.yaml
             - name: music
-              persistentVolumeClaim:
-                claimName: beets-music
+              mountPath: /music
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: beets-config
+        - name: config-src
+          configMap:
+            name: beets-config
+        - name: music
+          persistentVolumeClaim:
+            claimName: beets-music
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: beets
+  namespace: servarr
+spec:
+  selector:
+    app.kubernetes.io/name: beets
+  ports:
+    - port: 8337
+      targetPort: 8337
