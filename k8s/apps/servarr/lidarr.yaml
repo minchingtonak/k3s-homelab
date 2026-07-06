@@ -20,22 +20,22 @@ data:
   beets-import.sh: |
     #!/bin/bash
     set -euo pipefail
-    [ "$Lidarr_EventType" = "Test" ] && exit 0
-    [ "$Lidarr_EventType" = "AlbumDownload" ] || exit 0
+    [ "$$Lidarr_EventType" = "Test" ] && exit 0
+    [ "$$Lidarr_EventType" = "AlbumDownload" ] || exit 0
 
-    IFS='|' read -ra TRACKS <<< "$Lidarr_AddedTrackPaths"
+    IFS='|' read -ra TRACKS <<< "$$Lidarr_AddedTrackPaths"
     declare -A SEEN
     DIRS=()
-    for t in "${TRACKS[@]}"; do
-        d="$(dirname "$t")"
-        d="${d/\/data\/music//music}"
-        [[ -z "${SEEN[$d]+_}" ]] && { SEEN[$d]=1; DIRS+=("$d"); }
+    for t in "$${TRACKS[@]}"; do
+        d="$$(dirname "$$t")"
+        d="$${d/\/data\/music//music}"
+        [[ -z "$${SEEN[$$d]+_}" ]] && { SEEN[$$d]=1; DIRS+=("$$d"); }
     done
 
-    for d in "${DIRS[@]}"; do
+    for d in "$${DIRS[@]}"; do
         curl -fsS -X POST http://beets.servarr.svc.cluster.local:9000/import \
              -H 'Content-Type: application/json' \
-             -d "{\"path\": \"$d\"}"
+             -d "{\"path\": \"$$d\"}"
     done
 ---
 apiVersion: apps/v1
