@@ -30,7 +30,7 @@ spec:
           - 992
       containers:
         - name: jellyfin
-          image: ghcr.io/linuxserver/jellyfin:10.11.11@sha256:96d21c396f46f10578931c2941e3f2789f7087b5ab0e166afedf29e7385c6aa7
+          image: ghcr.io/linuxserver/jellyfin:10.11.11@sha256:32aa0d4565c633db95af29a58e8a5dc9becdfa58564a3aea68436623fd45f5a1
           securityContext:
             # hostPath /dev/dri exposes the device nodes but k8s blocks major 226 in the
             # device cgroup; privileged bypasses it so VAAPI can open renderD128.
