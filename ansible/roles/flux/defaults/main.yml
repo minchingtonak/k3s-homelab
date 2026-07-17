@@ -5,7 +5,7 @@
 # DNS/CoreDNS is up. helm is used instead of `kubectl apply install.yaml` so a real
 # Helm release Secret exists, which lets Flux adopt and self-manage the operator in
 # steady state via k8s/infrastructure/flux-operator (matching releaseName below).
-flux_operator_version: "0.53.0"
+flux_operator_version: "0.55.0"
 flux_operator_namespace: "flux-system"
 # OCI chart for the operator. Chart tags track the GitHub release version 1:1.
 flux_operator_chart: "oci://ghcr.io/controlplaneio-fluxcd/charts/flux-operator"
