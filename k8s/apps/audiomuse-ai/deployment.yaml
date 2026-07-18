@@ -210,7 +210,7 @@ spec:
     spec:
       containers:
         - name: audiomuse
-          image: ghcr.io/neptunehub/audiomuse-ai:2.6.2@sha256:f9c4df0ce93a7a4bcd69d5bcd15a5cc4fdb13b37a47f84773d8a24fcd0ec2a0e
+          image: ghcr.io/neptunehub/audiomuse-ai:3.0.0@sha256:43bc500a1e3b6eb8eb1b2df5bf0173c980c0bb0459838847e2b7908423da5667
           env:
             - name: SERVICE_TYPE
               value: flask
@@ -293,7 +293,7 @@ spec:
     spec:
       containers:
         - name: audiomuse
-          image: ghcr.io/neptunehub/audiomuse-ai:2.6.2@sha256:f9c4df0ce93a7a4bcd69d5bcd15a5cc4fdb13b37a47f84773d8a24fcd0ec2a0e
+          image: ghcr.io/neptunehub/audiomuse-ai:3.0.0@sha256:43bc500a1e3b6eb8eb1b2df5bf0173c980c0bb0459838847e2b7908423da5667
           env:
             - name: SERVICE_TYPE
               value: worker
