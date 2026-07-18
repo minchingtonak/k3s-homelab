@@ -40,6 +40,38 @@ spec:
           env:
             - name: TZ
               value: America/New_York
+            - name: OIDC_ENABLED
+              value: true
+            - name: OIDC_PROVIDER_NAME
+              value: authentik
+            - name: OIDC_CLIENT_ID
+              value: wallos
+            - name: OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: wallos-oidc
+                  key: OIDC_CLIENT_SECRET
+            - name: OIDC_ISSUER
+              value: https://auth.item.fyi/application/o/wallos/
+            # auth, token, and userinfo urls are discovered via issuer endpoint
+            # - name: OIDC_AUTH_URL
+            #   value: https://auth.item.fyi/application/o/authorize/
+            # - name: OIDC_TOKEN_URL
+            #   value: https://auth.item.fyi/application/o/token/
+            # - name: OIDC_USERINFO_URL
+            #   value: https://auth.item.fyi/application/o/userinfo/
+            - name: OIDC_REDIRECT_URL
+              value: https://wallos.item.fyi/
+            - name: OIDC_LOGOUT_URL
+              value: https://auth.item.fyi/application/o/wallos/end-session/
+            - name: OIDC_USER_IDENTIFIER
+              value: email
+            - name: OIDC_SCOPES
+              value: openid email profile
+            - name: OIDC_AUTO_CREATE_USER
+              value: false
+            - name: OIDC_DISABLE_PASSWORD_LOGIN
+              value: false
           ports:
             - name: http
               containerPort: 80

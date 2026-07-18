@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: wallos-oidc
+  namespace: wallos
+type: Opaque
+stringData:
+  OIDC_CLIENT_SECRET: ENC[AES256_GCM,data:lPZuZ/mkVV2ajl7uozRn9aWi/JGvd2X1bBuD06kRZ/NrcGSGDuwkEvJQPhxIM6RZq69i9SR0iTjANKq+K8Dhhw==,iv:mcesEFRGoGAGIK4nTI+SRr/shpqd+tjo6EhPaohBrZs=,tag:3LvC5ns7T1pP48KXlDqgpA==,type:str]
+sops:
+  age:
+    - enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBTakU3TlF5V1pxaDNldjRu
+        SGtkeXZJdExUYkRibTlnYUJZTDJPcmp1VDE0CnkvdXpLbHQzL3U4UEN0ZkdraVRv
+        dnZLc1VQbVRONFpVY3o3d0R2N0NIZXcKLS0tIDdwMTJib1N1UHVGNmRNZlVvaXJh
+        a1p3UTQxbjdKWlk5a3I2K1RvamJKWmMK4A31lr5SlAx0pvsUvOjXedXjjzjKyCxr
+        V63ooLieTxCy//VcGffHiYojYCSqSCbpgFcFh6XLwrqBQgVT6RmBdw==
+        -----END AGE ENCRYPTED FILE-----
+      recipient: age1whm4tsad6ku4u4sdhnaa54tklt8hd9fzvelwem86pxfs9hzk0pjskru2jj
+  encrypted_regex: ^(data|stringData)$
+  lastmodified: "2026-07-18T16:37:43Z"
+  mac: ENC[AES256_GCM,data:hhEbf/A0UugooUJ8Xh5J1jM+lkImZ430nz4YmtOaN9t6FlKh0nzwwZbIlwnAdj5rxa73Z9lsJuL8doh8L/l1rk30i/JhdGbfIOAsbT/8YJfIWwRlsFwz0sQkSjLtwEG9oGISrQLdVEfK4jdbUASRaVTl7HclfWkIXr/oZY6042I=,iv:r6ASetsPQ28AxPSpyUaNKXpZ+lDQEFMOWpn9xeu9luE=,tag:tFixWD7C79nqDTJ6XGyH3w==,type:str]
+  version: 3.13.2
