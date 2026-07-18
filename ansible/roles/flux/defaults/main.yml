@@ -22,7 +22,7 @@ flux_helm_arch: "amd64"
 # `artifact` is REQUIRED for flux versions the operator doesn't embed (it fetches
 # the distribution manifests from this OCI source) — must match the repo's
 # flux-instance.yaml or the operator fails with "no match found for semver".
-flux_distribution_version: "2.9.1"
+flux_distribution_version: "2.9.2"
 flux_distribution_registry: "ghcr.io/fluxcd"
 flux_distribution_artifact: "oci://ghcr.io/controlplaneio-fluxcd/flux-operator-manifests"
 
