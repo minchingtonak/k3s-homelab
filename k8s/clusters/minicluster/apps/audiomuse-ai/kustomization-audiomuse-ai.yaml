@@ -20,4 +20,4 @@ spec:
   path: k8s/apps/audiomuse-ai
   prune: true
   wait: true
-  timeout: 5m
+  timeout: 10m
