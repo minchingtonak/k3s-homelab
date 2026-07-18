@@ -41,7 +41,7 @@ spec:
             - name: TZ
               value: America/New_York
             - name: OIDC_ENABLED
-              value: true
+              value: "true"
             - name: OIDC_PROVIDER_NAME
               value: authentik
             - name: OIDC_CLIENT_ID
@@ -69,9 +69,9 @@ spec:
             - name: OIDC_SCOPES
               value: openid email profile
             - name: OIDC_AUTO_CREATE_USER
-              value: false
+              value: "false"
             - name: OIDC_DISABLE_PASSWORD_LOGIN
-              value: false
+              value: "false"
           ports:
             - name: http
               containerPort: 80
