@@ -36,7 +36,7 @@ spec:
     spec:
       containers:
         - name: watcharr
-          image: ghcr.io/sbondco/watcharr:v4.0.1@sha256:53514a8b896b08d8f19f2ee9548ff2fc59c1ecedbbe5ab012fb91fc394859335
+          image: ghcr.io/sbondco/watcharr:v4.1.0@sha256:b4befbcbfd2131f59bd596ed39b4be7612769decbe44df5ae5102a5a90f58ed1
           ports:
             - containerPort: 3080
               name: http
