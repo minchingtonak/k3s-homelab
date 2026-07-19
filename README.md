@@ -34,6 +34,16 @@ flux `Kustomization` entrypoints for the homelab cluster. defines the reconcilia
 
 user-facing applications deployed to the cluster. see manifests for details
 
+#### noteworthy apps
+
+- [Headlamp](https://github.com/kubernetes-sigs/headlamp) is an easy to use cluster management web UI
+- [homepage](https://github.com/gethomepage/homepage) is a declaratively configured dashboard that with k8s support and automatic service discovery
+- [Immich](https://github.com/immich-app/immich) is a high performance photo and video management solution with a solid mobile and web experience
+- [Navidrome](https://github.com/navidrome/navidrome) is a web-based music collection server and streamer with support for many mobile, web, and desktop clients
+- [Jellyfin](https://github.com/jellyfin/jellyfin) is a free software media system designed to manage and stream local digital media
+- [Forgejo](https://codeberg.org/forgejo/forgejo) is a lightweight software forge that has GitHub-Actions-like CI and can mirror/backup remote repositories
+- [Apprise](https://github.com/caronc/apprise) is a lightweight notification server that allows sending notifications to almost all of the most popular notification services available to today
+
 ## development
 
 after cloning, configure git hooks:
