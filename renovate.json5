@@ -12,7 +12,7 @@
   dependencyDashboard: true,
   dependencyDashboardTitle: 'Renovate Dashboard',
 
-  schedule: '0 7 * * 6', // Saturday 7am
+  schedule: '* 7 * * 6', // Saturday 7am
   timezone: 'America/New_York',
 
   // always open vulnerability-fixing pull requests immediately
