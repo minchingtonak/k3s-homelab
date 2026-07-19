@@ -5,20 +5,29 @@ metadata:
   namespace: flux-system
 type: Opaque
 stringData:
-  SECRET_PUSHOVER_USER_KEY: ENC[AES256_GCM,data:IDN8Ik5WHZU+oIRSHF5gnpQpgq/ruMyS6O3p/YyD,iv:nXofLc2cY4ZTISkXySLUYSrVUUwE9E49HTGROBbeCdg=,tag:gkH7stmoSRcI3GVmWFaIow==,type:str]
-  SECRET_PUSHOVER_FLUX_TOKEN: ENC[AES256_GCM,data:MzM6KlIPgWBrqldW5UzWIooLaU7oXJVqiOx8RS5H,iv:ZB6Y9gw4FPyUf5E6Zw/Rdo7ofhgr8MO/FKt39wMZOLA=,tag:Na1EBUS1lKSCoX0OP69+Ew==,type:str]
+  SECRET_PUSHOVER_USER_KEY: ENC[AES256_GCM,data:ZRU5nj4AAA3j44NnoCv3hbXUPMylcahD90Mc8DfO,iv:RhtYqHxPZTmKf75JQQV5zUn2tFlllGHqH6Sl+yiaoPo=,tag:s1JDSJEw9cfkMHQw7Z3MlQ==,type:str]
+  SECRET_PUSHOVER_FLUX_TOKEN: ENC[AES256_GCM,data:FxpgsMVx/a+ZM1/wtdMHosNNoUKqBcZlABytxjxX,iv:QmjHs8gLBqt1am0h3ejDebjaQk9rkoveu7gOaTizC8U=,tag:KyjEmeGB2Ww9KRok5WRc1A==,type:str]
+  SECRET_PUSHOVER_RADARR_TOKEN: ENC[AES256_GCM,data:RoPG8uIKMWL0F6beRZhuS8Kcwo4+ZmoW92/LaGRp,iv:gR1/f1BSCscdMeOKJGSEFmZ5tWqgcF22D98CIYQuqT0=,tag:YyGewx/TIPoV3roe9MISbw==,type:str]
+  SECRET_PUSHOVER_SONARR_TOKEN: ENC[AES256_GCM,data:flkJgpikYT6mX4ppyDmJXSkna0alR4Qw4IddQbjl,iv:z9lJcjMQvX2CmqlOEvGmyUF45unmLzJ7F5cI4/bckig=,tag:9Tdvbp9NYryIukZbYete4w==,type:str]
+  SECRET_PUSHOVER_LIDARR_TOKEN: ENC[AES256_GCM,data:zL88uY9IW01/5hYutXvW5DQX2lUbR5l5ngrEULaz,iv:UPM0O37NLuSiPdoXzsvNZMViZuLduAmZ7/A96B3DOOU=,tag:SSZxSeEkbsN+7rPNj8VCyw==,type:str]
+  SECRET_PUSHOVER_PROWLARR_TOKEN: ENC[AES256_GCM,data:9KeTolF2LR6U+s/l6lrlms2zS7hj3qpu7Q3zri+Y,iv:W+ITeAhKlmLOgzBWDU6R0QlYZ3LzwquRU9TxndGe4nE=,tag:Xa+CTxjT8k+aw0qhidNCiw==,type:str]
+  SECRET_PUSHOVER_BAZARR_TOKEN: ENC[AES256_GCM,data:TRTfWVE7MkCFrvSpB6xGAY0x+nggIVAXvRii2s/P,iv:KSzW2dr7pvaeIKhmBXzygfFef3tWNBBmgV92lcBTPZs=,tag:+WZonQGgYaGUUQKpKLDtdA==,type:str]
+  SECRET_PUSHOVER_HUNTARR_TOKEN: ENC[AES256_GCM,data:OQZwJeyiiLI0yWZ/clPp5Ymkd48P079xgA8DgbVB,iv:uWdisO1HdWTf66vAoB+ziGCfrB99rG1caCy+p1qmqik=,tag:EKTLXqLxtjQhHIDlQw3k/w==,type:str]
+  SECRET_PUSHOVER_CLEANUPARR_TOKEN: ENC[AES256_GCM,data:vkmPF2RPezX7ihrV2pbCj05gNhjCwyuhSS6mMAnh,iv:9LDhBItqjO/ObTDUMdHY1mhHb3vk4sJ5tX4ano7HiV8=,tag:DsfUrEWzjhps9G9Qq2tXrw==,type:str]
+  SECRET_PUSHOVER_PROFILARR_TOKEN: ENC[AES256_GCM,data:TJsSaj2lq7QFofyzP6YHEAEwTA96U2kBPH/a+JnN,iv:uUWiqz0sVIOY/vQ/umKuAPeSoZuMuPm9hBAHNnax9ks=,tag:62kdTXQl/ETWVMf6ypxpCA==,type:str]
+  SECRET_SERVARR_SLACK_WEBHOOK: ENC[AES256_GCM,data:+8oxa36cosmXK9r1T98Kwa4TApBzkkaC0OP47BpfoHO62ov3UONN7jj9oD3XJtN7uqaZvp+I+5iUtVmAdmTfEFXZLBlzibHq/O+Gqe48EOhK,iv:OP9BBhwo9zaiX/h36iCiM9Cr9SvRugM9wneHTIUiwio=,tag:scSWuzuDkR4Vd8NWMi8HOg==,type:str]
 sops:
   age:
     - enc: |
         -----BEGIN AGE ENCRYPTED FILE-----
-        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSB4eHpSK2VQeU5ncEUzN2ov
-        YTh2bFJrN0MvTDNCOEwyeldyRTFCSkE2OUVZCkRoV1RKSnFZcmtQSktxZElMUkZU
-        aTRhcHRmTmdzWnRnazBPRS80aHBiTDQKLS0tIFlkVVJZdkw2b1dJbnJocVpFZHpy
-        RTFtZmdvcHlLb1FTSUtBYzh0T3VyT00Kq6acZHzXuG++hV3Qt26enDWQn0oXY/Um
-        OxpQ+wgIoXx4T+OfALJyd3aFfergg49K700oTa/RCCW3lNZrG2xxcg==
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSB5MWNuVWVhSi9OY1gybVZ3
+        Z1ZGWjkxRVhUS2x5Z21OTnJZMmhwczdEazJBCituUnEraFR4cnRTM25hb3RLOHRz
+        SHJ2Vnh6Y3JtN1VHZzlOcWJSMU5ENGcKLS0tIDBtV0JkQk1RZVZKcVFrSlBleDJz
+        T1lSeUVjdGtNMDNHYlRidHlZQ0FXaEUKxzLsnMKUXFTiFAOuymQZ4ycs6LXd2vX2
+        wuvyMSASRNs/+dGzetHQp3OEJq/SJ4+IVOHFmp02rdbZ/JneWayEZQ==
         -----END AGE ENCRYPTED FILE-----
       recipient: age1whm4tsad6ku4u4sdhnaa54tklt8hd9fzvelwem86pxfs9hzk0pjskru2jj
   encrypted_regex: ^(data|stringData)$
-  lastmodified: "2026-07-19T02:46:22Z"
-  mac: ENC[AES256_GCM,data:sVZ0X3L+z350Ux1r7MDcWSS4sPuYwKB86fxcQQibjeBUxsc95TDFM/l1N7NEJWhYAkcXKyLlLt1bJpcwcXFWmE1PdRa+GqcbsoM/a/wg7YzdhUUV/iPtBpbvgmUfLE5Omet5+gXI2qxtW1P0CbnV24pUwThKPqBDd2SEXsRPVSs=,iv:taxjT5a6SlUZXByLFtV/cG/bayBIaFL2jdI2IC5hSFA=,tag:JHFjGgO9a0FhbQg1DKOhmA==,type:str]
+  lastmodified: "2026-07-19T22:52:54Z"
+  mac: ENC[AES256_GCM,data:n8shQs7U1BgVgJcYDM5v3DVeXaVfnkmDzJkvYF7kSBzjUzhuWvYvH9OfalWlBQfCXYM5t7vJNUSI6Ok5RXC7gkfrYamIv+BiORqF8fgkjsT5OkzMf+jB1+cUFnd3F+fSVPcVr3CnPxvpeCJae779pKaCOxgcX7Abu6P2JX+I5mk=,iv:xjw4bomwCpHXWWJQGgsHsQeCNa6+8TyIdshH9KGAWZs=,tag:UbBzzG6bgwTe6t4d4piz1w==,type:str]
   version: 3.13.2

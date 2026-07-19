@@ -9,7 +9,7 @@ metadata:
     gethomepage.dev/description: "Cluster notification gateway"
     gethomepage.dev/group: "infrastructure"
     gethomepage.dev/icon: "apprise.png"
-    gethomepage.dev/href: "https://apprise-cluster.item.fyi"
+    gethomepage.dev/href: "https://apprise.item.fyi"
     gethomepage.dev/siteMonitor: "http://apprise.notification.svc.cluster.local:8000"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=apprise"
 spec:
@@ -17,7 +17,7 @@ spec:
     - websecure
   routes:
     - kind: Rule
-      match: Host(`apprise-cluster.item.fyi`)
+      match: Host(`apprise.item.fyi`)
       middlewares:
         - name: authentik
           namespace: authentik

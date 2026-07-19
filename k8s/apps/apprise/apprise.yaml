@@ -57,6 +57,9 @@ spec:
             - name: apprise-config
               mountPath: /config/flux.yml
               subPath: flux.yml
+            - name: apprise-config
+              mountPath: /config/homelab.yml
+              subPath: homelab.yml
             - name: attach
               mountPath: /attach
             - name: plugin
@@ -79,7 +82,9 @@ metadata:
   name: apprise
   namespace: notification
   annotations:
-    gatus.home-operations.com/enabled: "false"
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
 spec:
   selector:
     app.kubernetes.io/name: apprise

@@ -7,3 +7,26 @@ data:
   flux.yml: |
     urls:
       - "pover://${SECRET_PUSHOVER_USER_KEY}@${SECRET_PUSHOVER_FLUX_TOKEN}?priority=high"
+  homelab.yml: |
+    tag:
+      - homelab
+
+    urls:
+      - "${SECRET_SERVARR_SLACK_WEBHOOK}":
+          - tag: servarr
+      - "pover://${SECRET_PUSHOVER_USER_KEY}@${SECRET_PUSHOVER_RADARR_TOKEN}?priority=normal":
+          - tag: radarr
+      - "pover://${SECRET_PUSHOVER_USER_KEY}@${SECRET_PUSHOVER_SONARR_TOKEN}?priority=normal":
+          - tag: sonarr
+      - "pover://${SECRET_PUSHOVER_USER_KEY}@${SECRET_PUSHOVER_LIDARR_TOKEN}?priority=normal":
+          - tag: lidarr
+      - "pover://${SECRET_PUSHOVER_USER_KEY}@${SECRET_PUSHOVER_PROWLARR_TOKEN}?priority=normal":
+          - tag: prowlarr
+      - "pover://${SECRET_PUSHOVER_USER_KEY}@${SECRET_PUSHOVER_BAZARR_TOKEN}?priority=normal":
+          - tag: bazarr
+      - "pover://${SECRET_PUSHOVER_USER_KEY}@${SECRET_PUSHOVER_HUNTARR_TOKEN}?priority=normal":
+          - tag: huntarr
+      - "pover://${SECRET_PUSHOVER_USER_KEY}@${SECRET_PUSHOVER_CLEANUPARR_TOKEN}?priority=normal":
+          - tag: cleanuparr
+      - "pover://${SECRET_PUSHOVER_USER_KEY}@${SECRET_PUSHOVER_PROFILARR_TOKEN}?priority=normal":
+          - tag: profilarr
