@@ -20,4 +20,5 @@ spec:
   path: k8s/apps/audiomuse-ai
   prune: true
   wait: true
-  timeout: 10m
+  # large image deployed as a DaemonSet, download takes awhile
+  timeout: 45m
