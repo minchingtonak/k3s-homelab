@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: apprise-config
+  namespace: notification
+data:
+  flux.yml: |
+    urls:
+      - "pover://${SECRET_PUSHOVER_USER_KEY}@${SECRET_PUSHOVER_FLUX_TOKEN}?priority=normal"

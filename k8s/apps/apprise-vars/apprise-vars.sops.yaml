@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: apprise-vars
+  namespace: flux-system
+type: Opaque
+stringData:
+  SECRET_PUSHOVER_USER_KEY: ENC[AES256_GCM,data:IDN8Ik5WHZU+oIRSHF5gnpQpgq/ruMyS6O3p/YyD,iv:nXofLc2cY4ZTISkXySLUYSrVUUwE9E49HTGROBbeCdg=,tag:gkH7stmoSRcI3GVmWFaIow==,type:str]
+  SECRET_PUSHOVER_FLUX_TOKEN: ENC[AES256_GCM,data:MzM6KlIPgWBrqldW5UzWIooLaU7oXJVqiOx8RS5H,iv:ZB6Y9gw4FPyUf5E6Zw/Rdo7ofhgr8MO/FKt39wMZOLA=,tag:Na1EBUS1lKSCoX0OP69+Ew==,type:str]
+sops:
+  age:
+    - enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSB4eHpSK2VQeU5ncEUzN2ov
+        YTh2bFJrN0MvTDNCOEwyeldyRTFCSkE2OUVZCkRoV1RKSnFZcmtQSktxZElMUkZU
+        aTRhcHRmTmdzWnRnazBPRS80aHBiTDQKLS0tIFlkVVJZdkw2b1dJbnJocVpFZHpy
+        RTFtZmdvcHlLb1FTSUtBYzh0T3VyT00Kq6acZHzXuG++hV3Qt26enDWQn0oXY/Um
+        OxpQ+wgIoXx4T+OfALJyd3aFfergg49K700oTa/RCCW3lNZrG2xxcg==
+        -----END AGE ENCRYPTED FILE-----
+      recipient: age1whm4tsad6ku4u4sdhnaa54tklt8hd9fzvelwem86pxfs9hzk0pjskru2jj
+  encrypted_regex: ^(data|stringData)$
+  lastmodified: "2026-07-19T02:46:22Z"
+  mac: ENC[AES256_GCM,data:sVZ0X3L+z350Ux1r7MDcWSS4sPuYwKB86fxcQQibjeBUxsc95TDFM/l1N7NEJWhYAkcXKyLlLt1bJpcwcXFWmE1PdRa+GqcbsoM/a/wg7YzdhUUV/iPtBpbvgmUfLE5Omet5+gXI2qxtW1P0CbnV24pUwThKPqBDd2SEXsRPVSs=,iv:taxjT5a6SlUZXByLFtV/cG/bayBIaFL2jdI2IC5hSFA=,tag:JHFjGgO9a0FhbQg1DKOhmA==,type:str]
+  version: 3.13.2
