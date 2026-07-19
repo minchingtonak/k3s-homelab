@@ -78,6 +78,8 @@ kind: Service
 metadata:
   name: apprise
   namespace: notification
+  annotations:
+    gatus.home-operations.com/enabled: "false"
 spec:
   selector:
     app.kubernetes.io/name: apprise

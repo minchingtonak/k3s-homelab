@@ -37,4 +37,12 @@ data:
           success-threshold: 1
           minimum-reminder-interval: 1h
 
-    # No static endpoints — all auto-discovered via gatus-sidecar
+    endpoints:
+      - name: apprise-cluster
+        group: notification
+        url: tcp://apprise.notification.svc.cluster.local:8000
+        interval: 5m
+        conditions:
+          - "[CONNECTED] == true"
+        alerts:
+          - type: pushover
