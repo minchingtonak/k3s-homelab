@@ -58,8 +58,8 @@ spec:
               mountPath: /config/flux.yml
               subPath: flux.yml
             - name: apprise-config
-              mountPath: /config/homelab.yml
-              subPath: homelab.yml
+              mountPath: /config/servarr.yml
+              subPath: servarr.yml
             - name: attach
               mountPath: /attach
             - name: plugin

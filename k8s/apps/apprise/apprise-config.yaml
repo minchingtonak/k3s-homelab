@@ -7,9 +7,9 @@ data:
   flux.yml: |
     urls:
       - "pover://${SECRET_PUSHOVER_USER_KEY}@${SECRET_PUSHOVER_FLUX_TOKEN}?priority=high"
-  homelab.yml: |
+  servarr.yml: |
     tag:
-      - homelab
+      - servarr
 
     urls:
       - "${SECRET_SERVARR_SLACK_WEBHOOK}":
