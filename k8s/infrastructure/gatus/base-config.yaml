@@ -37,12 +37,4 @@ data:
           success-threshold: 1
           minimum-reminder-interval: 1h
 
-    endpoints:
-      - name: apprise-cluster
-        group: notification
-        url: tcp://apprise.notification.svc.cluster.local:8000
-        interval: 5m
-        conditions:
-          - "[CONNECTED] == true"
-        alerts:
-          - type: pushover
+    # endpoints:
