@@ -277,7 +277,7 @@ spec:
     spec:
       containers:
         - name: windmill-worker-reports
-          image: ghcr.io/windmill-labs/windmill-full:1.762.2@sha256:8e733d445938e1e27fc148bf553de72095d31a7ba9274b02bc1b0e53acb0b787
+          image: ghcr.io/windmill-labs/windmill-full:1.763.0@sha256:6035001cbf6559b880f621e0593065179be9715c4e223820da09cf86afce95bb
           env:
             - name: MODE
               value: worker
