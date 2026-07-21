@@ -17,10 +17,12 @@ spec:
     - websecure
   routes:
     - kind: Rule
+      match: Host(`baikal.item.fyi`) && PathPrefix(`/.well-known`)
+      services:
+        - name: baikal
+          port: 80
+    - kind: Rule
       match: Host(`baikal.item.fyi`) && PathPrefix(`/dav.php`)
-      middlewares:
-        - name: authentik
-          namespace: authentik
       services:
         - name: baikal
           port: 80
