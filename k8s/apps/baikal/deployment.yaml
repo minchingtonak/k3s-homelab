@@ -48,7 +48,7 @@ spec:
     spec:
       containers:
         - name: baikal
-          image: ckulka/baikal:0.10.1@sha256:658e9582f8d418392b4dfe7e816835b003694c8cb54ed0ba598eb5727b58fe22
+          image: ckulka/baikal:0.10.1-nginx@sha256:434bdd162247cc6aa6f878c9b4dce6216e39e79526b980453b13812d5f8ebf4b
           ports:
             - name: http
               containerPort: 80
