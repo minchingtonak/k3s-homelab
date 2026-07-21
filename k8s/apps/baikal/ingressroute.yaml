@@ -1,0 +1,35 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: baikal
+  namespace: baikal
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Baikal"
+    gethomepage.dev/description: "CalDAV/CardDAV server"
+    gethomepage.dev/group: "life"
+    gethomepage.dev/icon: "baikal.png"
+    gethomepage.dev/href: "https://baikal.item.fyi"
+    gethomepage.dev/siteMonitor: "http://baikal.baikal.svc.cluster.local"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=baikal"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`baikal.item.fyi`) && PathPrefix(`/dav.php`)
+      middlewares:
+        - name: authentik
+          namespace: authentik
+      services:
+        - name: baikal
+          port: 80
+    - kind: Rule
+      match: Host(`baikal.item.fyi`)
+      middlewares:
+        - name: authentik
+          namespace: authentik
+      services:
+        - name: baikal
+          port: 80
+  tls: {}
