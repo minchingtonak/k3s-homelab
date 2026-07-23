@@ -34,6 +34,7 @@ metadata:
   namespace: baikal
   labels:
     app.kubernetes.io/name: baikal
+    newt.homelab/allow: "true"
 spec:
   replicas: 1
   strategy:
