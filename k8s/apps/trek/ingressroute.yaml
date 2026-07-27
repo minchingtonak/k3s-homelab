@@ -17,15 +17,7 @@ spec:
     - websecure
   routes:
     - kind: Rule
-      match: Host(`trek.item.fyi`) && PathPrefix(`/mcp`)
-      services:
-        - name: trek
-          port: 80
-    - kind: Rule
       match: Host(`trek.item.fyi`)
-      middlewares:
-        - name: authentik
-          namespace: authentik
       services:
         - name: trek
           port: 80

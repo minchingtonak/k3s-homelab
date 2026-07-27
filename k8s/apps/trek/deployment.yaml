@@ -67,6 +67,19 @@ spec:
                 secretKeyRef:
                   name: trek
                   key: ENCRYPTION_KEY
+            - name: OIDC_ISSUER
+              value: https://auth.item.fyi/application/o/trek/
+            - name: OIDC_DISCOVERY_URL
+              value: https://auth.item.fyi/application/o/trek/.well-known/openid-configuration
+            - name: OIDC_CLIENT_ID
+              value: trek
+            - name: OIDC_DISPLAY_NAME
+              value: Authentik
+            - name: OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: trek
+                  key: OIDC_CLIENT_SECRET
           ports:
             - name: http
               containerPort: 3000
