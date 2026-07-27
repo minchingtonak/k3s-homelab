@@ -216,6 +216,21 @@ data:
       labels:
         blueprints.goauthentik.io/instantiate: "true"
     entries:
+      # trek rejects logins unless email_verified is true (authentik
+      # >=2025.10 defaults this to false on the built-in email scope), so
+      # override it with a provider-scoped mapping that always asserts true
+      - model: authentik_providers_oauth2.scopemapping
+        id: trek-email-scope-mapping
+        identifiers:
+          name: trek-email-verified
+        attrs:
+          scope_name: email
+          description: "TREK: email scope with email_verified forced true"
+          expression: |
+            return {
+                "email": request.user.email,
+                "email_verified": True,
+            }
       - model: authentik_providers_oauth2.oauth2provider
         id: trek-provider
         identifiers:
@@ -235,7 +250,7 @@ data:
           signing_key: !Find [authentik_crypto.certificatekeypair, [name, authentik Self-signed Certificate]]
           property_mappings:
             - !Find [authentik_providers_oauth2.scopemapping, [scope_name, openid]]
-            - !Find [authentik_providers_oauth2.scopemapping, [scope_name, email]]
+            - !KeyOf trek-email-scope-mapping
             - !Find [authentik_providers_oauth2.scopemapping, [scope_name, profile]]
       - model: authentik_core.application
         identifiers:
