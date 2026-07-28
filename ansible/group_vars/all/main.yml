@@ -10,7 +10,7 @@ k3s_version: "v1.36.2+k3s1"
 k3s_user_ssh_key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAII9oTky42UcvuNV61rJdq9/afxQqxYi8Z/J1pRRJQRQq k3s@node.homelab.cloud"
 
 # Bundled k3s components disabled cluster-wide. Must match on every SERVER in a
-# cluster. Irrelevant on agents.
+# cluster. Irrelevant on agents. CoreDNS disabled separately by playbook during install
 k3s_disable:
   - traefik
   - servicelb

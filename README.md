@@ -16,6 +16,7 @@ flux `Kustomization` entrypoints for the homelab cluster. defines the reconcilia
 - [CoreDNS](https://github.com/coredns/coredns) for in-cluster DNS
 - [Authentik](https://github.com/goauthentik/authentik) as the cluster identity & SSO provider
 - [Gatus](https://github.com/TwiN/gatus) for endpoint health monitoring and status page
+- [metrics-server](https://github.com/kubernetes-sigs/metrics-server) for internal cluster resource metrics
 - [kube-prometheus-stack](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack) for cluster monitoring
   - [Prometheus](https://github.com/prometheus/prometheus) for metric collection
   - [Alertmanager](https://github.com/prometheus/alertmanager) for alert routing and notification delivery
@@ -29,6 +30,27 @@ flux `Kustomization` entrypoints for the homelab cluster. defines the reconcilia
 - [descheduler](https://github.com/kubernetes-sigs/descheduler) to dynamically schedule pods based on node metrics
 - [nfs-subdir-external-provisioner](https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner) for simple distributed storage
 - [Longhorn](https://github.com/longhorn/longhorn) for distributed block storage
+
+### bundled with k3s
+
+components that ship with [k3s](https://github.com/k3s-io/k3s) itself. not managed by flux.
+
+- [Flannel](https://github.com/flannel-io/flannel) for pod networking (default CNI, VXLAN backend)
+- [kube-proxy](https://github.com/kubernetes/kubernetes) for service routing via node iptables rules
+- [kube-router](https://github.com/cloudnativelabs/kube-router) for `NetworkPolicy` enforcement
+- [containerd](https://github.com/containerd/containerd) as the container runtime
+- [helm-controller](https://github.com/k3s-io/helm-controller) for reconciling `HelmChart` resources
+- [etcd](https://github.com/etcd-io/etcd) as the control plane datastore (embedded, HA)
+
+#### disabled k3s defaults
+
+set via `k3s_disable` in `group_vars/all`
+
+- `traefik` - replaced by the flux-managed Traefik deployment
+- `servicelb` - replaced by MetalLB
+- `local-storage` - replaced by Longhorn and nfs-subdir-external-provisioner
+- `metrics-server` - replaced by the flux-managed deployment
+- `coredns` - disabled shortly after cluster bootstrapping and replaced by the flux-managed CoreDNS deployment
 
 ## apps (`k8s/apps`)
 
