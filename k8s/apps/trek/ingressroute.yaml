@@ -8,7 +8,7 @@ metadata:
     gethomepage.dev/name: "TREK"
     gethomepage.dev/description: "Travel planning"
     gethomepage.dev/group: "life"
-    gethomepage.dev/icon: "trek.png"
+    gethomepage.dev/icon: "sh-trip.webp"
     gethomepage.dev/href: "https://trek.item.fyi"
     gethomepage.dev/siteMonitor: "http://trek.trek.svc.cluster.local"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=trek"
