@@ -10,7 +10,7 @@ metadata:
     gethomepage.dev/group: "life"
     gethomepage.dev/icon: "sh-trip.webp"
     gethomepage.dev/href: "https://trek.item.fyi"
-    gethomepage.dev/siteMonitor: "http://trek.trek.svc.cluster.local"
+    gethomepage.dev/siteMonitor: "http://trek.trek.svc.cluster.local/api/health"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=trek"
 spec:
   entryPoints:
