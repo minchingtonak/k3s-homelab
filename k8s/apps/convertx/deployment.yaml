@@ -1,0 +1,83 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: convertx
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: convertx-data
+  namespace: convertx
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 512Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: convertx
+  namespace: convertx
+  labels:
+    app.kubernetes.io/name: convertx
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: convertx
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: convertx
+    spec:
+      containers:
+        - name: convertx
+          image: ghcr.io/c4illin/convertx:v0.18.0@sha256:081d1638e8c6dfb6b5e69f47ff90e6f6037cdee29a2f25ddd44ddc6d2e52451d
+          env:
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: convertx
+                  key: JWT_SECRET
+            - name: ALLOW_UNAUTHENTICATED
+              value: "true"
+            - name: HTTP_ALLOWED
+              value: "true"
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "2Gi"
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: convertx-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: convertx
+  namespace: convertx
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
+spec:
+  selector:
+    app.kubernetes.io/name: convertx
+  ports:
+    - port: 80
+      targetPort: 3000
+      name: http

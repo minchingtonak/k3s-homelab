@@ -1,0 +1,27 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: convertx
+  namespace: convertx
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "ConvertX"
+    gethomepage.dev/description: "File conversion"
+    gethomepage.dev/group: "tools"
+    gethomepage.dev/icon: "sh-convertx.png"
+    gethomepage.dev/href: "https://convertx.item.fyi"
+    gethomepage.dev/siteMonitor: "http://convertx.convertx.svc.cluster.local"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=convertx"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`convertx.item.fyi`)
+      middlewares:
+        - name: authentik
+          namespace: authentik
+      services:
+        - name: convertx
+          port: 80
+  tls: {}
