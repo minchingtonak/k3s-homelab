@@ -8,7 +8,7 @@ metadata:
     gethomepage.dev/name: "Dagu"
     gethomepage.dev/description: "Workflow scheduler"
     gethomepage.dev/group: "infrastructure"
-    gethomepage.dev/icon: "dagu.png"
+    gethomepage.dev/icon: "sh-dagu.svg"
     gethomepage.dev/href: "https://dagu.item.fyi"
     gethomepage.dev/siteMonitor: "http://dagu.dagu.svc.cluster.local"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=dagu"
