@@ -112,7 +112,7 @@ data:
         cache: 5
   docker.yaml: ""
   bookmarks.yaml: |
-    - infrastructure:
+    - infra:
       - unifi router:
           - icon: unifi.svg
             href: https://192.168.10.1
@@ -136,7 +136,7 @@ data:
       - pulumi cloud:
           - icon: https://cdn.prod.website-files.com/644656ba41efb6aaeae93c9c/6476ef251611160587b267ff_partners_pulumi.svg
             href: https://app.pulumi.com/minchingtonak
-    - monitoring:
+    - notifs:
       - pushover:
           - icon: pushover.png
             href: https://client.pushover.net
