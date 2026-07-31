@@ -8,11 +8,15 @@ spec:
   retryInterval: 1m
   dependsOn:
     - name: cert-manager
-    - name: authentik-config
     - name: longhorn
+    - name: authentik-config
   sourceRef:
     kind: GitRepository
     name: flux-system
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
   path: k8s/apps/romm
   prune: true
   wait: true

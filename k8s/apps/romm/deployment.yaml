@@ -101,6 +101,7 @@ spec:
       labels:
         app.kubernetes.io/name: romm
     spec:
+      # fixes nginx crash caused by ROMM_PORT being injected by k8s. disables injection of that and other vars
       enableServiceLinks: false
       containers:
         - name: romm
