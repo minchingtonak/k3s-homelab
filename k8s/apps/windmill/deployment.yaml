@@ -22,6 +22,8 @@ metadata:
   namespace: windmill
   labels:
     app.kubernetes.io/name: windmill-postgres
+  annotations:
+    secret.reloader.stakater.com/reload: windmill
 spec:
   replicas: 1
   strategy:

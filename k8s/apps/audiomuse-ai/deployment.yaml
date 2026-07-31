@@ -49,6 +49,8 @@ metadata:
   namespace: audiomuse
   labels:
     app.kubernetes.io/name: audiomuse-postgres
+  annotations:
+    secret.reloader.stakater.com/reload: audiomuse
 spec:
   replicas: 1
   strategy:

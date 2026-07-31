@@ -66,6 +66,8 @@ metadata:
   namespace: spotizerr
   labels:
     app.kubernetes.io/name: spotizerr-redis
+  annotations:
+    secret.reloader.stakater.com/reload: spotizerr
 spec:
   replicas: 1
   strategy:
@@ -137,6 +139,8 @@ metadata:
   namespace: spotizerr
   labels:
     app.kubernetes.io/name: spotizerr
+  annotations:
+    secret.reloader.stakater.com/reload: spotizerr
 spec:
   replicas: 1
   strategy:

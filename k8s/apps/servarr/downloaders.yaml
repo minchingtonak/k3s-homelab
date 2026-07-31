@@ -56,6 +56,7 @@ metadata:
     app.kubernetes.io/name: downloaders
   annotations:
     configmap.reloader.stakater.com/reload: slskd-config
+    secret.reloader.stakater.com/reload: gluetun-wireguard
 spec:
   replicas: 1
   strategy:

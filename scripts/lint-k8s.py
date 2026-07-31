@@ -15,13 +15,14 @@ import yaml
 sys.path.insert(0, str(Path(__file__).parent))
 
 from checks import Violation, _applies
-from checks import gatus_annotation, app_name_label, secret_stringdata, deployment_strategy
+from checks import gatus_annotation, app_name_label, secret_stringdata, deployment_strategy, reloader_annotation
 
 CHECKS = [
     gatus_annotation,
     app_name_label,
     secret_stringdata,
     deployment_strategy,
+    reloader_annotation,
 ]
 
 

@@ -191,6 +191,10 @@ kind: Service
 metadata:
   name: beets
   namespace: servarr
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
 spec:
   selector:
     app.kubernetes.io/name: beets

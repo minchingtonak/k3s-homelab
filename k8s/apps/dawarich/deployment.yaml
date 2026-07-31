@@ -46,6 +46,8 @@ metadata:
   namespace: dawarich
   labels:
     app.kubernetes.io/name: dawarich-postgres
+  annotations:
+    secret.reloader.stakater.com/reload: dawarich
 spec:
   replicas: 1
   strategy:
@@ -195,6 +197,8 @@ metadata:
   namespace: dawarich
   labels:
     app.kubernetes.io/name: dawarich-app
+  annotations:
+    secret.reloader.stakater.com/reload: dawarich
 spec:
   replicas: 1
   strategy:
@@ -311,6 +315,8 @@ metadata:
   namespace: dawarich
   labels:
     app.kubernetes.io/name: dawarich-sidekiq
+  annotations:
+    secret.reloader.stakater.com/reload: dawarich
 spec:
   replicas: 1
   strategy:

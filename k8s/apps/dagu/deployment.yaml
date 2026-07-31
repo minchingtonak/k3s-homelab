@@ -5,6 +5,8 @@ metadata:
   namespace: dagu
   labels:
     app.kubernetes.io/name: dagu
+  annotations:
+    secret.reloader.stakater.com/reload: dagu-ssh
 spec:
   replicas: 1
   strategy:
