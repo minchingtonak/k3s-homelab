@@ -395,6 +395,8 @@ spec:
               value: https://paperless.item.fyi
             - name: PAPERLESS_REDIS
               value: redis://paperless-ngx-redis:6379
+            - name: PAPERLESS_DBENGINE
+              value: postgresql
             - name: PAPERLESS_DBHOST
               value: paperless-ngx-postgres
             - name: PAPERLESS_DBUSER
@@ -444,6 +446,11 @@ spec:
                 secretKeyRef:
                   name: paperless-ngx
                   key: PAPERLESS_ADMIN_PASSWORD
+            - name: PAPERLESS_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: paperless-ngx
+                  key: PAPERLESS_SECRET_KEY
             - name: PAPERLESS_WEBSERVER_WORKERS
               value: "2"
             - name: PAPERLESS_TIKA_ENABLED
