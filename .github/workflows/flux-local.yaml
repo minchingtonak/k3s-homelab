@@ -117,6 +117,7 @@ jobs:
           header: ${{ github.event.pull_request.number }}/k8s/${{ matrix.cluster }}/${{ matrix.resource }}
           path: diff.patch
           message: |
+            ### Cluster: ${{ matrix.cluster }} — ${{ matrix.resource }}
             ```diff
             {{{content}}}
             ```
