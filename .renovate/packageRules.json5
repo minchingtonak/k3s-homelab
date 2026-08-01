@@ -15,6 +15,12 @@
     },
     // group all node version bumps (CI node-version + @types/node) into one PR
     { matchDepNames: ["node", "@types/node"], groupName: "node version" },
+    // windmill server + full images release in lockstep on identical version tags
+    // windmill-lsp versions independently and is intentionally excluded
+    {
+      matchPackageNames: ["ghcr.io/windmill-labs/windmill", "ghcr.io/windmill-labs/windmill-full"],
+      groupName: "windmill version",
+    },
     // helm bootstrap binary must stay on the v3 line: Flux's helm-controller uses the
     // Helm v3 release-storage format, so a v4-written release Secret breaks adoption.
     { matchDepNames: ["helm/helm"], allowedVersions: "<4" },
