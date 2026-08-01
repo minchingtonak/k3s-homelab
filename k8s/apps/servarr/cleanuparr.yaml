@@ -34,7 +34,7 @@ spec:
         fsGroup: 100000
       containers:
         - name: cleanuparr
-          image: ghcr.io/cleanuparr/cleanuparr:2.9.16@sha256:efd08729a33223a6a5bae267afcbeffe4bd2876b3f03144a025968adb8e3cc7e
+          image: ghcr.io/cleanuparr/cleanuparr:2.10.2@sha256:98463b1116142887767cf90dde3375e7e43718aa623fe737677372023ffb7ebe
           env:
             - name: PORT
               value: "11011"
