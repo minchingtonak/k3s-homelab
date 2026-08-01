@@ -123,6 +123,24 @@ spec:
                 secretKeyRef:
                   name: romm
                   key: ROMM_AUTH_SECRET_KEY
+            # authentik OIDC - see https://docs.romm.app/latest/administration/oidc/authentik/
+            - name: OIDC_ENABLED
+              value: "true"
+            - name: OIDC_PROVIDER
+              value: authentik
+            - name: OIDC_CLIENT_ID
+              value: romm
+            - name: OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: romm
+                  key: OIDC_CLIENT_SECRET
+            - name: OIDC_REDIRECT_URI
+              value: https://romm.item.fyi/api/oauth/openid
+            - name: OIDC_SERVER_APPLICATION_URL
+              value: https://auth.item.fyi/application/o/romm
+            - name: ROMM_BASE_URL
+              value: https://romm.item.fyi
             # metadata providers - see https://docs.romm.app/latest/Getting-Started/Metadata-Providers/
             - name: RETROACHIEVEMENTS_API_KEY
               valueFrom:

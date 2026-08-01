@@ -572,6 +572,56 @@ data:
           # SSO-Auth plugin login entrypoint
           meta_launch_url: https://jellyfin.item.fyi/sso/OID/start/authentik
 
+  romm-oidc.yaml: |
+    version: 1
+    metadata:
+      name: romm oidc provider
+      labels:
+        blueprints.goauthentik.io/instantiate: "true"
+    entries:
+      # authentik >=2025.10 defaults email_verified to false on the built-in
+      # email scope; romm requires it true to accept the login
+      - model: authentik_providers_oauth2.scopemapping
+        id: romm-email-scope-mapping
+        identifiers:
+          name: romm-email-verified
+        attrs:
+          scope_name: email
+          description: "RomM: email scope with email_verified forced true"
+          expression: |
+            return {
+                "email": request.user.email,
+                "email_verified": True,
+            }
+      - model: authentik_providers_oauth2.oauth2provider
+        id: romm-provider
+        identifiers:
+          name: RomM
+        attrs:
+          client_id: romm
+          client_secret: ${SECRET_AUTHENTIK_ROMM_CLIENT_SECRET}
+          client_type: confidential
+          grant_types:
+            - authorization_code
+            - refresh_token
+          redirect_uris:
+            - url: https://romm.item.fyi/api/oauth/openid
+              matching_mode: strict
+          authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
+          invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
+          signing_key: !Find [authentik_crypto.certificatekeypair, [name, authentik Self-signed Certificate]]
+          property_mappings:
+            - !Find [authentik_providers_oauth2.scopemapping, [scope_name, openid]]
+            - !KeyOf romm-email-scope-mapping
+            - !Find [authentik_providers_oauth2.scopemapping, [scope_name, profile]]
+      - model: authentik_core.application
+        identifiers:
+          slug: romm
+        attrs:
+          name: RomM
+          provider: !KeyOf romm-provider
+          meta_launch_url: https://romm.item.fyi
+
   session-duration.yaml: |
     version: 1
     metadata:
