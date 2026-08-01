@@ -353,7 +353,9 @@ spec:
             - name: DATABASE_NAME
               value: dawarich_development
             - name: BACKGROUND_PROCESSING_CONCURRENCY
-              value: "10"
+              value: "5"
+            - name: WEB_CONCURRENCY
+              value: "2"
             - name: SELF_HOSTED
               value: "true"
             - name: STORE_GEODATA
