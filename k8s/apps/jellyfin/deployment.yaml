@@ -75,7 +75,6 @@ spec:
               subPath: data
             - name: media
               mountPath: /mnt/media
-              readOnly: true
             - name: dev-dri
               mountPath: /dev/dri
             # Migrated config hardcodes <CachePath>/var/cache/jellyfin</CachePath>
