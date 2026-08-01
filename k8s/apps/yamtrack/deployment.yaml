@@ -1,0 +1,152 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: yamtrack-redis
+  namespace: yamtrack
+  labels:
+    app.kubernetes.io/name: yamtrack-redis
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: yamtrack-redis
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: yamtrack-redis
+    spec:
+      containers:
+        - name: redis
+          image: docker.io/library/redis:8-alpine@sha256:a6a88248ad5b0c724b7f2b380b7d21f46097db158b2b077ef85bcb97f90aee3a
+          ports:
+            - name: redis
+              containerPort: 6379
+              protocol: TCP
+          livenessProbe:
+            exec:
+              command: ["redis-cli", "ping"]
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
+          resources:
+            requests:
+              memory: "32Mi"
+              cpu: "25m"
+            limits:
+              memory: "128Mi"
+      volumes:
+        - name: redis-data
+          persistentVolumeClaim:
+            claimName: yamtrack-redis
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: yamtrack-redis
+  namespace: yamtrack
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
+spec:
+  selector:
+    app.kubernetes.io/name: yamtrack-redis
+  ports:
+    - port: 6379
+      targetPort: 6379
+      name: redis
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: yamtrack
+  namespace: yamtrack
+  labels:
+    app.kubernetes.io/name: yamtrack
+  annotations:
+    secret.reloader.stakater.com/reload: yamtrack
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: yamtrack
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: yamtrack
+    spec:
+      containers:
+        - name: yamtrack
+          # https://github.com/FuzzyGrim/Yamtrack
+          image: ghcr.io/fuzzygrim/yamtrack:0.25.3@sha256:742faeac188635289afbe74eaaf5a355270d44c246a39098249e5c62eb63468a
+          env:
+            - name: TZ
+              value: "America/New_York"
+            - name: URLS
+              value: "https://yamtrack.item.fyi"
+            - name: REDIS_URL
+              value: "redis://yamtrack-redis:6379"
+            - name: SOCIAL_PROVIDERS
+              value: "allauth.socialaccount.providers.openid_connect"
+            - name: SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: yamtrack
+                  key: SECRET
+            - name: SOCIALACCOUNT_PROVIDERS
+              valueFrom:
+                secretKeyRef:
+                  name: yamtrack
+                  key: SOCIALACCOUNT_PROVIDERS
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /health/
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health/
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          volumeMounts:
+            - name: db
+              mountPath: /yamtrack/db
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "1Gi"
+      volumes:
+        - name: db
+          persistentVolumeClaim:
+            claimName: yamtrack-db
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: yamtrack
+  namespace: yamtrack
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
+spec:
+  selector:
+    app.kubernetes.io/name: yamtrack
+  ports:
+    - port: 80
+      targetPort: 8000
+      name: http
