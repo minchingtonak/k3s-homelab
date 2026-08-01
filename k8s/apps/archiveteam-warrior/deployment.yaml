@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: archiveteam-warrior
-          image: atdr.meo.ws/archiveteam/warrior-dockerfile:latest@sha256:d8016cd962ec67736646b6dfe963a4cab215991b1c95b67c85a395502abd7610
+          image: atdr.meo.ws/archiveteam/warrior-dockerfile:latest@sha256:cdacda79bc812672975d34867e0a3d08a7681370b3c64633d413e9e1e7a9ab78
           ports:
             - name: http
               containerPort: 8001
