@@ -267,6 +267,18 @@ data:
       labels:
         blueprints.goauthentik.io/instantiate: "true"
     entries:
+      - model: authentik_providers_oauth2.scopemapping
+        id: wallos-email-scope-mapping
+        identifiers:
+          name: wallos-email-verified
+        attrs:
+          scope_name: email
+          description: "Wallos: email scope with email_verified forced true"
+          expression: |
+            return {
+                "email": request.user.email,
+                "email_verified": True,
+            }
       - model: authentik_providers_oauth2.oauth2provider
         id: wallos-provider
         identifiers:
@@ -286,7 +298,7 @@ data:
           signing_key: !Find [authentik_crypto.certificatekeypair, [name, authentik Self-signed Certificate]]
           property_mappings:
             - !Find [authentik_providers_oauth2.scopemapping, [scope_name, openid]]
-            - !Find [authentik_providers_oauth2.scopemapping, [scope_name, email]]
+            - !KeyOf wallos-email-scope-mapping
             - !Find [authentik_providers_oauth2.scopemapping, [scope_name, profile]]
       - model: authentik_core.application
         identifiers:
