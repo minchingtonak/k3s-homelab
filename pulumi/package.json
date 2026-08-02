@@ -10,7 +10,7 @@
   },
   "devDependencies": {
     "@types/node": "^24.13.3",
-    "typescript": "^6.0.3"
+    "typescript": "^7.0.2"
   },
   "dependencies": {
     "@muhlba91/pulumi-proxmoxve": "^8.2.1",
