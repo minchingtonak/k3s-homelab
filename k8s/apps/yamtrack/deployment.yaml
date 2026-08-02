@@ -18,7 +18,15 @@ spec:
         app.kubernetes.io/name: yamtrack-redis
     spec:
       securityContext:
-        fsGroup: 999
+        # redis:8-alpine has user redis=999 but group redis=1000 (gid 999 is
+        # `ping`), so fsGroup must be 1000. It also can't be a supplementary
+        # group: the entrypoint drops privileges with `setpriv --clear-groups`,
+        # wiping anything fsGroup adds. Setting runAsUser makes the entrypoint
+        # skip that branch entirely and exec redis directly as 999:1000, so the
+        # volume's fsGroup lands on redis's *primary* gid.
+        runAsUser: 999
+        runAsGroup: 1000
+        fsGroup: 1000
       containers:
         - name: redis
           image: docker.io/library/redis:8-alpine@sha256:a6a88248ad5b0c724b7f2b380b7d21f46097db158b2b077ef85bcb97f90aee3a
