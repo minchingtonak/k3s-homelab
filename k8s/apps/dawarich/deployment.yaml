@@ -330,6 +330,15 @@ spec:
         app.kubernetes.io/name: dawarich-sidekiq
     spec:
       enableServiceLinks: false
+      # dawarich-data is RWO; sidekiq must land on the same node as the app pod
+      # or the volume attach fails with a Multi-Attach error.
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: dawarich-app
+              topologyKey: kubernetes.io/hostname
       containers:
         - name: sidekiq
           image: freikin/dawarich:1.10.2@sha256:d20c7bf83415c5524376882c02575e1c0fbb1c4478fae4f5ab6e2423170aa857
