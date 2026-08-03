@@ -24,7 +24,7 @@ spec:
     defaultSettings:
       # Matches the dedicated data disk provisioned by the ansible common role
       defaultDataPath: /mnt/data/longhorn
-      defaultReplicaCount: 3
+      defaultReplicaCount: 2
       # Allow a volume's replicas to schedule onto the same node
       replicaSoftAntiAffinity: false
       snapshotDataIntegrity: enabled
@@ -34,7 +34,7 @@ spec:
       snapshotDataIntegrityCronjob: "0 3 * * 6"
     persistence:
       defaultClass: true
-      defaultClassReplicaCount: 3
+      defaultClassReplicaCount: 2
     csi:
       attacherReplicaCount: 3
       provisionerReplicaCount: 3
