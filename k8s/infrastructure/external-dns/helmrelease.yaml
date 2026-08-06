@@ -31,7 +31,7 @@ spec:
       webhook:
         image:
           repository: ghcr.io/konnektr-io/external-dns-porkbun-webhook
-          tag: v0.2.23
+          tag: v0.2.23@sha256:7a699bd5fa537e81c1ac0a83b4a8a528599455c1ba832d5dc45beedd58f57113
         env:
           - name: API_KEY
             valueFrom:
