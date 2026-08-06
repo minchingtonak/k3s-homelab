@@ -27,6 +27,10 @@ spec:
         type: LoadBalancer
       annotations:
         external-dns.alpha.kubernetes.io/hostname: "*.item.fyi,item.fyi"
+        # Pinned so the address stays stable across MetalLB reallocation. The
+        # same IP is hardcoded in the external-dns MutatingAdmissionPolicy at
+        # k8s/infrastructure/external-dns/mutatingadmissionpolicy.yaml
+        metallb.io/loadBalancerIPs: 192.168.20.90
     ports:
       ssh:
         port: 22
