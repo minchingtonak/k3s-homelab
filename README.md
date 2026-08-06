@@ -12,6 +12,7 @@ flux `Kustomization` entrypoints for the homelab cluster. defines the reconcilia
 - [cert-manager](https://github.com/cert-manager/cert-manager) for automatic SSL certificate generation (using DNS-01 challenge)
 - [external-dns](https://github.com/kubernetes-sigs/external-dns) for automatic DNS record updates
   - [konnektr-io/external-dns-porkbun-webhook](https://github.com/konnektr-io/external-dns-porkbun-webhook) for Porkbun integration
+  - [home-operations/external-dns-unifi-webhook](https://github.com/home-operations/external-dns-unifi-webhook) for UniFi integration (LAN split DNS)
 - [MetalLB](https://github.com/metallb/metallb) for load balancing
 - [CoreDNS](https://github.com/coredns/coredns) for in-cluster DNS
 - [Authentik](https://github.com/goauthentik/authentik) as the cluster identity & SSO provider

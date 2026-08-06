@@ -1,0 +1,47 @@
+# Traefik IngressRoute/IngressRouteTCP/IngressRouteUDP do not expose a load
+# balancer IP in their status, so the external-dns `traefik-proxy` source
+# requires an explicit target annotation on every route and `--default-targets`
+# cannot fill it in. Rather than repeat the Traefik LoadBalancer IP across every
+# app manifest, inject it here at admission time.
+#
+# The IP must match the pinned MetalLB address in
+# k8s/infrastructure/traefik/helmrelease.yaml
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingAdmissionPolicy
+metadata:
+  name: ingressroute-external-dns-target
+spec:
+  # A broken policy should fail the write loudly rather than silently drop the
+  # annotation and leave local DNS records missing.
+  failurePolicy: Fail
+  reinvocationPolicy: IfNeeded
+  matchConstraints:
+    resourceRules:
+      - apiGroups: ["traefik.io"]
+        apiVersions: ["v1alpha1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["ingressroutes", "ingressroutetcps", "ingressrouteudps"]
+  matchConditions:
+    # Let an individual route opt out by setting its own target.
+    - name: no-explicit-target
+      expression: >-
+        !has(object.metadata.annotations) ||
+        !('external-dns.alpha.kubernetes.io/target' in object.metadata.annotations)
+  mutations:
+    # ApplyConfiguration merges into the annotations map so existing annotations are preserved
+    - patchType: ApplyConfiguration
+      applyConfiguration:
+        expression: >
+          Object{
+            metadata: Object.metadata{
+              annotations: {"external-dns.alpha.kubernetes.io/target": "192.168.20.90"}
+            }
+          }
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingAdmissionPolicyBinding
+metadata:
+  name: ingressroute-external-dns-target
+spec:
+  policyName: ingressroute-external-dns-target

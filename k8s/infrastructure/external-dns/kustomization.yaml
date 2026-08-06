@@ -5,3 +5,6 @@ resources:
   - helmrepository.yaml
   - porkbun-secret.sops.yaml
   - helmrelease.yaml
+  - unifi-secret.sops.yaml
+  - mutatingadmissionpolicy.yaml
+  - helmrelease-unifi.yaml
