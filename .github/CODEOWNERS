@@ -1,0 +1,16 @@
+# Every file in this repo requires review from @minchingtonak.
+#
+# The Hermes agent opens pull requests here and must never be able to merge its
+# own work — including changes that would widen its own access, such as adding
+# its age key to a rule in .sops.yaml, relaxing k8s/infrastructure/hermes-rbac/,
+# or repointing a Flux Kustomization under k8s/clusters/.
+#
+# A single catch-all beats an enumerated list: nothing new can land outside the
+# covered paths by accident, and there is no list to keep in sync as the repo
+# grows.
+#
+# CODEOWNERS enforces nothing on its own. It requires a branch protection rule
+# on main with "Require a pull request before merging" + "Require review from
+# Code Owners".
+
+* @minchingtonak
