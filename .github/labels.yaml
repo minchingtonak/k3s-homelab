@@ -8,9 +8,6 @@
 - name: area/kubernetes
   color: "0e8a16"
   description: Changes to Kubernetes manifests
-- name: area/pulumi
-  color: "0e8a16"
-  description: Changes to Pulumi infrastructure code
 - name: area/renovate
   color: "0e8a16"
   description: Changes to Renovate config

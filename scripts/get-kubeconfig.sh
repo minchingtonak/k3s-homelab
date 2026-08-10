@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SERVER_IP="192.168.20.100"
-REMOTE_USER="k3s"
-REMOTE_KUBECONFIG="/home/k3s/.kube/config"
+SERVER_IP="192.168.20.110"
+REMOTE_USER="root"
+REMOTE_KUBECONFIG="/etc/rancher/k3s/k3s.yaml"
 LOCAL_KUBECONFIG="${HOME}/.kube/config"
 
 mkdir -p "$(dirname "$LOCAL_KUBECONFIG")"

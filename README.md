@@ -1,6 +1,6 @@
 # k3s-homelab
 
-homelab k3s cluster running on [Proxmox VE](https://www.proxmox.com) virtual machines. infrastructure provisioned with [Pulumi](https://github.com/pulumi/pulumi), cluster workloads managed by [FluxCD](https://github.com/fluxcd/flux2) GitOps
+homelab k3s cluster running on baremetal nodes. nodes provisioned with [Ansible](https://github.com/ansible/ansible) (see `ansible/`), cluster workloads managed by [FluxCD](https://github.com/fluxcd/flux2) GitOps
 
 ## clusters (`k8s/clusters`)
 
@@ -29,7 +29,6 @@ flux `Kustomization` entrypoints for the homelab cluster. defines the reconcilia
 - [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller) for automated k3s node upgrades via GitOps
 - [reloader](https://github.com/stakater/Reloader) to restart pods when config changes
 - [descheduler](https://github.com/kubernetes-sigs/descheduler) to dynamically schedule pods based on node metrics
-- [nfs-subdir-external-provisioner](https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner) for simple distributed storage
 - [Longhorn](https://github.com/longhorn/longhorn) for distributed block storage
 
 ### bundled with k3s
@@ -49,7 +48,7 @@ set via `k3s_disable` in `group_vars/all`
 
 - `traefik` - replaced by the flux-managed Traefik deployment
 - `servicelb` - replaced by MetalLB
-- `local-storage` - replaced by Longhorn and nfs-subdir-external-provisioner
+- `local-storage` - replaced by Longhorn
 - `metrics-server` - replaced by the flux-managed deployment
 - `coredns` - disabled shortly after cluster bootstrapping and replaced by the flux-managed CoreDNS deployment
 

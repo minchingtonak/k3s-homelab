@@ -133,9 +133,6 @@ data:
       - PaC github:
           - icon: github.png
             href: https://github.com/minchingtonak/PaC
-      - pulumi cloud:
-          - icon: https://cdn.prod.website-files.com/644656ba41efb6aaeae93c9c/6476ef251611160587b267ff_partners_pulumi.svg
-            href: https://app.pulumi.com/minchingtonak
     - notifs:
       - pushover:
           - icon: pushover.png

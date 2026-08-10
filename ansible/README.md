@@ -1,17 +1,13 @@
 # Ansible — baremetal k3s node provisioning
 
-Provisions **baremetal** Debian 13 (trixie) nodes, replicating the node init that
-`pulumi/index.ts` does for Proxmox VMs via cloud-init — minus the VM-only bits
-(`qemu-guest-agent`, microcode purge).
+Provisions **baremetal** Debian 13 (trixie) nodes and the k3s cluster that runs on
+them. This is the only provisioning path — one set of roles covers both bootstrapping
+a cluster and adding nodes to it.
 
-Two use cases, one set of roles:
-
-- **Add nodes to the existing cluster** (`inventory/proxmox`) — baremetal nodes join
-  the Pulumi-managed control plane at `192.168.20.100` (HA servers and/or agents).
-- **Bootstrap a brand-new cluster** (`inventory/minicluster`) — one node
+- **Bootstrap a cluster** (`inventory/minicluster`) — one node
   (`192.168.20.110`) runs `cluster-init`, agents (`.111`, `.112`) join it.
-
-Pulumi remains the source of truth for the Proxmox VMs themselves.
+- **Add nodes** — new hosts under `k3s_servers` (HA) and/or `k3s_agents` in the same
+  inventory join the existing control plane.
 
 ## Layout
 
@@ -49,7 +45,7 @@ $EDITOR inventory/minicluster/group_vars/all/secrets.sops.yml  # NEW token: open
 sops -e -i inventory/minicluster/group_vars/all/secrets.sops.yml
 ```
 
-## Bootstrap the new cluster
+## Bootstrap the cluster
 
 Fill in the hosts in `inventory/minicluster/hosts.yml` (already scaffolded with
 `.110`/`.111`/`.112`), then:
@@ -66,8 +62,7 @@ so a single run brings up the whole cluster.
 
 ### Point the cluster at this repo (Flux GitOps)
 
-After `site.yml`, bootstrap Flux (one-time) — mirrors the Pulumi bootstrap in
-`pulumi/index.ts`:
+After `site.yml`, bootstrap Flux (one-time):
 
 ```bash
 cd ansible
@@ -90,17 +85,17 @@ the source of truth. The `FluxInstance` is applied only if absent, so re-running
 
 ## Add nodes to the existing cluster
 
-Uncomment/add hosts under `k3s_servers` (HA) and/or `k3s_agents` in
-`inventory/proxmox/hosts.yml`, then:
+Add hosts under `k3s_servers` (HA) and/or `k3s_agents` in
+`inventory/minicluster/hosts.yml`, then:
 
 ```bash
 cd ansible
-ansible-playbook -i inventory/proxmox site.yml --check --diff
-ansible-playbook -i inventory/proxmox site.yml
+ansible-playbook -i inventory/minicluster site.yml --check --diff
+ansible-playbook -i inventory/minicluster site.yml
 ```
 
-All nodes join `192.168.20.100`. HA servers inherit the same `disable:` list
-(`k3s_disable`) as the existing control plane, as k3s requires.
+New nodes join `k3s_server_url` (`192.168.20.110`). HA servers inherit the same
+`disable:` list (`k3s_disable`) as the existing control plane, as k3s requires.
 
 ## Verify
 
@@ -121,7 +116,7 @@ reboot), `sysctl net.ipv4.tcp_congestion_control` (=bbr), `systemctl status k3s`
   (`vars_plugins_enabled` in `ansible.cfg`); needs the age key at
   `~/.config/sops/age/keys.txt`. The repo `.sops.yaml` has an `ansible/**` rule that
   encrypts these vars files whole (they have arbitrary keys, not `data/stringData`).
-- The new cluster needs its OWN token — do not reuse the proxmox cluster's.
+- Each cluster needs its OWN token — never reuse one across clusters.
 - Ansible connects as **root** over SSH key (`ansible_user: root` in each inventory;
   key at `ansible_ssh_private_key_file`). A fresh baremetal node only has root, and
   the hardened sshd keeps root reachable via key (`PermitRootLogin prohibit-password`,

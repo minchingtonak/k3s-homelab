@@ -2,10 +2,10 @@
 # the Flux toolkit controllers (source/kustomize/helm) are disjoint: helm-controller
 # upgrading the operator is just a rolling restart, no circular hazard.
 #
-# Bootstrap (pulumi helm.v3.Release on proxmox, ansible `helm install` on minicluster)
-# still installs the operator on fresh clusters — the operator must exist before Flux
-# can reconcile anything. Both bootstrap paths write a real Helm release Secret, so
-# helm-controller adopts the release in place via the matching releaseName below.
+# The ansible bootstrap (`helm install`) still installs the operator on fresh clusters
+# — the operator must exist before Flux can reconcile anything. It writes a real Helm
+# release Secret, so helm-controller adopts the release in place via the matching
+# releaseName below.
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:

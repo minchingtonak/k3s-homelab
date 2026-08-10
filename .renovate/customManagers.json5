@@ -17,14 +17,6 @@
       depNameTemplate: "k3s-io/k3s",
       datasourceTemplate: "github-releases",
     },
-    // track k3s version in pulumi IaC (kept in sync with Plans)
-    {
-      customType: "regex",
-      managerFilePatterns: ["/pulumi/index\\.ts$/"],
-      matchStrings: ["k3sVersion\\s*=\\s*'(?<currentValue>[^']+)'"],
-      depNameTemplate: "k3s-io/k3s",
-      datasourceTemplate: "github-releases",
-    },
     // track k3s version in ansible group_vars (kept in sync with Plans)
     {
       customType: "regex",
@@ -34,7 +26,7 @@
       datasourceTemplate: "github-releases",
     },
     // track flux-operator version in ansible flux role defaults (kept in sync
-    // with the flux-operator chart pinned in pulumi/index.ts)
+    // with the flux-operator HelmRelease flux self-manages)
     {
       customType: "regex",
       managerFilePatterns: ["/ansible/roles/flux/defaults/main\\.ya?ml$/"],
@@ -49,15 +41,6 @@
       managerFilePatterns: ["/ansible/roles/flux/defaults/main\\.ya?ml$/"],
       matchStrings: ["flux_distribution_version:\\s*\"(?<currentValue>[^\"]+)\""],
       depNameTemplate: "fluxcd/flux2",
-      datasourceTemplate: "github-releases",
-    },
-    // track flux-operator chart version in pulumi IaC (kept in sync with the
-    // ansible flux role). Chart versions track the operator's GitHub releases.
-    {
-      customType: "regex",
-      managerFilePatterns: ["/pulumi/index\\.ts$/"],
-      matchStrings: ["charts/flux-operator'[\\s\\S]*?version:\\s*'(?<currentValue>[^']+)'"],
-      depNameTemplate: "controlplaneio-fluxcd/flux-operator",
       datasourceTemplate: "github-releases",
     },
     // track the helm binary pinned in the ansible flux role (used to bootstrap the
