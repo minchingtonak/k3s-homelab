@@ -210,8 +210,6 @@ spec:
           volumeMounts:
             - name: slskd-data
               mountPath: /app/data
-            - name: slskd-incomplete
-              mountPath: /app/incomplete
             - name: slskd-scripts
               mountPath: /app/scripts
             - name: slskd-config
@@ -238,8 +236,6 @@ spec:
         - name: slskd-data
           persistentVolumeClaim:
             claimName: slskd-data
-        - name: slskd-incomplete
-          emptyDir: {}
         - name: slskd-scripts
           emptyDir: {}
         - name: slskd-config
