@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: servarr-config-vars
+  name: servarr-vars
   namespace: flux-system
 type: Opaque
 stringData:
@@ -24,6 +24,6 @@ sops:
         -----END AGE ENCRYPTED FILE-----
       recipient: age1whm4tsad6ku4u4sdhnaa54tklt8hd9fzvelwem86pxfs9hzk0pjskru2jj
   encrypted_regex: ^(data|stringData)$
-  lastmodified: "2026-07-19T22:53:26Z"
-  mac: ENC[AES256_GCM,data:a8aRTB0+QGFkbbIXBvF4E/RyVo1ZMRCuz29nFdBm2vf48UBNm4Kk+X0dutEgdPR1aBEK+6aWwTXhzmUsb2UPyuJCe747PSRXguNpuiQpoUFIoC1HxPdNniXgaA3N2pi9kWrYFCWxzuAKziClYn6LpRge9NHQxmJUhN066Rm32yM=,iv:8wE+6AKAa7z7p8Fni0nTQnt8vDSUMUWMAQv0kLq+XvA=,tag:wYiIwhT94xpicYz9NxNCag==,type:str]
+  lastmodified: "2026-08-10T21:53:30Z"
+  mac: ENC[AES256_GCM,data:1rya9PQdW9z6nwWhb7BW/07HktFGC0a33Er7nH0Iwv0iRM2SsVgYxQCPJm13HGz5J9Rjwi2us9CwUGOt4L1u5ryNcFx2TEnevD+XP6x08ylZWMtDN6JXJwkMZGCN+wshqKXfWlSLGuJQ0JZkcHX4esyWdSHcRB8K1/h7cBWgmGg=,iv:BqryX8XiZx/2SKC0AoMazSoxQM8km8ovKqiVUr613Xw=,tag:LLZrnsrUa0AM8+kX8mCGWA==,type:str]
   version: 3.13.2

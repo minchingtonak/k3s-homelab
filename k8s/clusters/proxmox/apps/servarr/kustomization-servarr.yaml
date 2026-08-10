@@ -26,4 +26,4 @@ spec:
   postBuild:
     substituteFrom:
       - kind: Secret
-        name: servarr-config-vars
+        name: servarr-vars
