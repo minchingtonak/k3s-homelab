@@ -13,7 +13,7 @@ spec:
     provider: sops
     secretRef:
       name: sops-age
-  path: k8s/infrastructure/authentik-vars
+  path: k8s/infrastructure/authentik/vars
   prune: true
   wait: true
   timeout: 2m
