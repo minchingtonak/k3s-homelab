@@ -37,7 +37,6 @@ jobs:
       matrix:
         cluster:
           - minicluster
-          - proxmox
       fail-fast: false
     steps:
       - name: Checkout
@@ -68,7 +67,6 @@ jobs:
       matrix:
         cluster:
           - minicluster
-          - proxmox
         resource:
           - helmrelease
           - kustomization

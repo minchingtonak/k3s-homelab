@@ -23,7 +23,6 @@ jobs:
       matrix:
         cluster:
           - minicluster
-          - proxmox
       fail-fast: false
     steps:
       - name: Checkout
