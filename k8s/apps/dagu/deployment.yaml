@@ -38,6 +38,10 @@ spec:
               value: /dagu
             - name: DAGU_DAGS_DIR
               value: /dagu/dags
+            # dags dir is a read-only configMap mount; keep the wiki store
+            # (default {dags_dir}/wiki, added in 2.13.0) on the writable PVC
+            - name: DAGU_WIKI_DIR
+              value: /dagu/wiki
             - name: DAGU_BASE_CONFIG
               value: /dagu/base.yaml
             - name: DAGU_AUTH_MODE
