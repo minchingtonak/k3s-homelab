@@ -55,7 +55,7 @@ spec:
                   key: OIDC_CLIENT_SECRET
             - name: OIDC_ISSUER
               value: https://auth.item.fyi/application/o/wallos/
-            # auth, token, and userinfo urls are discovered via issuer endpoint
+            # auth, token, and userinfo urls are discovered via issuer endpoint automatically
             # - name: OIDC_AUTH_URL
             #   value: https://auth.item.fyi/application/o/authorize/
             # - name: OIDC_TOKEN_URL
