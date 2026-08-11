@@ -1,8 +1,21 @@
+# Two recipients on every rule:
+#   age1whm4t… — the human operator's key (master).
+#   age1z4st6… — the Hermes agent's key, held only at
+#                /docker/hermes/secrets/age.key on the ai LXC (192.168.20.208).
+#
+# The agent gets its own key rather than a copy of the master so that it can be
+# revoked on its own: drop the recipient below, run `sops updatekeys` over the
+# tree, and the credentials inside these files stay valid. Sharing the master
+# key would instead mean re-encrypting everything *and* rotating every secret.
+#
+# After changing any recipient here, existing files are NOT re-keyed
+# automatically. Run:
+#   sops updatekeys -y <file>        # or the loop in docs, for the whole tree
 creation_rules:
   # Ansible vars files have arbitrary top-level keys, so encrypt the whole file.
   # Must come before the generic rule below — sops uses the first matching rule.
   - path_regex: ansible/.*\.sops\.ya?ml$
-    age: age1whm4tsad6ku4u4sdhnaa54tklt8hd9fzvelwem86pxfs9hzk0pjskru2jj
+    age: age1whm4tsad6ku4u4sdhnaa54tklt8hd9fzvelwem86pxfs9hzk0pjskru2jj,age1z4st65rqt3su5rzqw2jvps3d9fjpaygvs263qh9c734m26xedfvsdfzvm7
   - path_regex: .*\.sops\.yaml$
     encrypted_regex: ^(data|stringData)$
-    age: age1whm4tsad6ku4u4sdhnaa54tklt8hd9fzvelwem86pxfs9hzk0pjskru2jj
+    age: age1whm4tsad6ku4u4sdhnaa54tklt8hd9fzvelwem86pxfs9hzk0pjskru2jj,age1z4st65rqt3su5rzqw2jvps3d9fjpaygvs263qh9c734m26xedfvsdfzvm7
