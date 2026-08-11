@@ -97,8 +97,10 @@ own. Two hard rules follow from that:
   it lands — there is no taking it back. A `pre-commit` hook blocks the obvious
   cases, but do not rely on it to catch everything.
 - **Never edit the recipients in `.sops.yaml`**, and never add your own key to a
-  rule it is not already on. That file is owned by a human via CODEOWNERS; a PR
-  touching it will be rejected.
+  rule it is not already on. Nor may you widen your own access by other means:
+  the RBAC under `k8s/infrastructure/hermes-rbac/`, and the Flux entry points
+  under `k8s/clusters/`, are off limits. If you believe one of them genuinely
+  needs changing, say so and let a human make the change.
 
 Do not print a decrypted value into a response, a commit message, a PR body, or
 a log line. Report the shape ("`immich-db` is missing the `password` key"),
