@@ -15,6 +15,11 @@
 # Adding a new CRD group? Append it to rule 2. If the agent reports "forbidden"
 # on some new custom resource, that is the reason.
 #
+# authentication.k8s.io and authorization.k8s.io are absent on purpose, not by
+# oversight: they hold only create-only review APIs (TokenReview,
+# SubjectAccessReview) with nothing gettable, and `kubectl auth can-i` already
+# works for any authenticated identity via the built-in system:basic-user role.
+#
 # No verb other than get/list/watch appears in this file. Flux is the only
 # writer; the agent proposes changes as pull requests.
 apiVersion: rbac.authorization.k8s.io/v1

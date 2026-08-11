@@ -12,10 +12,10 @@ given, write access to the Kubernetes API.
 Cluster: `minicluster` — server `192.168.20.110`, agents `192.168.20.111` and
 `192.168.20.112`. k3s v1.36.x, Flux v2.9.x.
 
-Note that `pulumi/index.ts` in this repo describes a _different_, currently
-undeployed cluster (`k3s-server-01` at `192.168.20.100`). That host does not
-resolve. Do not try to reach it and do not assume that file describes the
-running cluster.
+This is the only cluster. A second, never-deployed Proxmox-VM cluster
+(`192.168.20.100`) and its Pulumi IaC were removed from the repo in August 2026.
+Treat any surviving mention of `192.168.20.100`, Pulumi, or `nfs-provisioner` as
+stale — node provisioning lives entirely in `ansible/` now.
 
 ## The one rule that matters
 
@@ -73,8 +73,7 @@ kubectl -n <ns> logs <pod> --previous
 - `k8s/infrastructure/<component>/` — platform components (Traefik, MetalLB,
   cert-manager, Longhorn, Flux operator, monitoring).
 - `k8s/apps/<app>/` — applications.
-- `ansible/` — node-level bootstrap.
-- `pulumi/` — the other, undeployed cluster. Leave it alone.
+- `ansible/` — node provisioning and k3s bring-up. The only provisioning path.
 - `scratch/` — work in progress. **Never stage or commit anything here.**
 
 ## Secrets
@@ -111,7 +110,10 @@ placeholder, use `stringData:` rather than `data:` (the `secret-stringdata` lint
 check enforces this), and tell the human which value to fill in.
 
 To share a secret value into a ConfigMap, follow the existing
-`postBuild.substituteFrom` pattern — see `servarr` and `authentik` for working
+`postBuild.substituteFrom` pattern. The encrypted vars Secret lives in a `vars/`
+subdirectory of the app's own manifest dir and is applied by a separate
+`<app>-vars` Kustomization that the consumer declares in `dependsOn` — see
+`k8s/apps/servarr/vars/` and `k8s/infrastructure/authentik/vars/` for working
 examples.
 
 ## Reporting
