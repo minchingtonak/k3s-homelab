@@ -1,6 +1,6 @@
 ---
-# One-time Flux GitOps bootstrap (mirrors the Pulumi bootstrap in pulumi/index.ts):
-# install flux-operator, create the sops-age decryption secret, and apply a
+# One-time Flux GitOps bootstrap: install flux-operator, create the sops-age
+# decryption secret, and apply a
 # FluxInstance pointing Flux at this repo. Run AFTER site.yml has brought up k3s:
 #
 #   ansible-playbook -i inventory/minicluster flux.yml

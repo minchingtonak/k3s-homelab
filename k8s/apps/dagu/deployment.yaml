@@ -25,7 +25,7 @@ spec:
         fsGroup: 100000
       containers:
         - name: dagu
-          image: ghcr.io/dagucloud/dagu:2.11.2@sha256:9c1f83f4768054ba2192ff0ef93b72001336074830011bd5eadacae526427af2
+          image: ghcr.io/dagucloud/dagu:2.13.0@sha256:8f69fcff4e671433cb42b2f8fd5ae948aeeb0b842ecca29cae13537aed52f15d
           command: ["dagu", "start-all"]
           env:
             - name: DAGU_TZ
@@ -38,6 +38,10 @@ spec:
               value: /dagu
             - name: DAGU_DAGS_DIR
               value: /dagu/dags
+            # dags dir is a read-only configMap mount; keep the wiki store
+            # (default {dags_dir}/wiki, added in 2.13.0) on the writable PVC
+            - name: DAGU_WIKI_DIR
+              value: /dagu/wiki
             - name: DAGU_BASE_CONFIG
               value: /dagu/base.yaml
             - name: DAGU_AUTH_MODE

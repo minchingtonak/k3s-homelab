@@ -81,7 +81,7 @@ spec:
         fsGroup: 100000
       initContainers:
         - name: gluetun
-          image: qmcgaw/gluetun:v3.41.1@sha256:1a5bf4b4820a879cdf8d93d7ef0d2d963af56670c9ebff8981860b6804ebc8ab
+          image: qmcgaw/gluetun:v3.41.3@sha256:fa19cc76b2af13d57a8d3dc3066f2ada061b1c761b8aecf989b3877c0486e027
           restartPolicy: Always
           securityContext:
             capabilities:
@@ -203,15 +203,13 @@ spec:
             - name: downloads
               mountPath: /data/downloads
         - name: slskd
-          image: slskd/slskd:0.25.1@sha256:ab9ed50e028b524cefdb7c1dd8ebca368a076e18441ee8ac2326473eb850b4c3
+          image: slskd/slskd:0.26.0@sha256:ecd4026d4f8fb504e2cc55323efa2c1f5b56d20d3686b018249cc36b48ea17a6
           env:
             - name: SLSKD_REMOTE_CONFIGURATION
               value: "true"
           volumeMounts:
             - name: slskd-data
               mountPath: /app/data
-            - name: slskd-incomplete
-              mountPath: /app/incomplete
             - name: slskd-scripts
               mountPath: /app/scripts
             - name: slskd-config
@@ -238,8 +236,6 @@ spec:
         - name: slskd-data
           persistentVolumeClaim:
             claimName: slskd-data
-        - name: slskd-incomplete
-          emptyDir: {}
         - name: slskd-scripts
           emptyDir: {}
         - name: slskd-config

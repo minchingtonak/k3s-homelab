@@ -1,7 +1,0 @@
-allowBuilds:
-  "@pulumi/command": true
-  "@pulumi/kubernetes": true
-  protobufjs: true
-onlyBuiltDependencies:
-  - "@pulumi/command"
-  - "@pulumi/kubernetes"

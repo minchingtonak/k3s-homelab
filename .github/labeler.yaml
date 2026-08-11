@@ -1,8 +1,3 @@
-area/pulumi:
-  - changed-files:
-      - any-glob-to-any-file:
-          - pulumi/**/*
-
 area/kubernetes:
   - changed-files:
       - any-glob-to-any-file:

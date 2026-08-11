@@ -1,10 +1,8 @@
 ---
-# Provision baremetal k3s nodes. Mirrors the cloud-init init in pulumi/index.ts,
-# baremetal-focused (no qemu-guest-agent, no microcode purge).
+# Provision baremetal k3s nodes.
 #
 # Always select a cluster explicitly, e.g.:
-#   ansible-playbook -i inventory/minicluster site.yml   # bootstrap a new cluster
-#   ansible-playbook -i inventory/proxmox   site.yml     # add nodes to existing cluster
+#   ansible-playbook -i inventory/minicluster site.yml
 #
 # Plays run servers before agents. For a fresh cluster, the cluster-init server
 # (k3s_cluster_init: true) comes up first; joiners poll its /healthz before joining.

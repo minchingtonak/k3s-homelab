@@ -17,14 +17,11 @@ configMapGenerator:
   - name: dagu-dags
     files:
       - dags/backup.yaml
-      - dags/k3s-nfs-backup.yaml
   - name: dagu-scripts
     files:
       - scripts/pbs-backup-common.sh
       - scripts/local-pbs-backup.sh
       - scripts/cloud-pbs-backup.sh
-      - scripts/k3s-nfs-local-pbs-backup.sh
-      - scripts/k3s-nfs-cloud-pbs-backup.sh
 # Generated ConfigMaps contain bash variable references (${VAR}) that
 # envsubst would clobber. Only configmap-env.yaml (above) is meant to be
 # substituted by Flux postBuild.

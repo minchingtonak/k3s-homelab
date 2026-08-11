@@ -206,7 +206,7 @@ spec:
       containers:
         - name: redis
           # https://github.com/paperless-ngx/paperless-ngx/blob/dev/docker/compose/docker-compose.postgres-tika.yml
-          image: docker.io/library/redis:8.8.0@sha256:2838d5524559494f6f1cd66e97e76b200d64a633a8614200620755ed395daf32
+          image: docker.io/library/redis:8.10.0@sha256:344e3945a0b431c8ff1eecd58c5573538126bd756f02fc7e218ddf1fc2546366
           command: ["redis-server"]
           ports:
             - name: redis
@@ -375,7 +375,7 @@ spec:
     spec:
       containers:
         - name: paperless-ngx
-          image: ghcr.io/paperless-ngx/paperless-ngx:3.0.4@sha256:3838b9a4260d23acc5bb63aed407138435e70b56e5806f4baa350ca184e57582
+          image: ghcr.io/paperless-ngx/paperless-ngx:3.0.5@sha256:65a4cabf0169ea7fbd90ab7bb28ba3f8b5909613635acda1a03ad606f34b456b
           # paperless will chown the media volume to USERMAP_UID:USERMAP_GID on startup
           env:
             - name: USERMAP_UID

@@ -13,7 +13,7 @@ spec:
     provider: sops
     secretRef:
       name: sops-age
-  path: k8s/apps/apprise-vars
+  path: k8s/apps/apprise/vars
   prune: true
   wait: true
   timeout: 5m

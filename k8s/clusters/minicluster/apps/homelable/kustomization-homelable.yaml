@@ -1,7 +1,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: servarr
+  name: homelable
   namespace: flux-system
 spec:
   interval: 1h
@@ -10,7 +10,6 @@ spec:
     - name: cert-manager
     - name: longhorn
     - name: authentik-config
-    - name: servarr-vars
   sourceRef:
     kind: GitRepository
     name: flux-system
@@ -18,11 +17,7 @@ spec:
     provider: sops
     secretRef:
       name: sops-age
-  path: k8s/apps/servarr
+  path: k8s/apps/homelable
   prune: true
   wait: true
   timeout: 5m
-  postBuild:
-    substituteFrom:
-      - kind: Secret
-        name: servarr-vars

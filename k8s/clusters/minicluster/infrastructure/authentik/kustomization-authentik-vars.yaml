@@ -1,16 +1,11 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: servarr
+  name: authentik-vars
   namespace: flux-system
 spec:
   interval: 1h
   retryInterval: 1m
-  dependsOn:
-    - name: cert-manager
-    - name: longhorn
-    - name: authentik-config
-    - name: servarr-vars
   sourceRef:
     kind: GitRepository
     name: flux-system
@@ -18,11 +13,7 @@ spec:
     provider: sops
     secretRef:
       name: sops-age
-  path: k8s/apps/servarr
+  path: k8s/infrastructure/authentik/vars
   prune: true
   wait: true
-  timeout: 5m
-  postBuild:
-    substituteFrom:
-      - kind: Secret
-        name: servarr-vars
+  timeout: 2m
