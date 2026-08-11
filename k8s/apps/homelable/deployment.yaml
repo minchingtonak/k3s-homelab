@@ -44,6 +44,8 @@ spec:
               value: America/New_York
             - name: SQLITE_PATH
               value: /app/data/homelab.db
+            - name: FORWARDED_ALLOW_IPS
+              value: "*"
             # OIDC mode rejects wildcard CORS; must be the exact browser origin
             - name: CORS_ORIGINS
               value: '["https://homelable.item.fyi"]'
@@ -219,6 +221,10 @@ spec:
               value: America/New_York
             - name: BACKEND_URL
               value: http://backend:8000
+            # see the backend container: makes uvicorn honor X-Forwarded-Proto,
+            # so POST /mcp redirects to https:///mcp/ instead of http:///mcp/
+            - name: FORWARDED_ALLOW_IPS
+              value: "*"
             # clients (claude code, hermes) send this as the X-API-Key header
             - name: MCP_API_KEY
               valueFrom:
