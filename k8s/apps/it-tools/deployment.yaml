@@ -1,3 +1,4 @@
+# E2E demo: testing full GitOps loop (deployment comment edit)
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -34,6 +35,7 @@ spec:
             limits:
               memory: "128Mi"
 ---
+# E2E demo: testing full GitOps loop (deployment comment edit)
 apiVersion: v1
 kind: Service
 metadata:
