@@ -156,7 +156,7 @@ spec:
       securityContext:
         runAsUser: 100000
         runAsGroup: 100000
-        # fsGroup so the app (uid 100000) can write the fresh Longhorn volume root,
+        # fsGroup so the app (uid 100000) can write the Longhorn volume root
         # which is otherwise root-owned (else: Permission denied creating data/creds).
         fsGroup: 100000
       containers:
