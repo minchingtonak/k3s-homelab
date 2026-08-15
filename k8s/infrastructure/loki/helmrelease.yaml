@@ -8,7 +8,7 @@ spec:
   chart:
     spec:
       chart: loki
-      version: "7.2.0" # https://github.com/grafana/loki/blob/main/production/helm/loki/CHANGELOG.md
+      version: "7.3.0" # https://github.com/grafana/loki/blob/main/production/helm/loki/CHANGELOG.md
       sourceRef:
         kind: HelmRepository
         name: grafana
