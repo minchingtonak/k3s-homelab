@@ -190,7 +190,7 @@ data:
   SYSTEM_UPGRADE_CONTROLLER_DEBUG: "false"
   SYSTEM_UPGRADE_CONTROLLER_LEADER_ELECT: "true"
   SYSTEM_UPGRADE_CONTROLLER_THREADS: "2"
-  SYSTEM_UPGRADE_JOB_ACTIVE_DEADLINE_SECONDS: "900"
+  SYSTEM_UPGRADE_JOB_ACTIVE_DEADLINE_SECONDS: "2400"
   SYSTEM_UPGRADE_JOB_BACKOFF_LIMIT: "99"
   SYSTEM_UPGRADE_JOB_IMAGE_PULL_POLICY: Always
   SYSTEM_UPGRADE_JOB_KUBECTL_IMAGE: rancher/kubectl:v1.30.3
@@ -208,6 +208,8 @@ kind: Deployment
 metadata:
   name: system-upgrade-controller
   namespace: system-upgrade
+  annotations:
+    configmap.reloader.stakater.com/reload: default-controller-env
 spec:
   selector:
     matchLabels:
