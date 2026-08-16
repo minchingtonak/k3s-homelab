@@ -34,6 +34,41 @@ ansible-playbook -i inventory/minicluster flux.yml
 
 Never run a playbook against a live cluster without explicit approval from the user.
 
+Repo tooling (run from the repo root):
+
+```bash
+make setup      # once per clone: install pinned tools + enable .githooks
+make check      # formatting + manifest lint — the same commands CI runs
+make fmt        # fix formatting
+make doctor     # diagnose a broken toolchain
+make help       # list targets
+```
+
+**Run `make check` before committing.** It reproduces the required CI jobs
+exactly, so passing it predicts a passing pipeline. Prefer the `make` targets
+over calling `dprint`, `uv` or `scripts/lint-k8s.py` directly — the targets stay
+correct when the underlying tooling changes, which is how a hand-rolled
+invocation ends up passing locally and failing in CI.
+
+### Dependency management
+
+CLI tools are pinned in `aqua.yaml` and installed by [aqua](https://aquaproj.github.io/);
+Python dependencies are declared inline per-script ([PEP 723](https://peps.python.org/pep-0723/))
+and resolved by `uv`. Both are managed by Renovate.
+
+Do not install tools by hand, add a `requirements.txt`, or build a virtualenv.
+If a tool is missing or an import fails, that is a broken environment — say so
+rather than working around it. A tool pinned in two places eventually disagrees
+with itself, which is the failure mode this setup exists to prevent.
+
+### Pre-commit hooks
+
+`.githooks/pre-commit` (enabled by `make setup`) mirrors the CI jobs and **fails
+closed** — a missing tool refuses the commit rather than skipping the check. It
+also blocks committing a `*.sops.yaml` that is not actually encrypted. If a
+commit is refused for a reason that looks like tooling rather than content, run
+`make doctor`.
+
 ## Architecture
 
 `ansible/` provisions Debian 13 (trixie) baremetal nodes and the k3s cluster on top:
@@ -52,6 +87,8 @@ Flux watches `k8s/clusters/minicluster` in this repo. The layout uses two layers
 The two-phase pattern is used for operators that install CRDs (e.g. MetalLB): one `Kustomization` installs the operator and waits (`wait: true`), a second `Kustomization` with `dependsOn` applies CRD-backed config resources only after the CRDs exist.
 
 `scratch/` holds WIP manifests not yet wired into Flux. `scripts/get-kubeconfig.sh` is a helper to pull kubeconfig from the server node.
+
+`AGENTS.md` is the operating contract for the Hermes agent, which administers this cluster unattended from the ai LXC. It holds a read-only kubeconfig and proposes every change as a pull request. Keep it in sync when the workflow here changes — instructions only reach it once they are merged to `main`, so an edit left uncommitted has no effect.
 
 ## Secrets
 
@@ -80,9 +117,9 @@ Pattern (see `servarr` and `authentik` for live examples):
 
 The `flux-system` namespace placement is required: `postBuild.substituteFrom` only resolves sources in the Kustomization's own namespace (`flux-system`), not the app's namespace. The chicken-and-egg between secret creation and consumer reconciliation is solved by the separate `*-vars` Kustomization plus `dependsOn`.
 
-### When SealedSecret-style ownership matters
+### Owner-CR pruning cascades
 
-Pruning a Kustomization that previously contained a `SealedSecret` (or any owner CR) will cascade-delete the owned Secret via Kubernetes garbage collection, even if Flux applies a replacement Secret in the same reconcile. The Secret comes back on the next reconcile (1m later), but `wait: true` with a 5–10m timeout will fail health checks during the gap. This is one-time pain during migration; not a steady-state concern.
+Pruning a Kustomization that previously contained an owner CR will cascade-delete the resources it owned via Kubernetes garbage collection, even if Flux applies a replacement in the same reconcile. The replacement comes back on the next reconcile (1m later), but `wait: true` with a 5–10m timeout will fail health checks during the gap. Relevant during migrations; not a steady-state concern.
 
 ## Cluster Access
 

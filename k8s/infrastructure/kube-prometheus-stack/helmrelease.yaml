@@ -218,7 +218,7 @@ spec:
               - type: pushover
       alertmanagerSpec:
         # Mount the Pushover credentials secret into the Alertmanager pod.
-        # The sealed-secrets controller decrypts alertmanager-pushover-credentials
+        # Flux's kustomize-controller decrypts alertmanager-pushover-credentials
         # and makes it available at:
         #   /etc/alertmanager/secrets/alertmanager-pushover-credentials/{userKey,token}
         externalUrl: https://alertmanager.item.fyi

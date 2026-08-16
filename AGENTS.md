@@ -28,19 +28,75 @@ request, wait for a human to merge, let Flux reconcile. Flux is the only writer.
 
 ## How to make a change
 
+0. Once per clone: `make setup`. It installs the pinned toolchain and enables
+   the `.githooks/` hooks. Without it `core.hooksPath` is unset, the hooks
+   never run, and nothing stops an unformatted or unencrypted commit reaching
+   a pull request. Verify with `make doctor`.
 1. Branch from `main`: `git switch -c <short-topic-branch>`.
 2. Edit manifests under `k8s/`.
-3. Lint: `python3 scripts/lint-k8s.py <changed files>`. Fix what it reports.
-4. Validate what you can build: `kubectl kustomize k8s/<path>`. You may also
+3. Validate what you can build: `kubectl kustomize k8s/<path>`. You may also
    use `kubectl apply --dry-run=server`, which is a read-only admission check
    and does not persist anything.
+4. **`make check`** — the gate. Runs formatting and manifest lint using the
+   same commands CI runs, so passing here predicts a passing pipeline. Fix
+   formatting with `make fmt`; fix lint violations by editing the manifests.
 5. Commit. Message style: a single lowercase line, no trailing period, no
    `Co-Authored-By` trailers. Example: `longhorn: raise replica count to 3`.
 6. Push the branch and open a PR: `git push -u origin HEAD` then
    `gh pr create --fill`.
-7. Stop there and report the PR URL. Do not merge your own PR.
+7. **Watch CI to completion** — see below. Do not report success while checks
+   are still pending.
+8. Report the PR URL and the final CI state, then stop. Do not merge your own
+   PR, and do not merge it even if every check is green.
 
 Never push to `main`. Never force-push. Never rewrite published history.
+
+Use the `make` targets rather than invoking `dprint`, `uv` or the lint script
+directly. They are the same commands CI uses, and they stay correct when the
+underlying tooling changes — hand-rolled invocations are how a PR ends up
+failing a check that passed locally.
+
+If a `make` target fails because a tool is missing or an import fails, that is
+a broken environment, not a problem with your change. Say so and stop. Do not
+build a virtualenv, install packages by hand, or edit manifests to make the
+error go away.
+
+## Watching CI
+
+Opening a PR is not the end of the job. A PR with red checks is not a finished
+piece of work, and handing one over as though it were is worse than not opening
+it — it looks done and isn't.
+
+Checks take a few seconds to register after a push, so give them a moment, then
+watch:
+
+```bash
+sleep 15
+gh pr checks --watch --interval 10 --fail-fast
+```
+
+Exit codes: `0` all passed, `8` still pending, anything else means a check
+failed.
+
+If something fails, get the actual error rather than guessing:
+
+```bash
+gh pr checks --json name,state,link --jq '.[] | select(.state != "SUCCESS")'
+gh run view <run-id> --log-failed | tail -50
+```
+
+The two required jobs are `Lint & Format` and the Flux validation workflows.
+`make check` reproduces the first one exactly, and `kubectl kustomize` covers
+most of the second. If CI fails on something either of those would have caught,
+you skipped step 4 — run it before pushing rather than using CI as your linter.
+
+**Cap yourself at two fix-and-push attempts.** If it is still red after that,
+stop and report what is failing with the actual log output. Do not keep pushing
+speculative fixes — each attempt costs a CI run and a chunk of the model budget,
+and three failures in a row means the problem is not what you think it is.
+
+If checks are still pending when you have waited a couple of minutes, say so
+plainly and report the PR URL with its pending state. Pending is not passing.
 
 ## Reading the cluster
 
@@ -83,10 +139,28 @@ your own age key at `/secrets/age.key`, wired in via `SOPS_AGE_KEY_FILE`. It is
 a second recipient on every rule in `.sops.yaml`, so you can both read and write
 these files:
 
+**Use `sops set` or `sops edit` for in-place changes. Do not decrypt to a file,
+edit it, and re-encrypt** — that is how you end up with a plaintext file, or
+with `sops metadata not found` when the round-trip loses the `sops:` block.
+
 ```bash
-sops -d k8s/apps/<app>/foo-secret.sops.yaml     # read
-sops -e -i k8s/apps/<app>/foo-secret.sops.yaml  # re-encrypt after editing
-sops k8s/apps/<app>/foo-secret.sops.yaml        # edit in place
+# Read a value (prints plaintext to stdout — never redirect this into the repo)
+sops -d k8s/apps/<app>/foo-secret.sops.yaml
+
+# Change one value in place, staying encrypted the whole time. Preferred.
+sops set k8s/apps/<app>/foo-secret.sops.yaml '["stringData"]["PASSWORD"]' '"newvalue"'
+
+# Interactive in-place edit; needs $EDITOR, re-encrypts on exit
+sops edit k8s/apps/<app>/foo-secret.sops.yaml
+```
+
+For a brand-new secret, write the plaintext manifest, then encrypt it once with
+`sops -e -i <file>` and confirm `grep -q '^sops:' <file>` before staging it.
+
+After any change to an encrypted file, verify the round-trip before committing:
+
+```bash
+sops -d <file> >/dev/null && grep -q '^sops:' <file> && echo "encrypted OK"
 ```
 
 This key is yours, not the operator's master key, so it can be revoked on its
