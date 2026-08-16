@@ -68,13 +68,25 @@ user-facing applications deployed to the cluster. see manifests for details
 
 ## development
 
-after cloning, configure git hooks:
+after cloning:
 
-```bash
-make setup
-```
+1. [install aqua](https://aquaproj.github.io/docs/install)
+2. `make setup`
+3. `make help`
 
-## secrets (SOPS)
+## dependency management
+
+CI, hooks under `.githooks/`, and local development all resolve the same versions from these files
+
+- [aqua](https://github.com/aquaproj/aqua) for declarative CLI tool version management (see `aqua.yaml`)
+  - [dprint](https://github.com/dprint/dprint) for formatting
+  - [gitleaks](https://github.com/gitleaks/gitleaks) for pre-commit secret scanning
+  - [uv](https://github.com/astral-sh/uv) for python dependency management, declaring packages using [inline script metadata](https://peps.python.org/pep-0723/#example)
+  - [SOPS](https://github.com/getsops/sops) for viewing and editing encrypted secrets
+  - [kubectl](https://github.com/kubernetes/kubernetes) for cluster access
+  - [flux](https://github.com/fluxcd/flux2) for inspecting reconciliation state
+
+## secrets
 
 secrets are stored as `*.sops.yaml` files alongside other manifests, encrypted with age. the private key lives in `~/.config/sops/age/keys.txt`.
 

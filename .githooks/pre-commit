@@ -1,23 +1,77 @@
 #!/usr/bin/env bash
-set -euo pipefail
+#
+# Enable with `make setup` (sets core.hooksPath to .githooks).
+#
+# Checks mirror the required CI jobs. Every check is mandatory
+# and a missing tool refuses the commit.
+
+set -uo pipefail
 
 export PATH="${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}/bin:$PATH"
 
-# Collect all staged files
-mapfile -t staged < <(git diff --cached --name-only --diff-filter=ACM || true)
+fail() {
+    echo "" >&2
+    echo "pre-commit BLOCKED: $*" >&2
+    echo "" >&2
+    exit 1
+}
 
-if [ "${#staged[@]}" -gt 0 ]; then
-    # strip ANSI control chars
-    dprint check --allow-no-files "${staged[@]}" 2>&1 | sed 's/\x1b\[[0-9;]*[a-zA-Z]//g'; exit "${PIPESTATUS[0]}"
+cd "$(git rev-parse --show-toplevel)" || exit 1
+
+mapfile -t staged < <(git diff --cached --name-only --diff-filter=ACMR || true)
+[ "${#staged[@]}" -eq 0 ] && exit 0
+
+# every *.sops.yaml must actually be encrypted
+for f in "${staged[@]}"; do
+    case "$f" in
+        *.sops.yaml | *.sops.yml) ;;
+        *) continue ;;
+    esac
+    [ -f "$f" ] || continue
+    if ! grep -q "^sops:" "$f" 2>/dev/null; then
+        fail "$f has no sops metadata block. It looks decrypted.
+    Re-encrypt before committing:  sops -e -i $f"
+    fi
+    if grep -qE "^[[:space:]]*(data|stringData):" "$f" 2>/dev/null &&
+        ! grep -q "ENC\[" "$f" 2>/dev/null; then
+        fail "$f carries data/stringData but no ENC[...] values. It is plaintext.
+    Re-encrypt before committing:  sops -e -i $f"
+    fi
+done
+
+# formatting
+command -v dprint >/dev/null 2>&1 ||
+    fail "dprint is not on PATH. Install the toolchain (\`aqua i\`); CI runs
+    'dprint check' as a required job, so committing now means a failing PR."
+
+if ! out="$(dprint check --allow-no-files "${staged[@]}" 2>&1)"; then
+    printf '%s\n' "$out" | sed 's/\x1b\[[0-9;]*[a-zA-Z]//g' | head -40 >&2
+    fail "dprint check failed (output above). Fix with:  dprint fmt"
 fi
 
-# Collect staged YAML files under k8s/
-mapfile -t files < <(
-    printf '%s\n' "${staged[@]}" \
-    | grep -E '^k8s/.*\.ya?ml$' \
-    || true
-)
+# k8s manifest lint
+mapfile -t k8s_files < <(printf '%s\n' "${staged[@]}" | grep -E '^k8s/.*\.ya?ml$' || true)
 
-if [ "${#files[@]}" -gt 0 ]; then
-    python3 scripts/lint-k8s.py "${files[@]}"
+if [ "${#k8s_files[@]}" -gt 0 ]; then
+    command -v uv >/dev/null 2>&1 ||
+        fail "uv is not on PATH. Install the toolchain (\`aqua i\`); it resolves
+    lint-k8s's PEP 723 dependencies."
+
+    if ! out="$(uv run --quiet scripts/lint-k8s.py "${k8s_files[@]}" 2>&1)"; then
+        printf '%s\n' "$out" | head -40 >&2
+        fail "lint-k8s failed (output above)."
+    fi
 fi
+
+# secret scan over the staged content
+command -v gitleaks >/dev/null 2>&1 ||
+    fail "gitleaks is not on PATH, so staged changes cannot be scanned for
+    secrets. Install it (\`aqua i\`) rather than committing unscanned."
+
+if ! gitleaks git --staged --no-banner --redact 2>/dev/null; then
+    fail "gitleaks found a probable secret in the staged changes (value redacted
+    above). Do not commit it. If it is a false positive, raise it with a human
+    rather than adding an allowlist entry yourself."
+fi
+
+exit 0
