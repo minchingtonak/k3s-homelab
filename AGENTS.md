@@ -62,9 +62,10 @@ request, wait for a human to merge, let Flux reconcile. Flux is the only writer.
 
    ```bash
    git push -u origin HEAD
-   cp .github/pull_request_template.md /tmp/pr-body.md
-   # fill /tmp/pr-body.md: replace every <!-- ... --> comment with real content
-   gh pr create --title "<same style as the commit message>" --body-file /tmp/pr-body.md
+   cp .github/pull_request_template.md /workspace/.pr-body.md
+   # fill /workspace/.pr-body.md: replace every <!-- ... --> with real content
+   gh pr create --title "<same style as the commit message>" --body-file /workspace/.pr-body.md
+   rm -f /workspace/.pr-body.md
    ```
 
    Fill every section the template contains, whatever they are — a PR with an
@@ -188,11 +189,21 @@ sops edit k8s/apps/<app>/foo-secret.sops.yaml
 For a brand-new secret, write the plaintext manifest, then encrypt it once with
 `sops -e -i <file>` and confirm `grep -q '^sops:' <file>` before staging it.
 
-After any change to an encrypted file, verify the round-trip before committing:
+**Run `make fmt` after any sops edit.** sops re-serializes the whole file at
+4-space indent while the repo formats YAML at 2-space, so `make check` and CI
+will fail on formatting otherwise. This happens even for a one-key `sops set`.
+The large diff you see before `make fmt` is expected — it shrinks to a few
+lines afterwards.
+
+Then verify the round-trip before committing:
 
 ```bash
 sops -d <file> >/dev/null && grep -q '^sops:' <file> && echo "encrypted OK"
 ```
+
+That is the whole check. Do not compare hashes of the old and new values to
+prove a rotation happened — you set the value, so you already know it changed,
+and that comparison has failure modes that look like real problems.
 
 This key is yours, not the operator's master key, so it can be revoked on its
 own. Two hard rules follow from that:
@@ -222,6 +233,22 @@ subdirectory of the app's own manifest dir and is applied by a separate
 `<app>-vars` Kustomization that the consumer declares in `dependsOn` — see
 `k8s/apps/servarr/vars/` and `k8s/infrastructure/authentik/vars/` for working
 examples.
+
+## When you learn something durable
+
+This file is the only place repo-specific working knowledge belongs. If you
+discover something worth remembering — a tool that behaves unexpectedly, a
+convention this repo follows, a step that is easy to get wrong — propose an
+edit to `AGENTS.md` in the same pull request as the work that taught you it.
+
+Do **not** record it in a private skill or note instead. Anything kept outside
+this repo is invisible: nobody reviews it, nobody notices when it goes stale,
+and it keeps steering you long after the problem it described was fixed. That
+has already happened here — workarounds for bugs that were fixed months ago
+survived in a self-authored skill and were still being followed.
+
+A correction to these instructions is a legitimate part of a change. Say what
+you learned and why, and let a human decide whether it belongs.
 
 ## Reporting
 
