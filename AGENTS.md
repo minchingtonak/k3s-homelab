@@ -32,7 +32,22 @@ request, wait for a human to merge, let Flux reconcile. Flux is the only writer.
    the `.githooks/` hooks. Without it `core.hooksPath` is unset, the hooks
    never run, and nothing stops an unformatted or unencrypted commit reaching
    a pull request. Verify with `make doctor`.
-1. Branch from `main`: `git switch -c <short-topic-branch>`.
+1. Sync first, then branch. The clone persists between sessions and is often
+   left on an old branch, so never assume it is current:
+
+   ```bash
+   git switch main
+   git pull --ff-only
+   git switch -c <short-topic-branch>
+   ```
+
+   Branching from a stale `main` produces a PR full of unrelated diffs and CI
+   failures you did not cause. If `git pull` reports local changes or the pull
+   is not a fast-forward, stop and report it — do not merge, rebase, stash or
+   force your way past it.
+
+   This also matters because `AGENTS.md` — these instructions — arrives the
+   same way. If you skip the pull you may be working from an outdated copy.
 2. Edit manifests under `k8s/`.
 3. Validate what you can build: `kubectl kustomize k8s/<path>`. You may also
    use `kubectl apply --dry-run=server`, which is a read-only admission check
@@ -42,8 +57,24 @@ request, wait for a human to merge, let Flux reconcile. Flux is the only writer.
    formatting with `make fmt`; fix lint violations by editing the manifests.
 5. Commit. Message style: a single lowercase line, no trailing period, no
    `Co-Authored-By` trailers. Example: `longhorn: raise replica count to 3`.
-6. Push the branch and open a PR: `git push -u origin HEAD` then
-   `gh pr create --fill`.
+6. Push the branch and open a PR. Start from the repo's template so the body
+   stays in step with it — do not retype its sections from memory:
+
+   ```bash
+   git push -u origin HEAD
+   cp .github/pull_request_template.md /tmp/pr-body.md
+   # fill /tmp/pr-body.md: replace every <!-- ... --> comment with real content
+   gh pr create --title "<same style as the commit message>" --body-file /tmp/pr-body.md
+   ```
+
+   Fill every section the template contains, whatever they are — a PR with an
+   empty or auto-generated description is not finished work. Leave no comment
+   markers behind. Where the template asks what you verified, state what you
+   actually ran and what it returned; if you could not verify something, say so
+   rather than leaving it blank.
+
+   Do **not** use `gh pr create --fill`. It takes the body from commit messages
+   and silently ignores the template.
 7. **Watch CI to completion** — see below. Do not report success while checks
    are still pending.
 8. Report the PR URL and the final CI state, then stop. Do not merge your own
