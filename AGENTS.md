@@ -49,9 +49,11 @@ request, wait for a human to merge, let Flux reconcile. Flux is the only writer.
    This also matters because `AGENTS.md` — these instructions — arrives the
    same way. If you skip the pull you may be working from an outdated copy.
 2. Edit manifests under `k8s/`.
-3. Validate what you can build: `kubectl kustomize k8s/<path>`. You may also
-   use `kubectl apply --dry-run=server`, which is a read-only admission check
-   and does not persist anything.
+3. Validate what you can build: `kubectl kustomize k8s/<path>`. Do not reach for
+   `kubectl apply --dry-run=server` — the API server authorizes a server-side
+   dry run as a real `create`/`patch`, and the agent's ClusterRole grants only
+   `get`/`list`/`watch`, so it is rejected as forbidden. `make check` plus
+   `kubectl kustomize` are the validation you have.
 4. **`make check`** — the gate. Runs formatting and manifest lint using the
    same commands CI runs, so passing here predicts a passing pipeline. Fix
    formatting with `make fmt`; fix lint violations by editing the manifests.
