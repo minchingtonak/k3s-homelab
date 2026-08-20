@@ -4,6 +4,8 @@ metadata:
   name: jellyfin
   namespace: jellyfin
   annotations:
+    # expose on separate LoadBalancer/IP to allow access from guest network
+    external-dns.alpha.kubernetes.io/target: "192.168.20.91"
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Jellyfin"
     gethomepage.dev/description: "Media server"
@@ -20,6 +22,7 @@ metadata:
 spec:
   entryPoints:
     - websecure
+    - guest-websecure # reachable from the guest VLAN via 192.168.20.91
   routes:
     - kind: Rule
       match: Host(`jellyfin.item.fyi`)

@@ -31,6 +31,16 @@ spec:
         # same IP is hardcoded in the external-dns MutatingAdmissionPolicy at
         # k8s/infrastructure/external-dns/mutatingadmissionpolicy.yaml
         metallb.io/loadBalancerIPs: 192.168.20.90
+      additionalServices:
+        # Guest-facing service: the only Traefik IP the UniFi firewall allows
+        # the guest VLAN to reach. Only entrypoints with `expose.guest: true`
+        # exist here, so routers bound to `websecure` alone are unreachable
+        # from this IP regardless of Host header.
+        guest:
+          type: LoadBalancer
+          annotations:
+            external-dns.alpha.kubernetes.io/hostname: jellyfin.item.fyi
+            metallb.io/loadBalancerIPs: 192.168.20.91
     ports:
       ssh:
         port: 22
@@ -52,6 +62,25 @@ spec:
               scheme: https
               permanent: true
       websecure:
+        forwardedHeaders:
+          trustedIPs:
+            - "127.0.0.1/32"
+            - "10.0.0.0/8"
+            - "172.16.0.0/12"
+            - "192.168.0.0/16"
+        http:
+          tls:
+            enabled: true
+      # Guest entrypoint: exposed only on the `guest` LoadBalancer (192.168.20.91).
+      # A router opts into guest reachability by adding `guest-websecure` to its
+      # entryPoints; everything else stays invisible to the guest VLAN.
+      guest-websecure:
+        port: 8444
+        exposedPort: 443
+        protocol: TCP
+        expose:
+          default: false
+          guest: true
         forwardedHeaders:
           trustedIPs:
             - "127.0.0.1/32"
