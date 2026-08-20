@@ -37,7 +37,8 @@ spec:
         # exist here, so routers bound to `websecure` alone are unreachable
         # from this IP regardless of Host header.
         guest:
-          type: LoadBalancer
+          spec:
+            type: LoadBalancer
           annotations:
             external-dns.alpha.kubernetes.io/hostname: jellyfin.item.fyi
             metallb.io/loadBalancerIPs: 192.168.20.91
