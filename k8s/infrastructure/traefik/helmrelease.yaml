@@ -40,7 +40,7 @@ spec:
           spec:
             type: LoadBalancer
           annotations:
-            external-dns.alpha.kubernetes.io/hostname: jellyfin.item.fyi
+            external-dns.alpha.kubernetes.io/hostname: jellyfin.item.fyi,seerr.item.fyi
             metallb.io/loadBalancerIPs: 192.168.20.91
     ports:
       ssh:
