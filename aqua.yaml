@@ -15,5 +15,5 @@ packages:
   - name: gitleaks/gitleaks@v8.30.1
   - name: astral-sh/uv@0.12.1
   - name: getsops/sops@v3.13.3
-  - name: kubernetes/kubernetes/kubectl@v1.36.2
+  - name: kubernetes/kubernetes/kubectl@v1.36.3
   - name: fluxcd/flux2@v2.9.4
