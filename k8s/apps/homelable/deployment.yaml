@@ -38,7 +38,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: ghcr.io/pouzor/homelable-backend:3.2.0@sha256:0e6f230e341cee1766fa590faa70ff9c8f35df95bf2dbf23cf2d528e12ec256e
+          image: ghcr.io/pouzor/homelable-backend:3.3.5@sha256:61cdcc68330e1eb58cd7cb0a2c67685c046d26ee3fd64a0cf49ec4a689811fa0
           env:
             - name: TZ
               value: America/New_York
