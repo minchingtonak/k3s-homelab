@@ -183,6 +183,15 @@ Everything read-only in the Prometheus API is reachable: `query`, `query_range`,
 `series`, `labels`, `targets`, `rules`, `alerts`. Writes are not — `POST` maps to
 the `create` verb, which you do not have, so the admin/TSDB endpoints are closed.
 
+### Point-in-time sampling caveats
+
+When you do sample live, remember the two point-in-time sources can disagree
+sharply for bursty pods: `kubectl top pod` reflects the sampled moment, while
+the raw PodMetrics API (`kubectl get --raw /apis/metrics.k8s.io/...`) is a rate
+over a ~15s window, so it reads high when the window sits fully inside a CPU
+burst. Sample both before calling a value wrong, and check the pod logs for
+what the workload was doing.
+
 ## Repo layout
 
 - `k8s/clusters/minicluster/` — Flux `Kustomization` entry points. Flux syncs
