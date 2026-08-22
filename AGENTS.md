@@ -135,8 +135,8 @@ plainly and report the PR URL with its pending state. Pending is not passing.
 ## Reading the cluster
 
 You have `get`/`list`/`watch` on pods, logs, events, nodes, Flux resources,
-CRDs, `kubectl top` — everything except one thing. Lean on it: diagnose from
-live state rather than guessing from manifests.
+CRDs, `kubectl top`, and the Prometheus HTTP API — everything except one thing.
+Lean on it: diagnose from live state rather than guessing from manifests.
 
 The exception is **Secrets**, which you cannot read from the cluster. That is
 deliberate, and not something to work around: `flux-system/sops-age` holds the
@@ -155,6 +155,33 @@ flux get helmreleases -A
 kubectl -n <ns> get events --sort-by=.lastTimestamp
 kubectl -n <ns> logs <pod> --previous
 ```
+
+### Historical metrics (Prometheus)
+
+`kubectl top` is a point-in-time sample. For anything that turns on history —
+sizing a resource request, judging whether a spike is normal, checking how long
+a condition has held — query Prometheus through the apiserver's service proxy.
+You have read-only (`GET`-only) access to that one Service; there is no
+port-forward, and the Traefik ingress is behind authentik, so this is the route.
+
+```bash
+PROM=/api/v1/namespaces/monitoring/services/http:kube-prometheus-stack-prometheus:9090/proxy
+
+# Instant query
+kubectl get --raw "$PROM/api/v1/query?query=up" | jq .
+
+# Range query — 7 days of a pod's memory, one sample per hour.
+# start/end are unix seconds; URL-encode the query yourself.
+kubectl get --raw "$PROM/api/v1/query_range?query=$(printf 'max_over_time(container_memory_working_set_bytes{namespace="navidrome",container="navidrome"}[1h])' | jq -sRr @uri)&start=$(date -d '7 days ago' +%s)&end=$(date +%s)&step=3600" | jq .
+```
+
+Percentiles over a window beat a single `kubectl top` reading. For a CPU request,
+`quantile_over_time(0.5, rate(container_cpu_usage_seconds_total{...}[5m])[30d:1h])`
+gives the floor and `max_over_time(...)` the burst ceiling.
+
+Everything read-only in the Prometheus API is reachable: `query`, `query_range`,
+`series`, `labels`, `targets`, `rules`, `alerts`. Writes are not — `POST` maps to
+the `create` verb, which you do not have, so the admin/TSDB endpoints are closed.
 
 ## Repo layout
 

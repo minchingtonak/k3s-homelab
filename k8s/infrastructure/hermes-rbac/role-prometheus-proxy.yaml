@@ -1,0 +1,48 @@
+# Read-only access to the Prometheus HTTP API for the Hermes agent.
+#
+# The agent can list Kubernetes objects but had no route to Prometheus itself:
+# port-forward needs `create` on pods/portforward (a write verb that tunnels
+# arbitrary TCP to any pod in the namespace), the pod network is not routable
+# from the ai LXC, and the Traefik ingress sits behind the authentik forward-auth
+# middleware. The apiserver's `services/proxy` subresource is the read-only path:
+# the request is authenticated as the agent's ServiceAccount and proxied by the
+# apiserver, so no new network exposure is created.
+#
+# Scoping notes:
+#   - `get` maps to HTTP GET only. POST through the proxy requires `create`,
+#     which is withheld, so the Prometheus admin APIs (tsdb delete_series,
+#     clean_tombstones) are unreachable. Query, query_range, series, labels,
+#     targets, rules and alerts are all GET.
+#   - resourceNames pins this to the Prometheus Service. Without it, the grant
+#     would proxy GET to every Service in the namespace (Grafana, Alertmanager,
+#     Loki), several of which have no auth of their own.
+#   - The apiserver's RequestInfo parser takes the resource name verbatim from
+#     the path segment, so the `scheme:name:port` form is a distinct name from
+#     the bare Service name. Both are listed; the port-qualified form is the one
+#     kubectl actually uses.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: hermes-prometheus-proxy
+  namespace: monitoring
+rules:
+  - apiGroups: [""]
+    resources: ["services/proxy"]
+    resourceNames:
+      - kube-prometheus-stack-prometheus
+      - "http:kube-prometheus-stack-prometheus:9090"
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: hermes-prometheus-proxy
+  namespace: monitoring
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: hermes-prometheus-proxy
+subjects:
+  - kind: ServiceAccount
+    name: hermes-readonly
+    namespace: hermes
