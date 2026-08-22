@@ -78,6 +78,22 @@ spec:
           image: deluan/navidrome:0.63.2@sha256:9012939114fbb1bb641b81cf96dec5ded15f0aafefe8d47a511d7cb919658e40
           ports:
             - containerPort: 4533
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 4533
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            failureThreshold: 5
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /ping
+              port: 4533
+            initialDelaySeconds: 15
+            periodSeconds: 15
+            failureThreshold: 5
+            timeoutSeconds: 5
           env:
             - name: TZ
               value: America/New_York
@@ -109,6 +125,12 @@ spec:
             - name: music
               mountPath: /music
               readOnly: true
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "1Gi"
       volumes:
         - name: data
           persistentVolumeClaim:
