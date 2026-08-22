@@ -11,7 +11,7 @@ short list with a recommendation attached to each one.
 ## What you are doing
 
 **Reporting only.** Do not open a pull request, do not push a branch, do not merge anything, do not touch the cluster.
-The output of this job is one Discord message.
+The output of this job is one Telegram message.
 
 The script has already done the deterministic half — enumerating the open pull requests, diffing them against last
 week's, and computing ages. Do not re-run `gh pr list` to check its work.
@@ -84,12 +84,11 @@ Anything labelled `security` goes first in the report regardless of bucket, and 
 
 ## Report
 
-Delivery is Discord, which hard-chunks at 2000 characters. **Keep the whole message under about 1800.** That is a
-constraint, not a preference — an overflowing digest arrives split mid-sentence.
+Delivery is Telegram, which hard-chunks at 4096 characters. **Keep the whole message under about 3800.** That is a
+constraint, not a preference — an overflowing digest arrives split at whatever character the chunker lands on.
 
-**Every pull request you reviewed must appear somewhere in the report.** Thirty-odd of them will not fit at one line
-each, so the space goes where the judgement is: **Read first** and **Hold** get a full line, and **Merge now** collapses
-to a single inline run. A reader scanning this wants to know what needs thought — the rest is a list to approve.
+**Every pull request you reviewed must appear somewhere in the report**, with its own line and its own reason. At around
+90 characters a line that is roughly 40 pull requests inside the budget, which comfortably covers a normal week.
 
 Shape:
 
@@ -104,24 +103,23 @@ Shape:
 **Hold**
 - #433 listenarr canary-1.2.2→canary-1.3.2 — prerelease channel, latest is an arm64 ABI fix
 
-**Merge now (32):** #420 syncthing 2.1.3 · #425 alloy 1.11.1 · #426 reloader 2.2.16 (CVE-2026-56852) · #429 docuseal 3.2.1 · …
+**Merge now**
+- #426 reloader 2.2.14→2.2.16 — patches CVE-2026-56852 in x/text plus a regex panic
+- #420 syncthing 2.1.2→2.1.3 — patch, bug fixes only
+- #425 alloy 1.11.0→1.11.1 — patch, no values we set
 
 Merged since last: #426 #425
 ```
 
-Format per bucket:
-
-- **Read first / Hold** — one line each: number, name, version change, then specifically what to look at. Name the file
-  when you found one.
-- **Merge now** — `#N name version` entries, separated by a space-padded middle dot, under one bolded count. Add a
-  parenthetical only where it genuinely changes the decision, such as a CVE fix.
+One line per pull request: number, name, version change, then the reason for the bucket. Keep **Merge now** lines
+shortest — they are the ones a human approves without reading — and spend the words on **Read first** and **Hold**.
 
 No preamble, no closing summary, no restating the counts already in the header.
 
-If you are still over budget, degrade **Merge now** in this order: drop the parentheticals, then the versions, then down
-to bare numbers (`**Merge now (32):** #420 #425 #426 …`). Never cut a **Read first** line, a **Hold** line, a `security`
-line, or the deferred count to make room — those are the entire point. Carried-over numbers are the next thing to drop:
-say `Carried: 17 (list omitted)`.
+If you do run over, degrade **Merge now** first: shorten its reasons, then drop them, then collapse the bucket to a
+single inline run of `#N name version` entries separated by a space-padded middle dot. Never cut a **Read first** line, a
+**Hold** line, a `security` line, or the deferred count to make room — those are the entire point. Carried-over numbers
+are the next thing to drop: say `Carried: 17 (list omitted)`.
 
 State what you could not determine. "Could not find release notes for #433" is a useful line. Silence that reads as
 approval is the failure mode this job exists to prevent.
