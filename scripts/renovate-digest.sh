@@ -29,17 +29,22 @@ STATE_FILE="${RENOVATE_DIGEST_STATE:-${HERMES_HOME:-${HOME}/.hermes}/state/renov
 PROCEDURE="${RENOVATE_DIGEST_PROCEDURE:-docs/renovate-digest.md}"
 
 # Renovate embeds full release notes in the pull request body, which is most of
-# the research done for free — but twenty of them at full length is a wall of
-# changelog. New pull requests get their body up to this many characters;
-# carried-over ones get a single line.
-BODY_LIMIT="${RENOVATE_DIGEST_BODY_LIMIT:-12000}"
+# the research done for free — but a few projects dump an entire changelog.
+# Measured over 35 open pull requests: median body 2.5KB, but a long tail up to
+# 36KB. Capping each body is what makes covering all of them affordable; capping
+# the *count* instead would spend the whole budget on the three noisiest.
+BODY_LIMIT="${RENOVATE_DIGEST_BODY_LIMIT:-6000}"
 
-# How many new pull requests get a full body in one run. There are routinely
-# more open than are worth putting in a single prompt — 35 full bodies is around
-# 400KB — so the rest are listed by title and left out of the state file, which
-# brings them back with bodies on a later run rather than losing them.
-# Security-labelled first, then oldest.
-MAX_BODIES="${RENOVATE_DIGEST_MAX_BODIES:-12}"
+# Total characters of pull request body per run. The goal is to cover every open
+# pull request in one digest, and at the cap above 35 of them come to ~128KB, so
+# this is headroom rather than a limit that normally binds.
+#
+# It exists as a backstop: if the queue ever balloons, the overflow is listed by
+# title and deliberately NOT recorded in the state file, so it returns with a
+# full body on a later run instead of being dropped. Security-labelled pull
+# requests are ordered first, then oldest, so the overflow is always the least
+# urgent end of the queue.
+TOTAL_BUDGET="${RENOVATE_DIGEST_TOTAL_BUDGET:-200000}"
 
 die() {
   printf 'renovate-digest: %s\n' "$*" >&2
@@ -91,14 +96,14 @@ jq -n \
   --slurpfile open "${WORK}/open.json" \
   --slurpfile state "${WORK}/state.json" \
   --arg body_limit "${BODY_LIMIT}" \
-  --arg max_bodies "${MAX_BODIES}" \
+  --arg total_budget "${TOTAL_BUDGET}" \
   --rawfile procedure "${WORK}/procedure.md" \
   --arg procedure_path "${PROCEDURE}" \
   --arg repo "${REPO_SLUG}" '
   ($open[0]) as $prs
   | ($state[0].prs // {}) as $seen
   | ($body_limit | tonumber) as $limit
-  | ($max_bodies | tonumber) as $maxb
+  | ($total_budget | tonumber) as $budget
   | (now | todate) as $ts
   | def age: ((now - (.createdAt | fromdateiso8601)) / 86400 | floor);
     def clip: if (. | length) > $limit
@@ -116,8 +121,17 @@ jq -n \
   ($prs | map(select($seen[.number | tostring] != .title))
         | sort_by([(if is_security then 0 else 1 end), .createdAt])) as $fresh
   | ($prs | map(select($seen[.number | tostring] == .title))) as $carried
-  | ($fresh[0:$maxb]) as $included
-  | ($fresh[$maxb:]) as $deferred
+  # Fill the budget in priority order rather than taking a fixed count, so a
+  # single 36KB changelog costs only the characters it uses instead of crowding
+  # out everything behind it. NOTE: no apostrophes in this jq program — it is
+  # inside a single-quoted shell string, and one ends the quoting silently.
+  | (reduce $fresh[] as $pr ({spent: 0, inc: [], def: []};
+      ($pr.body | trim_footer | clip | length) as $len
+      | if (.spent + $len) <= $budget
+        then {spent: (.spent + $len), inc: (.inc + [$pr]), def: .def}
+        else {spent: .spent, inc: .inc, def: (.def + [$pr])} end)) as $split
+  | ($split.inc) as $included
+  | ($split.def) as $deferred
   | ($deferred | map(.number | tostring)) as $deferred_ids
   | ($seen | keys | map(select(. as $n | ($prs | map(.number | tostring) | index($n)) == null))) as $gone
 
@@ -137,6 +151,8 @@ jq -n \
         "--- CLOSED OR MERGED SINCE THE LAST DIGEST (\($gone | length)) ---",
         (if ($gone | length) == 0 then "(none)"
           else [$gone[] | "#\(.)  \($seen[.])"] end),
+        "",
+        "budget: \($split.spent) of \($budget) characters used by \($included | length) bodies",
         "",
         "--- NEW OR CHANGED SINCE THE LAST DIGEST (\($fresh | length)) ---",
         (if ($fresh | length) == 0 then "(none — report this plainly, do not pad)"

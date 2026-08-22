@@ -1,12 +1,12 @@
 # Weekly Renovate digest
 
 Procedure for the Hermes agent's `renovate-digest` cron job. `scripts/renovate-digest.sh` prints this file into the
-agent's prompt at the start of every run, so editing it here changes what the agent does next Friday — no change on the
-agent host is needed, and none should be made there.
+agent's prompt at the start of every run, so editing it here changes what the agent does on the next run — no change on
+the agent host is needed, and none should be made there.
 
-Renovate opens pull requests against this repo on Fridays (`schedule: '* 7 * * 5'`, America/New_York). This job reads
-them a few hours later and reports what changed, so a wall of `chore(deps)` titles becomes a short list with a
-recommendation attached to each one.
+Renovate opens pull requests against this repo on Fridays (`schedule: '* 7 * * 5'`, America/New_York). This job runs the
+following morning (Saturday 09:00, same timezone) and reports what changed, so a wall of `chore(deps)` titles becomes a
+short list with a recommendation attached to each one.
 
 ## What you are doing
 
@@ -23,10 +23,10 @@ The script's output has five sections:
 - **CLOSED OR MERGED SINCE THE LAST DIGEST** — landed or dropped. One summary line in your report, no detail.
 - **NEW OR CHANGED SINCE THE LAST DIGEST** — the real work. Each has its full Renovate body, which usually embeds the
   upstream release notes.
-- **NEW, BUT DEFERRED TO A LATER RUN FOR PROMPT BUDGET** — new, but there were more open pull requests than fit in one
-  prompt, so these arrived as titles only. **You have not reviewed them.** Report the count and say exactly that. They
-  are not recorded as seen, so they come back with full bodies on a later run — do not guess at their contents now to
-  make the report look complete.
+- **NEW, BUT DEFERRED TO A LATER RUN FOR PROMPT BUDGET** — normally empty, and a backstop rather than a routine state:
+  the budget is sized to cover every open pull request in one run. If entries do appear here they arrived as titles only
+  and **you have not reviewed them** — report the count and say exactly that. They are not recorded as seen, so they
+  come back with full bodies on a later run. Do not guess at their contents to make the report look complete.
 - **CARRIED OVER, UNCHANGED** — reported before and still open. A count and the numbers, nothing more. Re-describing
   these every week is what makes a digest stop being read.
 - **PROCEDURE** — this file.
@@ -38,7 +38,16 @@ entries to fill space.
 
 Start from the embedded release notes — for most updates that is all you need.
 
-Two cases need more:
+Three cases need more:
+
+- **The body was truncated.** Long changelogs are cut with a `[…body truncated at N characters]` marker so that every
+  open pull request fits in one run. Breaking changes are usually near the top, so this is normally harmless — but if
+  what you can see suggests a major bump, a migration, or anything you would put in **Read first**, get the rest before
+  deciding:
+
+  ```bash
+  gh pr view <number> --json body --jq .body
+  ```
 
 - **Renovate could not fetch the notes.** The body says so, often as
   `Some dependencies could not be looked up`, or the Release Notes section is missing entirely. Find the upstream
@@ -78,32 +87,41 @@ Anything labelled `security` goes first in the report regardless of bucket, and 
 Delivery is Discord, which hard-chunks at 2000 characters. **Keep the whole message under about 1800.** That is a
 constraint, not a preference — an overflowing digest arrives split mid-sentence.
 
+**Every pull request you reviewed must appear somewhere in the report.** Thirty-odd of them will not fit at one line
+each, so the space goes where the judgement is: **Read first** and **Hold** get a full line, and **Merge now** collapses
+to a single inline run. A reader scanning this wants to know what needs thought — the rest is a list to approve.
+
 Shape:
 
 ```
 **Renovate digest — <date>**
-<N> reviewed · <N> deferred · <N> carried · <N> merged since last
-
-**Merge now**
-- #440 traefik 41.1.1→41.2.0 — CRD update, chart applies it. no values we set changed.
+35 reviewed · 0 deferred · 0 carried · 2 merged since last
 
 **Read first**
-- #444 homepage v1→v2 — MAJOR. services.yaml schema changed; we set it in k8s/apps/homepage/configmap.yaml.
+- #430 dawarich 1.11.0→1.12.2 — re-detects all visits on migrate; first boot rebuilds the points index, minutes on a big library
+- #434 audiomuse 3.1.1→3.4.0 — queue moved to postgres, redis dropped upstream; we still set REDIS_URL in k8s/apps/audiomuse-ai/deployment.yaml
 
 **Hold**
-- #433 listenarr canary-1.3.0 — canary tag, no published notes.
+- #433 listenarr canary-1.2.2→canary-1.3.2 — prerelease channel, latest is an arm64 ABI fix
 
-Deferred, not reviewed (23): #439 #438 #437 …
-Carried (17): #443 #442 #441 …
+**Merge now (32):** #420 syncthing 2.1.3 · #425 alloy 1.11.1 · #426 reloader 2.2.16 (CVE-2026-56852) · #429 docuseal 3.2.1 · …
+
 Merged since last: #426 #425
 ```
 
-One line per pull request: number, what it is, the version change, then the reason for the bucket. No preamble, no
-closing summary, no restating the counts you already put in the header.
+Format per bucket:
 
-If you are over budget, cut from **Merge now** first — those are the lines a human acts on without reading. Never cut a
-**Hold**, a `security` line, or the deferred count to make room; drop the carried-over numbers instead and say
-`Carried: 17 (list omitted)`.
+- **Read first / Hold** — one line each: number, name, version change, then specifically what to look at. Name the file
+  when you found one.
+- **Merge now** — `#N name version` entries, separated by a space-padded middle dot, under one bolded count. Add a
+  parenthetical only where it genuinely changes the decision, such as a CVE fix.
+
+No preamble, no closing summary, no restating the counts already in the header.
+
+If you are still over budget, degrade **Merge now** in this order: drop the parentheticals, then the versions, then down
+to bare numbers (`**Merge now (32):** #420 #425 #426 …`). Never cut a **Read first** line, a **Hold** line, a `security`
+line, or the deferred count to make room — those are the entire point. Carried-over numbers are the next thing to drop:
+say `Carried: 17 (list omitted)`.
 
 State what you could not determine. "Could not find release notes for #433" is a useful line. Silence that reads as
 approval is the failure mode this job exists to prevent.
