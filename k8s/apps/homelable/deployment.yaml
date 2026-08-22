@@ -154,7 +154,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: ghcr.io/pouzor/homelable-frontend:3.2.0@sha256:672165f35e619a3d87b8d7c97943dfd1c9f7dcac84a57b9858e899011ab5ca27
+          image: ghcr.io/pouzor/homelable-frontend:3.3.5@sha256:720b0d3f9b5083b6cbf63ddb667510609ed9f6914531a82a981c848c22286f42
           env:
             - name: TZ
               value: America/New_York
