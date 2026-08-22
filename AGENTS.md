@@ -154,6 +154,23 @@ kubectl -n <ns> get events --sort-by=.lastTimestamp
 kubectl -n <ns> logs <pod> --previous
 ```
 
+### Measuring real resource usage
+
+Prometheus history is not reachable from the ai box: `kubectl port-forward`
+needs `pods/portforward` (not in the agent's RBAC), the pod network is not
+routable, and the `prometheus` ingress is behind the authentik middleware. To
+size requests/limits, sample the metrics API instead — `kubectl top pod` at
+30s intervals for the average, and the raw API for burst detail:
+
+```bash
+kubectl get --raw "/apis/metrics.k8s.io/v1beta1/namespaces/<ns>/pods/<pod>"
+```
+
+The two can disagree sharply for bursty pods: `top` reflects the sampled
+moment (idle most of the time), while the raw PodMetrics is a rate over a
+~15s window (fully inside a burst it reads high). Sample both before calling
+a value wrong, and check the pod logs for what the workload was doing.
+
 ## Repo layout
 
 - `k8s/clusters/minicluster/` — Flux `Kustomization` entry points. Flux syncs
