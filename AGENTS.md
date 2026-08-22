@@ -49,9 +49,11 @@ request, wait for a human to merge, let Flux reconcile. Flux is the only writer.
    This also matters because `AGENTS.md` — these instructions — arrives the
    same way. If you skip the pull you may be working from an outdated copy.
 2. Edit manifests under `k8s/`.
-3. Validate what you can build: `kubectl kustomize k8s/<path>`. You may also
-   use `kubectl apply --dry-run=server`, which is a read-only admission check
-   and does not persist anything.
+3. Validate what you can build: `kubectl kustomize k8s/<path>`. Do not reach for
+   `kubectl apply --dry-run=server` — the API server authorizes a server-side
+   dry run as a real `create`/`patch`, and the agent's ClusterRole grants only
+   `get`/`list`/`watch`, so it is rejected as forbidden. `make check` plus
+   `kubectl kustomize` are the validation you have.
 4. **`make check`** — the gate. Runs formatting and manifest lint using the
    same commands CI runs, so passing here predicts a passing pipeline. Fix
    formatting with `make fmt`; fix lint violations by editing the manifests.
@@ -133,8 +135,8 @@ plainly and report the PR URL with its pending state. Pending is not passing.
 ## Reading the cluster
 
 You have `get`/`list`/`watch` on pods, logs, events, nodes, Flux resources,
-CRDs, `kubectl top` — everything except one thing. Lean on it: diagnose from
-live state rather than guessing from manifests.
+CRDs, `kubectl top`, and the Prometheus HTTP API — everything except one thing.
+Lean on it: diagnose from live state rather than guessing from manifests.
 
 The exception is **Secrets**, which you cannot read from the cluster. That is
 deliberate, and not something to work around: `flux-system/sops-age` holds the
@@ -154,22 +156,41 @@ kubectl -n <ns> get events --sort-by=.lastTimestamp
 kubectl -n <ns> logs <pod> --previous
 ```
 
-### Measuring real resource usage
+### Historical metrics (Prometheus)
 
-Prometheus history is not reachable from the ai box: `kubectl port-forward`
-needs `pods/portforward` (not in the agent's RBAC), the pod network is not
-routable, and the `prometheus` ingress is behind the authentik middleware. To
-size requests/limits, sample the metrics API instead — `kubectl top pod` at
-30s intervals for the average, and the raw API for burst detail:
+`kubectl top` is a point-in-time sample. For anything that turns on history —
+sizing a resource request, judging whether a spike is normal, checking how long
+a condition has held — query Prometheus through the apiserver's service proxy.
+You have read-only (`GET`-only) access to that one Service; there is no
+port-forward, and the Traefik ingress is behind authentik, so this is the route.
 
 ```bash
-kubectl get --raw "/apis/metrics.k8s.io/v1beta1/namespaces/<ns>/pods/<pod>"
+PROM=/api/v1/namespaces/monitoring/services/http:kube-prometheus-stack-prometheus:9090/proxy
+
+# Instant query
+kubectl get --raw "$PROM/api/v1/query?query=up" | jq .
+
+# Range query — 7 days of a pod's memory, one sample per hour.
+# start/end are unix seconds; URL-encode the query yourself.
+kubectl get --raw "$PROM/api/v1/query_range?query=$(printf 'max_over_time(container_memory_working_set_bytes{namespace="navidrome",container="navidrome"}[1h])' | jq -sRr @uri)&start=$(date -d '7 days ago' +%s)&end=$(date +%s)&step=3600" | jq .
 ```
 
-The two can disagree sharply for bursty pods: `top` reflects the sampled
-moment (idle most of the time), while the raw PodMetrics is a rate over a
-~15s window (fully inside a burst it reads high). Sample both before calling
-a value wrong, and check the pod logs for what the workload was doing.
+Percentiles over a window beat a single `kubectl top` reading. For a CPU request,
+`quantile_over_time(0.5, rate(container_cpu_usage_seconds_total{...}[5m])[30d:1h])`
+gives the floor and `max_over_time(...)` the burst ceiling.
+
+Everything read-only in the Prometheus API is reachable: `query`, `query_range`,
+`series`, `labels`, `targets`, `rules`, `alerts`. Writes are not — `POST` maps to
+the `create` verb, which you do not have, so the admin/TSDB endpoints are closed.
+
+### Point-in-time sampling caveats
+
+When you do sample live, remember the two point-in-time sources can disagree
+sharply for bursty pods: `kubectl top pod` reflects the sampled moment, while
+the raw PodMetrics API (`kubectl get --raw /apis/metrics.k8s.io/...`) is a rate
+over a ~15s window, so it reads high when the window sits fully inside a CPU
+burst. Sample both before calling a value wrong, and check the pod logs for
+what the workload was doing.
 
 ## Repo layout
 

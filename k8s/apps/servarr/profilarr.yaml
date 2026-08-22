@@ -36,7 +36,7 @@ spec:
         fsGroup: 100000
       containers:
         - name: profilarr
-          image: ghcr.io/dictionarry-hub/profilarr:2.0.9@sha256:7a9b5112ff227320d17c65ab643a5d875713e6235991ef04a8e482ec51427902
+          image: ghcr.io/dictionarry-hub/profilarr:2.2.0@sha256:ddcdd0f340043c2ec0a85ca74b9a6be9be42b1c0288c75fc36a26a43f695860b
           env:
             - name: TZ
               value: America/New_York

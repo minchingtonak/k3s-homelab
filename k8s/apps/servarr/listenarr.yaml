@@ -34,7 +34,7 @@ spec:
         fsGroup: 100000
       containers:
         - name: listenarr
-          image: ghcr.io/listenarrs/listenarr:canary-1.2.2@sha256:7aa44d67b649cd401507b763733f93e90ea4f12e2001e2bc67e31199366bb3a9
+          image: ghcr.io/listenarrs/listenarr:canary-1.3.3@sha256:48915efc48a27105ed6e593fac99c7d98afc5f9cc42a2f2e65ce973d93e66b35
           env:
             - name: PUID
               value: "100000"
