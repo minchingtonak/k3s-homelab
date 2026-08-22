@@ -215,7 +215,7 @@ spec:
     spec:
       containers:
         - name: mcp
-          image: ghcr.io/pouzor/homelable-mcp:3.2.0@sha256:0476ec0f036dc0394ebb76ae26060f1dd6fa036601bedd83e6a88f89d0783481
+          image: ghcr.io/pouzor/homelable-mcp:3.3.5@sha256:9c09208179487a3e8e6cb3c8f66c6fbc18978e08f90f08d6d7779cf94888c4dc
           env:
             - name: TZ
               value: America/New_York
