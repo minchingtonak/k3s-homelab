@@ -16,18 +16,6 @@ spec:
       storage: 5Gi
 ---
 apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: audiomuse-redis
-  namespace: audiomuse
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
----
-apiVersion: v1
 kind: ConfigMap
 metadata:
   name: audiomuse-config
@@ -38,7 +26,6 @@ data:
   POSTGRES_PORT: "5432"
   POSTGRES_DB: audiomuse
   POSTGRES_USER: audiomuse
-  REDIS_URL: redis://audiomuse-redis:6379/0
   MEDIASERVER_TYPE: navidrome
   NAVIDROME_URL: http://navidrome.navidrome.svc.cluster.local:4533
 ---
@@ -129,69 +116,6 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: audiomuse-redis
-  namespace: audiomuse
-  labels:
-    app.kubernetes.io/name: audiomuse-redis
-spec:
-  replicas: 1
-  strategy:
-    type: Recreate
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: audiomuse-redis
-  template:
-    metadata:
-      labels:
-        app.kubernetes.io/name: audiomuse-redis
-    spec:
-      containers:
-        - name: redis
-          image: redis:7-alpine@sha256:e7723ff73d963f5cc6d9c4643ea3d989527a402a319239054e9472a7fb9219a2
-          command: ["redis-server"]
-          ports:
-            - name: redis
-              containerPort: 6379
-              protocol: TCP
-          livenessProbe:
-            exec:
-              command: ["redis-cli", "ping"]
-            initialDelaySeconds: 10
-            periodSeconds: 10
-          volumeMounts:
-            - name: redis-data
-              mountPath: /data
-          resources:
-            requests:
-              memory: "64Mi"
-              cpu: "25m"
-            limits:
-              memory: "256Mi"
-      volumes:
-        - name: redis-data
-          persistentVolumeClaim:
-            claimName: audiomuse-redis
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: audiomuse-redis
-  namespace: audiomuse
-  annotations:
-    gatus.home-operations.com/endpoint: |
-      alerts:
-        - type: pushover
-spec:
-  selector:
-    app.kubernetes.io/name: audiomuse-redis
-  ports:
-    - port: 6379
-      targetPort: 6379
-      name: redis
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
   name: audiomuse-flask
   namespace: audiomuse
   labels:
@@ -212,7 +136,7 @@ spec:
     spec:
       containers:
         - name: audiomuse
-          image: ghcr.io/neptunehub/audiomuse-ai:3.1.1@sha256:15c50b3e7ec34f9c1e99340f54bf0a61135226d9b838bf75284e1ef55dfbc2ab
+          image: ghcr.io/neptunehub/audiomuse-ai:3.4.0@sha256:25b104373db717c4465d44e1125fc35c589af9eff97f44b578c1c6923ec55b1f
           env:
             - name: SERVICE_TYPE
               value: flask
@@ -295,7 +219,7 @@ spec:
     spec:
       containers:
         - name: audiomuse
-          image: ghcr.io/neptunehub/audiomuse-ai:3.1.1@sha256:15c50b3e7ec34f9c1e99340f54bf0a61135226d9b838bf75284e1ef55dfbc2ab
+          image: ghcr.io/neptunehub/audiomuse-ai:3.4.0@sha256:25b104373db717c4465d44e1125fc35c589af9eff97f44b578c1c6923ec55b1f
           env:
             - name: SERVICE_TYPE
               value: worker
