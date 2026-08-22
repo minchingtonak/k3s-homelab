@@ -214,7 +214,7 @@ spec:
       enableServiceLinks: false
       containers:
         - name: dawarich
-          image: freikin/dawarich:1.11.0@sha256:4e3c55c4cd572373624e75c9e02075ff436c83a3ea952595ae0d4ffc4c7ae52b
+          image: freikin/dawarich:1.13.0@sha256:751afca44dcd312419cd1d385a4f6607a21ed281d95f88ceb8d7374a794c0d3f
           stdin: true
           tty: true
           command: ["web-entrypoint.sh"]
@@ -341,7 +341,7 @@ spec:
               topologyKey: kubernetes.io/hostname
       containers:
         - name: sidekiq
-          image: freikin/dawarich:1.11.0@sha256:4e3c55c4cd572373624e75c9e02075ff436c83a3ea952595ae0d4ffc4c7ae52b
+          image: freikin/dawarich:1.13.0@sha256:751afca44dcd312419cd1d385a4f6607a21ed281d95f88ceb8d7374a794c0d3f
           stdin: true
           tty: true
           command: ["sidekiq-entrypoint.sh"]
