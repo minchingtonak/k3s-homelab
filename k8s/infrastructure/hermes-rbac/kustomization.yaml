@@ -4,3 +4,4 @@ resources:
   - namespace.yaml
   - serviceaccount.yaml
   - clusterrole.yaml
+  - role-prometheus-proxy.yaml
