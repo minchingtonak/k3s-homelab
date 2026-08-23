@@ -10,10 +10,15 @@
 registries:
   - type: standard
     ref: v4.553.0 # renovate: depName=aquaproj/aqua-registry
+# Every package carries a `# bin:` annotation listing the executables it
+# installs, space-separated. The Makefile parses these to learn what `make
+# doctor` should find on PATH, so a package and the commands it provides stay
+# described in one place. This is because the command names cannot be inferred
+# from the package name
 packages:
-  - name: dprint/dprint@0.55.2
-  - name: gitleaks/gitleaks@v8.30.1
-  - name: astral-sh/uv@0.12.5
-  - name: getsops/sops@v3.13.3
-  - name: kubernetes/kubernetes/kubectl@v1.36.3
-  - name: fluxcd/flux2@v2.9.4
+  - name: dprint/dprint@0.55.2 # bin: dprint
+  - name: gitleaks/gitleaks@v8.30.1 # bin: gitleaks
+  - name: astral-sh/uv@0.12.5 # bin: uv uvx
+  - name: getsops/sops@v3.13.3 # bin: sops
+  - name: kubernetes/kubernetes/kubectl@v1.36.3 # bin: kubectl
+  - name: fluxcd/flux2@v2.9.4 # bin: flux
