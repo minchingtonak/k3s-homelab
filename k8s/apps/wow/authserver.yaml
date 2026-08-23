@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wow-authserver
+  namespace: wow
+  labels:
+    app.kubernetes.io/name: wow-authserver
+  annotations:
+    secret.reloader.stakater.com/reload: wow
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: wow-authserver
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: wow-authserver
+    spec:
+      # the auth DB schema is created by the worldserver pod's db-import init
+      # container; block here until it exists so authserver doesn't crash-loop
+      # on a fresh install
+      initContainers:
+        - name: wait-for-auth-schema
+          image: docker.io/library/mysql:8.4@sha256:b3b90af2a6552ae30c266fdb7d5dd55f3afb72404bb78d37fe8a23eb857fd3fb
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: wow
+                  key: MYSQL_ROOT_PASSWORD
+          command:
+            - sh
+            - -c
+            - >
+              until mysql -h wow-database.wow.svc.cluster.local -uroot -p"$MYSQL_ROOT_PASSWORD"
+              -e "SELECT 1 FROM acore_auth.realmlist LIMIT 1" 2>/dev/null; do
+              echo waiting for acore_auth schema (worldserver db-import); sleep 5; done
+      containers:
+        - name: authserver
+          image: acore/ac-wotlk-authserver:master@sha256:f34dfcfeca736b55fb2fd74602127ee03fb85f2a92e5a16fcd31e38ff0fe0125
+          tty: true
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: wow
+                  key: MYSQL_ROOT_PASSWORD
+            - name: AC_LOGIN_DATABASE_INFO
+              value: wow-database.wow.svc.cluster.local;3306;root;$(MYSQL_ROOT_PASSWORD);acore_auth
+          ports:
+            - name: auth
+              containerPort: 3724
+              protocol: TCP
+          resources:
+            requests:
+              memory: 128Mi
+              cpu: 50m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wow-authserver
+  namespace: wow
+  annotations:
+    metallb.io/loadBalancerIPs: 192.168.20.92
+    gatus.home-operations.com/enabled: "false"
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/name: wow-authserver
+  ports:
+    - name: auth
+      port: 3724
+      targetPort: 3724
+      protocol: TCP
