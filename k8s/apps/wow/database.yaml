@@ -34,6 +34,19 @@ spec:
       # official mysql image runs as uid 999; let kubelet group-own the volume
       securityContext:
         fsGroup: 999
+      # spread the stack: the worldserver prefers minicluster-agent-01, so the
+      # database takes agent-02 rather than stacking ~6Gi of wow memory on one
+      # node. soft preference only.
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - minicluster-agent-02
       containers:
         - name: mysql
           # same image the upstream azerothcore docker-compose uses
