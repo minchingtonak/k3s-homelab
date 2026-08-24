@@ -118,7 +118,9 @@ spec:
               -e "SELECT 1 FROM acore_auth.realmlist LIMIT 1" 2>/dev/null; do
               echo waiting for schema; sleep 5; done &&
               mysql -h wow-database.wow.svc.cluster.local -uroot -p"$MYSQL_ROOT_PASSWORD"
-              -e "UPDATE acore_auth.realmlist SET address='192.168.20.93', name='Minicluster' WHERE id=1"
+              -e "UPDATE acore_auth.realmlist SET address='192.168.20.93', name='Minicluster', flag=0 WHERE id=1"
+              && mysql -h wow-database.wow.svc.cluster.local -uroot -p"$MYSQL_ROOT_PASSWORD"
+              -e "SELECT id,name,address,flag,gamebuild FROM acore_auth.realmlist"
       containers:
         - name: worldserver
           image: acore/ac-wotlk-worldserver:master@sha256:eb9ce9b8c9b0d9f37670cc75c30f608dc7ccd9613dd17ac8536d2ad911516f1e
@@ -136,6 +138,11 @@ spec:
               value: wow-database.wow.svc.cluster.local;3306;root;$(MYSQL_ROOT_PASSWORD);acore_world
             - name: AC_CHARACTER_DATABASE_INFO
               value: wow-database.wow.svc.cluster.local;3306;root;$(MYSQL_ROOT_PASSWORD);acore_characters
+            # the worldserver image WORKDIR is /azerothcore, so the config default
+            # DataDir="." looks in the wrong place; point it at the volume where
+            # the client-data init container extracts maps/vmaps/mmaps/dbc
+            - name: AC_DATA_DIR
+              value: /azerothcore/env/dist/data
             # keep the interactive CLI thread alive so `kubectl attach` works as
             # the admin console (account create etc). the image ships
             # AC_DISABLE_INTERACTIVE=1 which may disable the CLI thread; SOAP
