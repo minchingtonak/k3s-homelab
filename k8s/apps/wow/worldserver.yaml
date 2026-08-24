@@ -124,8 +124,11 @@ spec:
       containers:
         - name: worldserver
           image: acore/ac-wotlk-worldserver:master@sha256:eb9ce9b8c9b0d9f37670cc75c30f608dc7ccd9613dd17ac8536d2ad911516f1e
+          # stdin without a tty: worldserver's CLI reads newline-terminated
+          # commands from stdin, and `kubectl attach` refuses to attach to a
+          # container with tty:true ("tty and stderr cannot both be true"), so
+          # the admin console was unreachable
           stdin: true
-          tty: true
           env:
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
