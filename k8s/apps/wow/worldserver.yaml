@@ -118,7 +118,7 @@ spec:
               -e "SELECT 1 FROM acore_auth.realmlist LIMIT 1" 2>/dev/null; do
               echo waiting for schema; sleep 5; done &&
               mysql -h wow-database.wow.svc.cluster.local -uroot -p"$MYSQL_ROOT_PASSWORD"
-              -e "UPDATE acore_auth.realmlist SET address='192.168.20.93', name='Minicluster', flag=0 WHERE id=1"
+              -e "UPDATE acore_auth.realmlist SET address='192.168.20.93', name='Stalley of Vardew', flag=0 WHERE id=1"
               && mysql -h wow-database.wow.svc.cluster.local -uroot -p"$MYSQL_ROOT_PASSWORD"
               -e "SELECT id,name,address,flag,gamebuild FROM acore_auth.realmlist"
       containers:
