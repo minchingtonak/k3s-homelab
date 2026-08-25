@@ -73,6 +73,64 @@ alphanumerics, or set the SRP6 salt/verifier directly in `acore_auth.account` in
   `realmlist` init container. Change them there so the value survives a pod restart — editing the DB
   by hand gets overwritten on the next boot.
 
+## Pointing a fresh 3.3.5a client at the realm
+
+**1. Use a clean 3.3.5a client, build 12340.** The build must match `realmlist.gamebuild` (`12340`) or
+the client is rejected at the version check with a different error than a bad login. Prefer a plain
+Blizzard 3.3.5a client over a server repack — repacks ship their own MPQs in `Data/` that have to be
+stripped. Confirm the build in-game on the login screen, bottom right.
+
+The [ChromieCraft download](https://chromiecraft.com/en/downloads/) is a reasonable source and was
+verified against [anzz1/wow-client-checksums](https://github.com/anzz1/wow-client-checksums), an archive
+of original unmodified client hashes:
+
+- `Wow.exe` is byte-identical to the Blizzard original (`45892bdedd0ad70aed4ccd22d9fb5984`)
+- 16 of 19 MPQs match exactly, including every large content archive
+- no custom archives — no `patch-4.MPQ`, no `patch-A.MPQ`–`patch-Z.MPQ`, which is where repacks inject
+- `backup-enUS.MPQ` differs because ChromieCraft baked their own `realmlist.wtf` into it. That is the
+  Repair tool's backup archive, so **running Repair restores their realmlist, not yours** — the one
+  real gotcha with this client
+- `patch-2.MPQ` and `patch-enUS-2.MPQ` differ but contain only stock Blizzard paths (verified by
+  listing them, including all 139 DBCs), so they appear repacked rather than modified
+
+To check any client, download the matching list and verify from the client root:
+
+```bash
+curl -sO https://raw.githubusercontent.com/anzz1/wow-client-checksums/master/3.3.5.12340-enUS.md5
+grep -E '\*(Data/.*\.MPQ|Wow\.exe)$' 3.3.5.12340-enUS.md5 | md5sum -c -
+```
+
+**2. Close the client before editing any config.** WoW rewrites `WTF/Config.wtf` on clean exit and
+strips comments while doing so, so edits made while it's running are silently lost.
+
+**3. Point it at the authserver.** Two separate files carry the address and both take effect:
+
+```
+Data/<locale>/realmlist.wtf     ->  set realmlist 192.168.20.92
+WTF/Config.wtf                  ->  SET realmList "192.168.20.92"
+```
+
+`<locale>` is the client's locale directory, e.g. `Data/enUS/`. Many installs read the locale copy and
+ignore a `realmlist.wtf` at the install root, so edit the locale one — or both.
+
+The address here is the **authserver** (`192.168.20.92:3724`). The worldserver (`192.168.20.93:8085`)
+is never configured client-side: the authserver hands it to the client after login, from
+`acore_auth.realmlist`. If login succeeds but the client hangs on "Logging in to game server", that
+row is wrong — not the client.
+
+**4. Log in and verify server-side.** A successful login is the only thing that sets `last_login`:
+
+```bash
+kubectl -n wow exec deploy/wow-database -- sh -c \
+  'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" -e \
+   "select username,last_login,last_ip from acore_auth.account;"'
+```
+
+Still `NULL` after an attempt means no login has ever succeeded for that account.
+
+Optional: `SET realmName` must match the realm's name exactly for the client to auto-select it.
+Mismatched or absent just drops you on the realm-selection screen, which is harmless.
+
 ## Debugging a rejected login
 
 The client message "The information you have entered is not valid" maps to `WOW_FAIL_UNKNOWN_ACCOUNT`

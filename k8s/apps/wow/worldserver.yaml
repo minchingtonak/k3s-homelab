@@ -30,6 +30,7 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: wow-worldserver
+        newt.homelab/allow: "true"
     spec:
       # acore images run as uid 1000; the volume subpaths (data/etc/logs) must
       # be writable by that user on the freshly-provisioned Longhorn volume
@@ -102,6 +103,12 @@ spec:
             - name: data
               mountPath: /azerothcore/env/dist/logs
               subPath: logs
+        # the authserver hands `address` to clients outside localAddress/localSubnetMask
+        # and `localAddress` to those inside it. 192.168.20.93 + /16 covers both the
+        # cluster LAN (192.168.20.x) and the client LAN (192.168.10.x), so local play
+        # goes direct to the MetalLB IP and only internet clients traverse the Pangolin
+        # tunnel. there is a single `port` column shared by both paths, so the tunnel
+        # must publish the worldserver on 8085 rather than remapping it.
         - name: realmlist
           image: docker.io/library/mysql:8.4@sha256:b3b90af2a6552ae30c266fdb7d5dd55f3afb72404bb78d37fe8a23eb857fd3fb
           env:
@@ -118,9 +125,12 @@ spec:
               -e "SELECT 1 FROM acore_auth.realmlist LIMIT 1" 2>/dev/null; do
               echo waiting for schema; sleep 5; done &&
               mysql -h wow-database.wow.svc.cluster.local -uroot -p"$MYSQL_ROOT_PASSWORD"
-              -e "UPDATE acore_auth.realmlist SET address='192.168.20.93', name='Stalley of Vardew', flag=0 WHERE id=1"
+              -e "UPDATE acore_auth.realmlist SET address='wow.minch.zone',
+              localAddress='192.168.20.93', localSubnetMask='255.255.0.0',
+              name='Stalley of Vardew', flag=0 WHERE id=1"
               && mysql -h wow-database.wow.svc.cluster.local -uroot -p"$MYSQL_ROOT_PASSWORD"
-              -e "SELECT id,name,address,flag,gamebuild FROM acore_auth.realmlist"
+              -e "SELECT id,name,address,localAddress,localSubnetMask,port,flag,gamebuild
+              FROM acore_auth.realmlist"
       containers:
         - name: worldserver
           image: acore/ac-wotlk-worldserver:master@sha256:eb9ce9b8c9b0d9f37670cc75c30f608dc7ccd9613dd17ac8536d2ad911516f1e
@@ -157,6 +167,20 @@ spec:
               value: "1"
             - name: AC_SOAP_IP
               value: 0.0.0.0
+            # hardening for a realm reachable from the internet.
+            # Warden ships as log-only (0); 1 kicks on a failed anti-cheat check.
+            # 2 (ban) is deliberately avoided — Warden false positives would ban
+            # legitimate players with no easy path back.
+            - name: AC_WARDEN_CLIENT_CHECK_FAIL_ACTION
+              value: "1"
+            # cap concurrent players so a connection flood can't exhaust resources.
+            # the limit excludes Mods/GMs/Admins, so it cannot lock an admin out.
+            - name: AC_PLAYER_LIMIT
+              value: "20"
+            # restrict character names to basic Latin: stops homoglyph names that
+            # impersonate GMs or other players.
+            - name: AC_STRICT_PLAYER_NAMES
+              value: "1"
           ports:
             - name: world
               containerPort: 8085

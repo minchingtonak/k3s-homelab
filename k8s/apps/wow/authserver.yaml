@@ -18,6 +18,7 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: wow-authserver
+        newt.homelab/allow: "true"
     spec:
       # the auth DB schema is created by the worldserver pod's db-import init
       # container; block here until it exists so authserver doesn't crash-loop
@@ -50,6 +51,15 @@ spec:
                   key: MYSQL_ROOT_PASSWORD
             - name: AC_LOGIN_DATABASE_INFO
               value: wow-database.wow.svc.cluster.local;3306;root;$(MYSQL_ROOT_PASSWORD);acore_auth
+            - name: AC_WRONG_PASS_MAX_COUNT
+              value: "5"
+            - name: AC_WRONG_PASS_LOGGING
+              value: "1"
+            - name: AC_TOTPMASTER_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: wow
+                  key: TOTP_MASTER_SECRET
           ports:
             - name: auth
               containerPort: 3724
