@@ -79,6 +79,12 @@ metadata:
     gatus.home-operations.com/enabled: "false"
 spec:
   type: LoadBalancer
+  # preserve the client source IP. with the default `Cluster` policy kube-proxy
+  # SNATs to a pod-network address, which breaks two things: the realmlist
+  # localAddress/localSubnetMask split never matches a LAN client (every client
+  # looks like 10.42.x.x and gets handed the public address), and WrongPass IP
+  # bans would ban a cluster-internal IP shared by every other player.
+  externalTrafficPolicy: Local
   selector:
     app.kubernetes.io/name: wow-authserver
   ports:

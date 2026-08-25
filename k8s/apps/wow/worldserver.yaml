@@ -217,6 +217,9 @@ metadata:
     metallb.io/loadBalancerIPs: 192.168.20.93
     gatus.home-operations.com/enabled: "false"
 spec:
+  # see the note on wow-authserver: the worldserver logs and bans client IPs too,
+  # so it needs the real source address rather than a SNATed pod-network one
+  externalTrafficPolicy: Local
   type: LoadBalancer
   selector:
     app.kubernetes.io/name: wow-worldserver
