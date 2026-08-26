@@ -11,7 +11,6 @@ metadata:
   labels:
     app.kubernetes.io/name: withoutbg
 spec:
-  replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: withoutbg
@@ -40,9 +39,7 @@ metadata:
   name: withoutbg
   namespace: withoutbg
   annotations:
-    gatus.home-operations.com/endpoint: |
-      alerts:
-        - type: pushover
+    gatus.home-operations.com/enabled: "false"
 spec:
   selector:
     app.kubernetes.io/name: withoutbg

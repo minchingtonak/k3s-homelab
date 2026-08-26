@@ -196,6 +196,11 @@ what the workload was doing.
 
 - `k8s/clusters/minicluster/` — Flux `Kustomization` entry points. Flux syncs
   this path; anything added under it is picked up recursively.
+  **Name entry files `kustomization-<component>.yaml`, not `kustomization.yaml`**
+  — a file named `kustomization.yaml` inside `apps/<app>/` or
+  `infrastructure/<component>/` is a kustomize build spec, and Flux will try to
+  BUILD it as one (a Kustomization document is not a valid build spec) instead
+  of applying it as the Flux entry point.
 - `k8s/infrastructure/<component>/` — platform components (Traefik, MetalLB,
   cert-manager, Longhorn, Flux operator, monitoring).
 - `k8s/apps/<app>/` — applications.

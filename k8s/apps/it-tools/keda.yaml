@@ -1,0 +1,36 @@
+apiVersion: http.keda.sh/v1beta1
+kind: InterceptorRoute
+metadata:
+  name: it-tools
+  namespace: it-tools
+spec:
+  target:
+    service: it-tools
+    port: 80
+  rules:
+    - hosts:
+        - it-tools.item.fyi
+  scalingMetric:
+    concurrency:
+      targetValue: 100
+  timeouts:
+    request: 60s
+    responseHeader: 30s
+    readiness: 60s
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: it-tools
+  namespace: it-tools
+spec:
+  scaleTargetRef:
+    name: it-tools
+  minReplicaCount: 0
+  maxReplicaCount: 1
+  cooldownPeriod: 300
+  triggers:
+    - type: external-push
+      metadata:
+        scalerAddress: keda-add-ons-http-external-scaler.keda:9090
+        interceptorRoute: it-tools

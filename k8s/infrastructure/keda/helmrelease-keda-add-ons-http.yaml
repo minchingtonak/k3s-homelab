@@ -1,0 +1,35 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: keda-add-ons-http
+  namespace: keda
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: keda-add-ons-http
+      version: "0.15.0" # https://github.com/kedacore/http-add-on/releases
+      sourceRef:
+        kind: HelmRepository
+        name: kedacore
+      interval: 1h
+  install:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  upgrade:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  values:
+    operator:
+      replicas: 1
+    scaler:
+      replicas: 1
+    interceptor:
+      replicas:
+        min: 1
+        max: 3
+      requestTimeout: 120s
+      responseHeaderTimeout: 60s
+      readinessTimeout: 60s

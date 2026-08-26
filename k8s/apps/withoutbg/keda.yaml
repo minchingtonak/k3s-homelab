@@ -1,0 +1,36 @@
+apiVersion: http.keda.sh/v1beta1
+kind: InterceptorRoute
+metadata:
+  name: withoutbg
+  namespace: withoutbg
+spec:
+  target:
+    service: withoutbg
+    port: 80
+  rules:
+    - hosts:
+        - withoutbg.item.fyi
+  scalingMetric:
+    concurrency:
+      targetValue: 10
+  timeouts:
+    request: 120s
+    responseHeader: 90s
+    readiness: 120s
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: withoutbg
+  namespace: withoutbg
+spec:
+  scaleTargetRef:
+    name: withoutbg
+  minReplicaCount: 0
+  maxReplicaCount: 1
+  cooldownPeriod: 300
+  triggers:
+    - type: external-push
+      metadata:
+        scalerAddress: keda-add-ons-http-external-scaler.keda:9090
+        interceptorRoute: withoutbg
