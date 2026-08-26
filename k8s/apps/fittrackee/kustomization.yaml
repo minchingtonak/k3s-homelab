@@ -4,3 +4,4 @@ resources:
   - deployment.yaml
   - ingressroute.yaml
   - fittrackee-secret.sops.yaml
+  - keda.yaml

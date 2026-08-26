@@ -1,0 +1,36 @@
+apiVersion: http.keda.sh/v1beta1
+kind: InterceptorRoute
+metadata:
+  name: fittrackee
+  namespace: fittrackee
+spec:
+  target:
+    service: fittrackee
+    port: 80
+  rules:
+    - hosts:
+        - fittrackee.item.fyi
+  scalingMetric:
+    concurrency:
+      targetValue: 30
+  timeouts:
+    request: 120s
+    responseHeader: 60s
+    readiness: 90s
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: fittrackee
+  namespace: fittrackee
+spec:
+  scaleTargetRef:
+    name: fittrackee
+  minReplicaCount: 0
+  maxReplicaCount: 1
+  cooldownPeriod: 600
+  triggers:
+    - type: external-push
+      metadata:
+        scalerAddress: keda-add-ons-http-external-scaler.keda:9090
+        interceptorRoute: fittrackee

@@ -4,3 +4,4 @@ resources:
   - deployment.yaml
   - ingressroute.yaml
   - trek-secret.sops.yaml
+  - keda.yaml
