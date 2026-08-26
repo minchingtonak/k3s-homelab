@@ -11,7 +11,7 @@ spec:
     - hosts:
         - homelable.item.fyi
       paths:
-        - /mcp
+        - value: /mcp
   scalingMetric:
     concurrency:
       targetValue: 30
