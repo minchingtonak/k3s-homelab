@@ -76,7 +76,9 @@ rules:
       - helm.toolkit.fluxcd.io
       - hub.traefik.io
       - image.toolkit.fluxcd.io
+      - http.keda.sh
       - k3s.cattle.io
+      - keda.sh
       - kustomize.toolkit.fluxcd.io
       - lego.dns-solver
       - longhorn.io

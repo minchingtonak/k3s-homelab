@@ -29,7 +29,7 @@ spec:
     name: convertx
   minReplicaCount: 0
   maxReplicaCount: 1
-  cooldownPeriod: 300
+  cooldownPeriod: 600
   triggers:
     - type: external-push
       metadata:

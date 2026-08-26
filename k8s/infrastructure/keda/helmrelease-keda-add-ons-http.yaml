@@ -23,12 +23,12 @@ spec:
       retries: 3
   values:
     operator:
-      replicas: 1
+      replicas: 2
     scaler:
-      replicas: 1
+      replicas: 2
     interceptor:
       replicas:
-        min: 1
+        min: 2
         max: 3
       requestTimeout: 120s
       responseHeaderTimeout: 60s
