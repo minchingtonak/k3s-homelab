@@ -10,7 +10,7 @@ spec:
   failedJobsHistoryLimit: 1
   jobTemplate:
     spec:
-      activeDeadlineSeconds: 180
+      activeDeadlineSeconds: 330
       template:
         spec:
           restartPolicy: Never
@@ -20,7 +20,12 @@ spec:
               args:
                 - -sSf
                 - --max-time
-                - "120"
+                - "240"
+                - --retry
+                - "2"
+                - --retry-delay
+                - "10"
+                - --retry-all-errors
                 - https://your-spotify-api.item.fyi/version
               resources:
                 requests:

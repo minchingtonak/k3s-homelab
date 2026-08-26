@@ -14,9 +14,9 @@ spec:
     concurrency:
       targetValue: 30
   timeouts:
-    request: 120s
-    responseHeader: 60s
-    readiness: 90s
+    request: 300s
+    responseHeader: 120s
+    readiness: 180s
 ---
 apiVersion: http.keda.sh/v1beta1
 kind: InterceptorRoute
