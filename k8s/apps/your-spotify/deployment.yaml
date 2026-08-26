@@ -124,7 +124,7 @@ spec:
               protocol: TCP
           readinessProbe:
             httpGet:
-              path: /health
+              path: /version
               port: http
             periodSeconds: 5
             timeoutSeconds: 3
