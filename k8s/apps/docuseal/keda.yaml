@@ -1,0 +1,36 @@
+apiVersion: http.keda.sh/v1beta1
+kind: InterceptorRoute
+metadata:
+  name: docuseal
+  namespace: docuseal
+spec:
+  target:
+    service: docuseal
+    port: 80
+  rules:
+    - hosts:
+        - docuseal.item.fyi
+  scalingMetric:
+    concurrency:
+      targetValue: 20
+  timeouts:
+    request: 120s
+    responseHeader: 60s
+    readiness: 60s
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: docuseal
+  namespace: docuseal
+spec:
+  scaleTargetRef:
+    name: docuseal
+  minReplicaCount: 0
+  maxReplicaCount: 1
+  cooldownPeriod: 600
+  triggers:
+    - type: external-push
+      metadata:
+        scalerAddress: keda-add-ons-http-external-scaler.keda:9090
+        interceptorRoute: docuseal

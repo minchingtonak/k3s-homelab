@@ -4,3 +4,4 @@ resources:
   - deployment.yaml
   - ingressroute.yaml
   - tandoor-secret.sops.yaml
+  - keda.yaml
