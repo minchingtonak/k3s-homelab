@@ -124,8 +124,7 @@ spec:
               containerPort: 3000
               protocol: TCP
           readinessProbe:
-            httpGet:
-              path: /
+            tcpSocket:
               port: http
             periodSeconds: 5
             timeoutSeconds: 3
