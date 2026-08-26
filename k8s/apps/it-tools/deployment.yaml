@@ -26,6 +26,12 @@ spec:
             - name: http
               containerPort: 80
               protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 3
           resources:
             requests:
               memory: "32Mi"
