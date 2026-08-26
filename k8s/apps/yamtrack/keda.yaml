@@ -1,0 +1,36 @@
+apiVersion: http.keda.sh/v1beta1
+kind: InterceptorRoute
+metadata:
+  name: yamtrack
+  namespace: yamtrack
+spec:
+  target:
+    service: yamtrack
+    port: 80
+  rules:
+    - hosts:
+        - yamtrack.item.fyi
+  scalingMetric:
+    concurrency:
+      targetValue: 20
+  timeouts:
+    request: 60s
+    responseHeader: 30s
+    readiness: 60s
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: yamtrack
+  namespace: yamtrack
+spec:
+  scaleTargetRef:
+    name: yamtrack
+  minReplicaCount: 0
+  maxReplicaCount: 1
+  cooldownPeriod: 600
+  triggers:
+    - type: external-push
+      metadata:
+        scalerAddress: keda-add-ons-http-external-scaler.keda:9090
+        interceptorRoute: yamtrack

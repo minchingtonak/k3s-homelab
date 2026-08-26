@@ -6,3 +6,4 @@ resources:
   - deployment.yaml
   - ingressroute.yaml
   - yamtrack-secret.sops.yaml
+  - keda.yaml
