@@ -1,0 +1,29 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: your-spotify-keepalive
+  namespace: your-spotify
+spec:
+  schedule: "0 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 180
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: poke
+              image: curlimages/curl:8.16.0@sha256:7c12af72ceb38b7432ab85e1a265cff6ae58e06f95539d539b654f2cfa64bb13
+              args:
+                - -sSf
+                - --max-time
+                - "120"
+                - https://your-spotify-api.item.fyi/version
+              resources:
+                requests:
+                  memory: 16Mi
+                limits:
+                  memory: 32Mi

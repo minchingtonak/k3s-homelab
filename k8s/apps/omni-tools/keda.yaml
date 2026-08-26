@@ -1,31 +1,31 @@
 apiVersion: http.keda.sh/v1beta1
 kind: InterceptorRoute
 metadata:
-  name: paperless-ngx
-  namespace: paperless-ngx
+  name: omni-tools
+  namespace: omni-tools
 spec:
   target:
-    service: paperless-ngx
+    service: omni-tools
     port: 80
   rules:
     - hosts:
-        - paperless.item.fyi
+        - omni-tools.item.fyi
   scalingMetric:
     concurrency:
-      targetValue: 20
+      targetValue: 30
   timeouts:
-    request: 300s
-    responseHeader: 120s
-    readiness: 180s
+    request: 120s
+    responseHeader: 60s
+    readiness: 90s
 ---
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:
-  name: paperless-ngx
-  namespace: paperless-ngx
+  name: omni-tools
+  namespace: omni-tools
 spec:
   scaleTargetRef:
-    name: paperless-ngx
+    name: omni-tools
   minReplicaCount: 0
   maxReplicaCount: 1
   cooldownPeriod: 600
@@ -33,4 +33,4 @@ spec:
     - type: external-push
       metadata:
         scalerAddress: keda-add-ons-http-external-scaler.keda:9090
-        interceptorRoute: paperless-ngx
+        interceptorRoute: omni-tools

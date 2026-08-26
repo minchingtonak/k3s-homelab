@@ -4,3 +4,5 @@ resources:
   - deployment.yaml
   - ingressroute.yaml
   - your-spotify-secret.sops.yaml
+  - keda.yaml
+  - cronjob-keepalive.yaml

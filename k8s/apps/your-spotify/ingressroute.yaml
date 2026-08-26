@@ -10,7 +10,8 @@ spec:
     - kind: Rule
       match: Host(`your-spotify-api.item.fyi`)
       services:
-        - name: your-spotify-server
+        - name: keda-add-ons-http-interceptor-proxy
+          namespace: keda
           port: 8080
   tls: {}
 ---
@@ -38,6 +39,7 @@ spec:
         - name: authentik
           namespace: authentik
       services:
-        - name: your-spotify-web
-          port: 3000
+        - name: keda-add-ons-http-interceptor-proxy
+          namespace: keda
+          port: 8080
   tls: {}

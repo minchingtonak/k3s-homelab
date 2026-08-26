@@ -340,7 +340,6 @@ metadata:
   annotations:
     reloader.stakater.com/auto: "true"
 spec:
-  replicas: 1
   strategy:
     type: Recreate
   selector:
@@ -359,6 +358,14 @@ spec:
           image: copyparty/ac:1.20.20@sha256:a885633e42f7395331ab709c1310bd21e79617b13dfd41c6e3f56910b6a8d2f0
           ports:
             - containerPort: 3939
+              name: http
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 3
           volumeMounts:
             - name: cfg
               mountPath: /cfg
@@ -424,9 +431,7 @@ metadata:
   name: copyparty
   namespace: copyparty
   annotations:
-    gatus.home-operations.com/endpoint: |
-      alerts:
-        - type: pushover
+    gatus.home-operations.com/enabled: "false"
 spec:
   selector:
     app.kubernetes.io/name: copyparty
