@@ -117,6 +117,12 @@ spec:
             - name: http
               containerPort: 8000
               protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 3
           volumeMounts:
             - name: db
               mountPath: /yamtrack/db
