@@ -22,9 +22,6 @@ spec:
     remediation:
       retries: 3
   values:
-    # Defaults request 100m/100Mi and limit 1 CPU/1000Mi per component
-    # (operator, metrics-server, webhooks). This cluster is memory-bound,
-    # so trim the limits; requests are left at chart defaults.
     resources:
       operator:
         limits:

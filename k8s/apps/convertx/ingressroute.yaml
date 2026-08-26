@@ -22,10 +22,6 @@ spec:
         - name: authentik
           namespace: authentik
       services:
-        # Routed through the KEDA HTTP add-on interceptor, which buffers
-        # requests while the app scales up from zero (keda.yaml in this dir).
-        # The authentik middleware stays in front: unauthenticated traffic is
-        # rejected before it can trigger a scale-up.
         - name: keda-add-ons-http-interceptor-proxy
           namespace: keda
           port: 8080

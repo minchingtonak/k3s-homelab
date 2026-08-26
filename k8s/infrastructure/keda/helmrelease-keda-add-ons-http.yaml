@@ -22,9 +22,6 @@ spec:
     remediation:
       retries: 3
   values:
-    # Chart defaults run 3 scaler replicas and an interceptor fleet of
-    # 3-50. Homelab pilot sizing: one of everything, interceptor allowed
-    # to burst to 3 under load.
     operator:
       replicas: 1
     scaler:

@@ -25,8 +25,6 @@ metadata:
   annotations:
     secret.reloader.stakater.com/reload: convertx
 spec:
-  # replicas is intentionally omitted: the KEDA ScaledObject in keda.yaml
-  # owns it (scale to zero when idle). Flux must not claim the field.
   strategy:
     type: Recreate
   selector:
@@ -74,8 +72,6 @@ metadata:
   name: convertx
   namespace: convertx
   annotations:
-    # Opt out of gatus auto-probing: this app scales to zero when idle, and a
-    # probe against a zero-scaled Service would page Pushover every interval.
     gatus.home-operations.com/enabled: "false"
 spec:
   selector:

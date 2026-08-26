@@ -14,8 +14,6 @@ spec:
     concurrency:
       targetValue: 10
   timeouts:
-    # Image processing runs long, and the pod is heavy (1Gi memory
-    # request), so give cold starts and responses generous budgets.
     request: 120s
     responseHeader: 90s
     readiness: 120s
