@@ -1,0 +1,40 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: keda
+  namespace: keda
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: keda
+      version: "2.20.2" # https://github.com/kedacore/charts/releases
+      sourceRef:
+        kind: HelmRepository
+        name: kedacore
+      interval: 1h
+  install:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  upgrade:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  values:
+    # Defaults request 100m/100Mi and limit 1 CPU/1000Mi per component
+    # (operator, metrics-server, webhooks). This cluster is memory-bound,
+    # so trim the limits; requests are left at chart defaults.
+    resources:
+      operator:
+        limits:
+          cpu: 500m
+          memory: 500Mi
+      metricServer:
+        limits:
+          cpu: 500m
+          memory: 500Mi
+      webhooks:
+        limits:
+          cpu: 500m
+          memory: 500Mi

@@ -11,7 +11,8 @@ metadata:
   labels:
     app.kubernetes.io/name: withoutbg
 spec:
-  replicas: 1
+  # replicas is intentionally omitted: the KEDA ScaledObject in keda.yaml
+  # owns it (scale to zero when idle). Flux must not claim the field.
   selector:
     matchLabels:
       app.kubernetes.io/name: withoutbg
@@ -40,9 +41,9 @@ metadata:
   name: withoutbg
   namespace: withoutbg
   annotations:
-    gatus.home-operations.com/endpoint: |
-      alerts:
-        - type: pushover
+    # Opt out of gatus auto-probing: this app scales to zero when idle, and a
+    # probe against a zero-scaled Service would page Pushover every interval.
+    gatus.home-operations.com/enabled: "false"
 spec:
   selector:
     app.kubernetes.io/name: withoutbg
