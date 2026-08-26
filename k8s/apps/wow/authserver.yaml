@@ -55,6 +55,12 @@ spec:
               value: "5"
             - name: AC_WRONG_PASS_LOGGING
               value: "1"
+            # ban the account, not the IP. every client arriving over the Pangolin
+            # tunnel is SNATed to newt's pod IP, so an IP ban would take the whole
+            # realm offline for all external players after five bad passwords from
+            # any one of them.
+            - name: AC_WRONG_PASS_BAN_TYPE
+              value: "1"
             - name: AC_TOTPMASTER_SECRET
               valueFrom:
                 secretKeyRef:
