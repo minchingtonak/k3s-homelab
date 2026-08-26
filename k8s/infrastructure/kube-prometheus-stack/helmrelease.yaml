@@ -65,9 +65,7 @@ spec:
     grafana:
       service:
         annotations:
-          gatus.home-operations.com/endpoint: |
-            alerts:
-              - type: pushover
+          gatus.home-operations.com/enabled: "false"
       ingress:
         enabled: false # exposed via IngressRoute instead
       initChownData:

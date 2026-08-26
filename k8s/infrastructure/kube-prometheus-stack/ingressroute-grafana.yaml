@@ -23,6 +23,7 @@ spec:
     - kind: Rule
       match: Host(`grafana.item.fyi`)
       services:
-        - name: kube-prometheus-stack-grafana
-          port: 80
+        - name: keda-add-ons-http-interceptor-proxy
+          namespace: keda
+          port: 8080
   tls: {}

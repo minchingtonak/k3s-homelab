@@ -23,7 +23,6 @@ metadata:
   labels:
     app.kubernetes.io/name: seerr
 spec:
-  replicas: 1
   # config is an RWO Longhorn volume; rolling updates would schedule the new
   # pod before the old one releases the volume, causing a Multi-Attach error.
   strategy:
@@ -46,6 +45,12 @@ spec:
           ports:
             - containerPort: 5055
               name: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 3
           env:
             - name: LOG_LEVEL
               value: "debug"
@@ -73,9 +78,7 @@ metadata:
   name: seerr
   namespace: seerr
   annotations:
-    gatus.home-operations.com/endpoint: |
-      alerts:
-        - type: pushover
+    gatus.home-operations.com/enabled: "false"
 spec:
   selector:
     app.kubernetes.io/name: seerr

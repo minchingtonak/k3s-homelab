@@ -87,7 +87,6 @@ metadata:
   labels:
     app.kubernetes.io/name: picard
 spec:
-  replicas: 1
   strategy:
     type: Recreate
   selector:
@@ -114,6 +113,12 @@ spec:
             - name: http
               containerPort: 5800
               protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 3
           volumeMounts:
             - name: config
               mountPath: /config
@@ -144,9 +149,7 @@ metadata:
   name: picard
   namespace: picard
   annotations:
-    gatus.home-operations.com/endpoint: |
-      alerts:
-        - type: pushover
+    gatus.home-operations.com/enabled: "false"
 spec:
   selector:
     app.kubernetes.io/name: picard
