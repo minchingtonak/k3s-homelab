@@ -99,7 +99,6 @@ metadata:
   labels:
     app.kubernetes.io/name: audiobookshelf
 spec:
-  replicas: 1
   strategy:
     type: Recreate
   selector:
@@ -119,6 +118,14 @@ spec:
           image: ghcr.io/advplyr/audiobookshelf:2.36.0@sha256:180acad33d69c99ed208676465d8edcb268fa46967735579a7810859885b1a8e
           ports:
             - containerPort: 80
+              name: http
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 3
           env:
             - name: TZ
               value: America/New_York
@@ -151,9 +158,7 @@ metadata:
   name: audiobookshelf
   namespace: audiobookshelf
   annotations:
-    gatus.home-operations.com/endpoint: |
-      alerts:
-        - type: pushover
+    gatus.home-operations.com/enabled: "false"
 spec:
   selector:
     app.kubernetes.io/name: audiobookshelf
