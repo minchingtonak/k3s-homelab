@@ -49,116 +49,116 @@ spec:
   triggers:
     - type: redis
       metadata:
-        address: dawarich-redis:6379
+        address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:highest_priority
         listLength: "1"
     - type: redis
       metadata:
-        address: dawarich-redis:6379
+        address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:data_migrations
         listLength: "1"
     - type: redis
       metadata:
-        address: dawarich-redis:6379
+        address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:points
         listLength: "1"
     - type: redis
       metadata:
-        address: dawarich-redis:6379
+        address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:default
         listLength: "1"
     - type: redis
       metadata:
-        address: dawarich-redis:6379
+        address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:mailers
         listLength: "1"
     - type: redis
       metadata:
-        address: dawarich-redis:6379
+        address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:families
         listLength: "1"
     - type: redis
       metadata:
-        address: dawarich-redis:6379
+        address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:imports
         listLength: "1"
     - type: redis
       metadata:
-        address: dawarich-redis:6379
+        address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:extractions
         listLength: "1"
     - type: redis
       metadata:
-        address: dawarich-redis:6379
+        address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:exports
         listLength: "1"
     - type: redis
       metadata:
-        address: dawarich-redis:6379
+        address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:tracks
         listLength: "1"
     - type: redis
       metadata:
-        address: dawarich-redis:6379
+        address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:stats
         listLength: "1"
     - type: redis
       metadata:
-        address: dawarich-redis:6379
+        address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:trips
         listLength: "1"
     - type: redis
       metadata:
-        address: dawarich-redis:6379
+        address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:reverse_geocoding
         listLength: "1"
     - type: redis
       metadata:
-        address: dawarich-redis:6379
+        address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:visit_suggesting
         listLength: "1"
     - type: redis
       metadata:
-        address: dawarich-redis:6379
+        address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:places
         listLength: "1"
     - type: redis
       metadata:
-        address: dawarich-redis:6379
+        address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:posters
         listLength: "1"
     - type: redis
       metadata:
-        address: dawarich-redis:6379
+        address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:app_version_checking
         listLength: "1"
     - type: redis
       metadata:
-        address: dawarich-redis:6379
+        address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:cache
         listLength: "1"
     - type: redis
       metadata:
-        address: dawarich-redis:6379
+        address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:archival
         listLength: "1"
     - type: redis
       metadata:
-        address: dawarich-redis:6379
+        address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:digests
         listLength: "1"
     - type: redis
       metadata:
-        address: dawarich-redis:6379
+        address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:low_priority
         listLength: "1"
     - type: redis
       metadata:
-        address: dawarich-redis:6379
+        address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: retry
         listLength: "1"
     - type: redis
       metadata:
-        address: dawarich-redis:6379
+        address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: schedule
         listLength: "1"
