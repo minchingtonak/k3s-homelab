@@ -46,6 +46,14 @@ request, wait for a human to merge, let Flux reconcile. Flux is the only writer.
    is not a fast-forward, stop and report it — do not merge, rebase, stash or
    force your way past it.
 
+   This clone is shared by concurrent agent sessions. Before branching, `git
+   status` must be empty; if it is not, or `ps aux` shows another shell working
+   in this repo, stop and coordinate instead of proceeding. A staged change
+   silently rides any branch switch and the next `git commit` sweeps it into
+   whatever that session is building; reverting a file you did not change
+   destroys the other session's work mid-flight. Never stage with `git add -A`
+   or `git add .` — name the exact paths you touched.
+
    This also matters because `AGENTS.md` — these instructions — arrives the
    same way. If you skip the pull you may be working from an outdated copy.
 2. Edit manifests under `k8s/`.
