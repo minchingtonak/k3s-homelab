@@ -51,114 +51,137 @@ spec:
       metadata:
         address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:highest_priority
+        databaseIndex: "1"
         listLength: "1"
     - type: redis
       metadata:
         address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:data_migrations
+        databaseIndex: "1"
         listLength: "1"
     - type: redis
       metadata:
         address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:points
+        databaseIndex: "1"
         listLength: "1"
     - type: redis
       metadata:
         address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:default
+        databaseIndex: "1"
         listLength: "1"
     - type: redis
       metadata:
         address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:mailers
+        databaseIndex: "1"
         listLength: "1"
     - type: redis
       metadata:
         address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:families
+        databaseIndex: "1"
         listLength: "1"
     - type: redis
       metadata:
         address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:imports
+        databaseIndex: "1"
         listLength: "1"
     - type: redis
       metadata:
         address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:extractions
+        databaseIndex: "1"
         listLength: "1"
     - type: redis
       metadata:
         address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:exports
+        databaseIndex: "1"
         listLength: "1"
     - type: redis
       metadata:
         address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:tracks
+        databaseIndex: "1"
         listLength: "1"
     - type: redis
       metadata:
         address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:stats
+        databaseIndex: "1"
         listLength: "1"
     - type: redis
       metadata:
         address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:trips
+        databaseIndex: "1"
         listLength: "1"
     - type: redis
       metadata:
         address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:reverse_geocoding
+        databaseIndex: "1"
         listLength: "1"
     - type: redis
       metadata:
         address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:visit_suggesting
+        databaseIndex: "1"
         listLength: "1"
     - type: redis
       metadata:
         address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:places
+        databaseIndex: "1"
         listLength: "1"
     - type: redis
       metadata:
         address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:posters
+        databaseIndex: "1"
         listLength: "1"
     - type: redis
       metadata:
         address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:app_version_checking
+        databaseIndex: "1"
         listLength: "1"
     - type: redis
       metadata:
         address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:cache
+        databaseIndex: "1"
         listLength: "1"
     - type: redis
       metadata:
         address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:archival
+        databaseIndex: "1"
         listLength: "1"
     - type: redis
       metadata:
         address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:digests
+        databaseIndex: "1"
         listLength: "1"
     - type: redis
       metadata:
         address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:low_priority
+        databaseIndex: "1"
         listLength: "1"
     - type: redis
       metadata:
         address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: retry
+        databaseIndex: "1"
         listLength: "1"
     - type: redis
       metadata:
         address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: schedule
+        databaseIndex: "1"
         listLength: "1"
