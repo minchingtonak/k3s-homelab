@@ -45,9 +45,6 @@ spec:
     - parameter: password
       name: audiomuse
       key: POSTGRES_PASSWORD
-    - parameter: userName
-      name: audiomuse
-      key: POSTGRES_USER
 ---
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
@@ -65,6 +62,7 @@ spec:
       metadata:
         host: audiomuse-postgres.audiomuse.svc.cluster.local
         port: "5432"
+        userName: audiomuse
         dbName: audiomuse
         sslmode: disable
         query: SELECT COUNT(*) FROM task_status WHERE status IN ('NEW', 'RUNNING')
