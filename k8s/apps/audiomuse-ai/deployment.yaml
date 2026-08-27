@@ -123,7 +123,6 @@ metadata:
   annotations:
     reloader.stakater.com/auto: "true"
 spec:
-  replicas: 1
   strategy:
     type: Recreate
   selector:
@@ -181,9 +180,7 @@ metadata:
   name: audiomuse
   namespace: audiomuse
   annotations:
-    gatus.home-operations.com/endpoint: |
-      alerts:
-        - type: pushover
+    gatus.home-operations.com/enabled: "false"
 spec:
   selector:
     app.kubernetes.io/name: audiomuse-flask
@@ -193,22 +190,15 @@ spec:
       name: http
 ---
 apiVersion: apps/v1
-kind: DaemonSet
+kind: Deployment
 metadata:
   name: audiomuse-worker
   namespace: audiomuse
   labels:
     app.kubernetes.io/name: audiomuse-worker
   annotations:
-    # watch both the referenced ConfigMap (audiomuse-config) and Secret (audiomuse)
-    # so env changes to either trigger a rollout — envFrom is only read at pod start.
     reloader.stakater.com/auto: "true"
 spec:
-  # DaemonSet: one worker pod per node so analysis fans out across the whole
-  # cluster's CPU; new nodes automatically get a worker. RollingUpdate replaces
-  # one pod at a time on changes (maxUnavailable defaults to 1).
-  updateStrategy:
-    type: RollingUpdate
   selector:
     matchLabels:
       app.kubernetes.io/name: audiomuse-worker

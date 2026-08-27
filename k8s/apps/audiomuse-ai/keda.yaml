@@ -1,0 +1,74 @@
+apiVersion: http.keda.sh/v1beta1
+kind: InterceptorRoute
+metadata:
+  name: audiomuse
+  namespace: audiomuse
+spec:
+  target:
+    service: audiomuse
+    port: 8000
+  rules:
+    - hosts:
+        - audiomuse.item.fyi
+  scalingMetric:
+    concurrency:
+      targetValue: 30
+  timeouts:
+    request: 120s
+    responseHeader: 60s
+    readiness: 90s
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: audiomuse-flask
+  namespace: audiomuse
+spec:
+  scaleTargetRef:
+    name: audiomuse-flask
+  minReplicaCount: 0
+  maxReplicaCount: 1
+  cooldownPeriod: 1800
+  triggers:
+    - type: external-push
+      metadata:
+        scalerAddress: keda-add-ons-http-external-scaler.keda:9090
+        interceptorRoute: audiomuse
+---
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: audiomuse-worker-queue
+  namespace: audiomuse
+spec:
+  secretTargetRef:
+    - parameter: password
+      name: audiomuse
+      key: POSTGRES_PASSWORD
+    - parameter: username
+      name: audiomuse
+      key: POSTGRES_USER
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: audiomuse-worker
+  namespace: audiomuse
+spec:
+  scaleTargetRef:
+    name: audiomuse-worker
+  minReplicaCount: 0
+  maxReplicaCount: 1
+  cooldownPeriod: 600
+  triggers:
+    - type: postgresql
+      metadata:
+        host: audiomuse-postgres.audiomuse.svc.cluster.local
+        port: "5432"
+        dbName: audiomuse
+        sslmode: disable
+        query: SELECT COUNT(*) FROM task_status WHERE status IN ('NEW', 'RUNNING')
+        targetQueryValue: "1"
+        activationTargetQueryValue: "1"
+      authenticationRef:
+        name: audiomuse-worker-queue
