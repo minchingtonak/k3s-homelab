@@ -1,0 +1,38 @@
+apiVersion: http.keda.sh/v1beta1
+kind: InterceptorRoute
+metadata:
+  name: homelable-mcp
+  namespace: homelable
+spec:
+  target:
+    service: homelable-mcp
+    port: 8001
+  rules:
+    - hosts:
+        - homelable.item.fyi
+      paths:
+        - value: /mcp
+  scalingMetric:
+    concurrency:
+      targetValue: 30
+  timeouts:
+    request: 120s
+    responseHeader: 60s
+    readiness: 90s
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: homelable-mcp
+  namespace: homelable
+spec:
+  scaleTargetRef:
+    name: homelable-mcp
+  minReplicaCount: 0
+  maxReplicaCount: 1
+  cooldownPeriod: 600
+  triggers:
+    - type: external-push
+      metadata:
+        scalerAddress: keda-add-ons-http-external-scaler.keda:9090
+        interceptorRoute: homelable-mcp

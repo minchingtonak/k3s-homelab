@@ -1,0 +1,32 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: homelable
+  namespace: homelable
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Homelable"
+    gethomepage.dev/description: "Infrastructure map"
+    gethomepage.dev/group: "infrastructure"
+    gethomepage.dev/icon: "mdi-lan"
+    gethomepage.dev/href: "https://homelable.item.fyi"
+    gethomepage.dev/siteMonitor: "http://homelable.homelable.svc.cluster.local"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=homelable-frontend"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    # mcp endpoint is authenticated by its own X-API-Key middleware, so it sits
+    # outside the app's oidc session. longer rule wins traefik's default priority.
+    - kind: Rule
+      match: Host(`homelable.item.fyi`) && PathPrefix(`/mcp`)
+      services:
+        - name: keda-add-ons-http-interceptor-proxy
+          namespace: keda
+          port: 8080
+    - kind: Rule
+      match: Host(`homelable.item.fyi`)
+      services:
+        - name: homelable
+          port: 80
+  tls: {}
