@@ -45,7 +45,7 @@ spec:
     - parameter: password
       name: audiomuse
       key: POSTGRES_PASSWORD
-    - parameter: username
+    - parameter: userName
       name: audiomuse
       key: POSTGRES_USER
 ---
