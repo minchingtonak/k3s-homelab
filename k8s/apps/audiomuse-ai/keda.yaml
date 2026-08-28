@@ -67,6 +67,5 @@ spec:
         sslmode: disable
         query: SELECT COUNT(*) FROM task_status WHERE status IN ('NEW', 'RUNNING')
         targetQueryValue: "1"
-        activationTargetQueryValue: "1"
       authenticationRef:
         name: audiomuse-worker-queue
