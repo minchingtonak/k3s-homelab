@@ -1,0 +1,149 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: sql-exporter
+  namespace: wow
+spec:
+  interval: 1h
+  url: https://burningalchemist.github.io/sql_exporter/
+---
+# Turns the realm database into Prometheus metrics. There is no AzerothCore
+# exporter — the built-in Metric.* options in worldserver.conf speak InfluxDB,
+# and standing that up beside an existing Prometheus to read one number is not
+# worth it. A database-agnostic SQL exporter is the smaller answer: the data
+# ("how many rows have online=1") is already a trivial query.
+#
+# Lives in the wow namespace rather than monitoring so it sits next to the
+# database it reads and the credentials it uses. Prometheus discovers it
+# anyway — kube-prometheus-stack runs with serviceMonitorSelectorNilUsesHelmValues
+# false, so ServiceMonitors are picked up from every namespace.
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: wow-sql-exporter
+  namespace: wow
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: sql-exporter
+      version: "0.18.8" # https://github.com/burningalchemist/sql_exporter/releases
+      sourceRef:
+        kind: HelmRepository
+        name: sql-exporter
+      interval: 1h
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  values:
+    fullnameOverride: wow-sql-exporter
+    # The DSN carries a password, so it comes from a Secret rather than from
+    # config below, which the chart renders into a plain ConfigMap.
+    #
+    # SETUP: sql-exporter-secret.sops.yaml ships with a REPLACE_ME password. The
+    # exporter needs SELECT on two schemas and nothing else, so give it its own
+    # user rather than root — root in a metrics pod would carry write access to
+    # the whole realm. Run once against wow-database:
+    #
+    #   CREATE USER 'wow_exporter'@'%' IDENTIFIED BY '<password>';
+    #   GRANT SELECT ON acore_characters.* TO 'wow_exporter'@'%';
+    #   GRANT SELECT ON acore_auth.*       TO 'wow_exporter'@'%';
+    #
+    # then put the same password in the secret:
+    #   sops k8s/apps/wow/sql-exporter-secret.sops.yaml
+    #
+    # The tcp(...) wrapper in the DSN is go-sql-driver syntax, not a URL
+    # authority; without it the host will not parse.
+    env:
+      SQLEXPORTER_TARGET_DSN:
+        from:
+          kind: Secret
+          name: wow-sql-exporter
+          key: SQLEXPORTER_TARGET_DSN
+    serviceMonitor:
+      enabled: true
+      interval: 30s
+    resources:
+      requests:
+        memory: 32Mi
+        cpu: 10m
+    config:
+      global:
+        scrape_timeout: 10s
+        scrape_timeout_offset: 500ms
+        min_interval: 0s
+        max_connections: 3
+        max_idle_connections: 3
+      target:
+        # data_source_name deliberately omitted — SQLEXPORTER_TARGET_DSN above
+        # supplies it. Setting both makes the config file win, which would put
+        # the password back in a ConfigMap.
+        collectors:
+          - wow
+      collectors:
+        - collector_name: wow
+          # The realm is polled, not pushed to, so there is no value in querying
+          # faster than the ServiceMonitor scrapes.
+          min_interval: 30s
+          metrics:
+            # `online` is set by the worldserver and cleared on logout. A pod
+            # killed mid-session leaves it set, so this can read high until
+            # those characters log in again — compare against the account gauge
+            # below, which is maintained separately, to spot it.
+            - metric_name: wow_players_online
+              type: gauge
+              help: "Characters currently online."
+              values: [online]
+              query: |
+                SELECT COUNT(*) AS online FROM acore_characters.characters WHERE online = 1
+            - metric_name: wow_accounts_online
+              type: gauge
+              help: "Accounts currently logged in."
+              values: [online]
+              query: |
+                SELECT COUNT(*) AS online FROM acore_auth.account WHERE online = 1
+            - metric_name: wow_characters_total
+              type: gauge
+              help: "Characters that exist on the realm."
+              values: [total]
+              query: |
+                SELECT COUNT(*) AS total FROM acore_characters.characters
+            - metric_name: wow_accounts_total
+              type: gauge
+              help: "Accounts that exist on the realm."
+              values: [total]
+              query: |
+                SELECT COUNT(*) AS total FROM acore_auth.account
+            # Class and race ids are not resolved to names: those live in the
+            # client's DBC files, not the database. The dashboard maps them.
+            - metric_name: wow_characters_by_class
+              type: gauge
+              help: "Characters by class id."
+              key_labels: [class]
+              values: [total]
+              query: |
+                SELECT class AS class, COUNT(*) AS total
+                FROM acore_characters.characters GROUP BY class
+            - metric_name: wow_characters_by_race
+              type: gauge
+              help: "Characters by race id."
+              key_labels: [race]
+              values: [total]
+              query: |
+                SELECT race AS race, COUNT(*) AS total
+                FROM acore_characters.characters GROUP BY race
+            - metric_name: wow_character_level_max
+              type: gauge
+              help: "Highest character level on the realm."
+              values: [level]
+              query: |
+                SELECT IFNULL(MAX(level), 0) AS level FROM acore_characters.characters
+            - metric_name: wow_playtime_seconds_total
+              type: gauge
+              help: "Summed played time across all characters, in seconds."
+              values: [seconds]
+              query: |
+                SELECT IFNULL(SUM(totaltime), 0) AS seconds FROM acore_characters.characters
