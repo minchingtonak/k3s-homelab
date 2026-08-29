@@ -113,8 +113,9 @@ kubectl -n wow logs -f deploy/wow-worldserver -c db-import
 What survives, and what does not:
 
 - **The `client-data` volume is untouched**, so there is no 2.7GB re-download. Only the database is rebuilt.
-- **The realmlist row heals itself.** db-import recreates it and the `realmlist` init container patches in
-  `wow.minch.zone`, `192.168.20.93` and the realm name on every boot.
+- **The realmlist row heals itself.** db-import recreates it and the `realmlist` init container patches
+  in `wow.minch.zone` (as both `address` and `localAddress`, with a `/32` mask so every client takes
+  the tunnel) and the realm name, on every boot.
 - **Accounts do not survive.** Recreate them afterwards (`scripts/wow-accounts.py`).
 
 ## Verifying
