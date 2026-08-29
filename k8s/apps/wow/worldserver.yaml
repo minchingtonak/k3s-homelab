@@ -103,11 +103,8 @@ spec:
               mountPath: /azerothcore/env/dist/logs
               subPath: logs
         # the authserver hands `address` to clients outside localAddress/localSubnetMask
-        # and `localAddress` to those inside it. 192.168.20.93 + /16 covers both the
-        # cluster LAN (192.168.20.x) and the client LAN (192.168.10.x), so local play
-        # goes direct to the MetalLB IP and only internet clients traverse the Pangolin
-        # tunnel. there is a single `port` column shared by both paths, so the tunnel
-        # must publish the worldserver on 8085 rather than remapping it.
+        # and `localAddress` to those inside it. Both are deliberately set to the same
+        # hostname with a /32 mask, which sends every client through the tunnel
         - name: realmlist
           image: docker.io/library/mysql:8.4@sha256:b3b90af2a6552ae30c266fdb7d5dd55f3afb72404bb78d37fe8a23eb857fd3fb
           env:
@@ -125,7 +122,7 @@ spec:
               echo waiting for schema; sleep 5; done &&
               mysql -h wow-database.wow.svc.cluster.local -uroot -p"$MYSQL_ROOT_PASSWORD"
               -e "UPDATE acore_auth.realmlist SET address='wow.minch.zone',
-              localAddress='192.168.20.93', localSubnetMask='255.255.0.0',
+              localAddress='wow.minch.zone', localSubnetMask='255.255.255.255',
               name='Stalley of Vardew', flag=0 WHERE id=1"
               && mysql -h wow-database.wow.svc.cluster.local -uroot -p"$MYSQL_ROOT_PASSWORD"
               -e "SELECT id,name,address,localAddress,localSubnetMask,port,flag,gamebuild
@@ -181,6 +178,9 @@ spec:
             # restrict character names to basic Latin: stops homoglyph names that
             # impersonate GMs or other players.
             - name: AC_STRICT_PLAYER_NAMES
+              value: "1"
+            # see the note in authserver.yaml
+            - name: AC_NETWORK_ENABLE_PROXY_PROTOCOL
               value: "1"
             # ---- sizing for a small realm ----
             - name: AC_MAIL_DELIVERY_DELAY
@@ -329,13 +329,8 @@ metadata:
   name: wow-worldserver
   namespace: wow
   annotations:
-    metallb.io/loadBalancerIPs: 192.168.20.93
     gatus.home-operations.com/enabled: "false"
 spec:
-  # see the note on wow-authserver: the worldserver logs and bans client IPs too,
-  # so it needs the real source address rather than a SNATed pod-network one
-  externalTrafficPolicy: Local
-  type: LoadBalancer
   selector:
     app.kubernetes.io/name: wow-worldserver
   ports:

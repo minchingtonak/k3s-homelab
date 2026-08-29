@@ -51,24 +51,29 @@ Non-obvious bits:
 
 ## Rotate a password (SOAP)
 
-SOAP is on `192.168.20.93:7878` and does **not** echo to the container logs, so it's the safe path
-for anything containing a password. Requires gmlevel 3.
+Prefer `scripts/wow-accounts.py passwd <name>`. It computes the SRP6 salt/verifier locally and writes
+them straight to `acore_auth.account`, so the plaintext never leaves your machine.
+
+SOAP remains a second path and also does **not** echo to the container logs. It is no longer exposed
+on the LAN (the services are ClusterIP now), so reach it over a port-forward. Requires gmlevel 3.
 
 ```bash
+kubectl -n wow port-forward svc/wow-worldserver 7878:7878 &
 read -rs "NEWPW?new password: "; echo
 curl -s -u "<admin>:<admin-password>" -H 'Content-Type: text/xml' \
   -d "<?xml version=\"1.0\" encoding=\"utf-8\"?><SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:ns1=\"urn:AC\"><SOAP-ENV:Body><ns1:executeCommand><command>account set password <name> $NEWPW $NEWPW</command></ns1:executeCommand></SOAP-ENV:Body></SOAP-ENV:Envelope>" \
-  http://192.168.20.93:7878/ | grep -o '<result>.*</result>'
+  http://127.0.0.1:7878/ | grep -o '<result>.*</result>'
 unset NEWPW
 ```
 
 The password is interpolated raw into an XML body, so `&`, `<` and `>` will be mangled — stick to
-alphanumerics, or set the SRP6 salt/verifier directly in `acore_auth.account` instead.
+alphanumerics, or use the script above.
 
 ## Realm settings
 
-- The client's `realmlist.wtf` must point at the **authserver** (`192.168.20.92`), not the
-  worldserver.
+- The client's `realmlist.wtf` must point at the **authserver** (`wow.minch.zone`), not the
+  worldserver. Both services are ClusterIP — the tunnel is the only route in, so there is no LAN
+  address to use instead.
 - The realm's own name and client-facing address live in `acore_auth.realmlist`, maintained by the
   `realmlist` init container. Change them there so the value survives a pod restart — editing the DB
   by hand gets overwritten on the next boot.
@@ -106,17 +111,22 @@ strips comments while doing so, so edits made while it's running are silently lo
 **3. Point it at the authserver.** Two separate files carry the address and both take effect:
 
 ```
-Data/<locale>/realmlist.wtf     ->  set realmlist 192.168.20.92
-WTF/Config.wtf                  ->  SET realmList "192.168.20.92"
+Data/<locale>/realmlist.wtf     ->  set realmlist wow.minch.zone
+WTF/Config.wtf                  ->  SET realmList "wow.minch.zone"
 ```
 
 `<locale>` is the client's locale directory, e.g. `Data/enUS/`. Many installs read the locale copy and
 ignore a `realmlist.wtf` at the install root, so edit the locale one — or both.
 
-The address here is the **authserver** (`192.168.20.92:3724`). The worldserver (`192.168.20.93:8085`)
-is never configured client-side: the authserver hands it to the client after login, from
+The address here is the **authserver** (`wow.minch.zone:3724`). The worldserver (`:8085`) is never
+configured client-side: the authserver hands it to the client after login, from
 `acore_auth.realmlist`. If login succeeds but the client hangs on "Logging in to game server", that
 row is wrong — not the client.
+
+This is the same address for LAN and internet players. `wow.minch.zone` resolves to the public
+Pangolin edge with no split horizon, and the realmlist `localAddress`/`localSubnetMask` split that
+would have routed local play direct to MetalLB is deliberately collapsed to a `/32` — see the note on
+the `realmlist` init container in `worldserver.yaml`.
 
 **4. Log in and verify server-side.** A successful login is the only thing that sets `last_login`:
 
