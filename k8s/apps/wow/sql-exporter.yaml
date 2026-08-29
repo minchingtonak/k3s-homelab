@@ -43,16 +43,17 @@ spec:
     # The DSN carries a password, so it comes from a Secret rather than from
     # config below, which the chart renders into a plain ConfigMap.
     #
-    # SETUP: sql-exporter-secret.sops.yaml ships with a REPLACE_ME password. The
-    # exporter needs SELECT on two schemas and nothing else, so give it its own
-    # user rather than root — root in a metrics pod would carry write access to
-    # the whole realm. Run once against wow-database:
+    # The DSN authenticates as `wow_exporter`, a dedicated read-only MySQL user
+    # rather than root — root in a metrics pod would carry write access to the
+    # whole realm for the sake of eight COUNT queries. It already exists on
+    # wow-database; it was created with, and is verified to hold, exactly:
     #
-    #   CREATE USER 'wow_exporter'@'%' IDENTIFIED BY '<password>';
     #   GRANT SELECT ON acore_characters.* TO 'wow_exporter'@'%';
     #   GRANT SELECT ON acore_auth.*       TO 'wow_exporter'@'%';
     #
-    # then put the same password in the secret:
+    # UPDATE and reads of mysql.* are both denied. If the user is ever lost (a
+    # wipe does not drop it — that only drops the acore_* schemas), recreate it
+    # and re-encrypt the DSN with:
     #   sops k8s/apps/wow/sql-exporter-secret.sops.yaml
     #
     # The tcp(...) wrapper in the DSN is go-sql-driver syntax, not a URL
