@@ -139,6 +139,8 @@ spec:
           # the admin console was unreachable
           stdin: true
           env:
+            - name: TZ
+              value: America/New_York
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -181,6 +183,8 @@ spec:
             - name: AC_STRICT_PLAYER_NAMES
               value: "1"
             # ---- sizing for a small realm ----
+            - name: AC_MAIL_DELIVERY_DELAY
+              value: "0"
             # a guild charter needs this many signatures. the stock 9 means
             # every other player on a ten-person realm has to be online and
             # sign, which blocks guilds outright until the server fills up.
