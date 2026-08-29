@@ -169,14 +169,58 @@ spec:
                 SELECT COUNT(*) AS total FROM acore_auth.account WHERE last_login IS NULL
             # Per-character series. Cardinality is one series per character, which
             # is nothing at this realm's size but would not suit a public server.
+            # Carries the whole per-character row: the value is playtime, the
+            # labels are everything the roster table shows. `online` flips as
+            # players come and go, which mints a second series per character;
+            # the idle one goes stale and Prometheus drops it.
             - metric_name: wow_character_playtime_seconds
               type: gauge
               help: "Played time per character, in seconds."
-              key_labels: [character_name]
+              key_labels: [character_name, account, class, race, level, online]
               values: [seconds]
               query: |
-                SELECT name AS character_name, totaltime AS seconds
-                FROM acore_characters.characters
+                SELECT c.name AS character_name, a.username AS account,
+                  c.level AS level, c.totaltime AS seconds,
+                  IF(c.online = 1, 'yes', 'no') AS online,
+                  CASE c.class
+                    WHEN 1 THEN 'Warrior' WHEN 2 THEN 'Paladin' WHEN 3 THEN 'Hunter'
+                    WHEN 4 THEN 'Rogue'   WHEN 5 THEN 'Priest'  WHEN 6 THEN 'Death Knight'
+                    WHEN 7 THEN 'Shaman'  WHEN 8 THEN 'Mage'    WHEN 9 THEN 'Warlock'
+                    WHEN 11 THEN 'Druid'  ELSE CONCAT('class-', c.class) END AS class,
+                  CASE c.race
+                    WHEN 1 THEN 'Human'  WHEN 2 THEN 'Orc'   WHEN 3 THEN 'Dwarf'
+                    WHEN 4 THEN 'Night Elf' WHEN 5 THEN 'Undead' WHEN 6 THEN 'Tauren'
+                    WHEN 7 THEN 'Gnome'  WHEN 8 THEN 'Troll' WHEN 10 THEN 'Blood Elf'
+                    WHEN 11 THEN 'Draenei' ELSE CONCAT('race-', c.race) END AS race
+                FROM acore_characters.characters c
+                JOIN acore_auth.account a ON a.id = c.account
+            # Per-account pair, joined on `account` in the dashboard table. Split
+            # because one Prometheus metric carries one value, and both the login
+            # time and the character count are worth showing.
+            #
+            # Never-logged-in accounts report 0 rather than being omitted, so they
+            # still appear in the roster — Grafana renders epoch 0 as 1970.
+            - metric_name: wow_account_last_login_timestamp_seconds
+              type: gauge
+              help: "Unix time of an account's last successful login, 0 if never."
+              key_labels: [account, gmlevel, expansion]
+              values: [ts]
+              query: |
+                SELECT a.username AS account, IFNULL(aa.gmlevel, 0) AS gmlevel,
+                  a.expansion AS expansion,
+                  IFNULL(UNIX_TIMESTAMP(a.last_login), 0) AS ts
+                FROM acore_auth.account a
+                LEFT JOIN acore_auth.account_access aa ON aa.id = a.id
+            - metric_name: wow_account_characters
+              type: gauge
+              help: "Characters belonging to an account."
+              key_labels: [account]
+              values: [total]
+              query: |
+                SELECT a.username AS account, COUNT(c.guid) AS total
+                FROM acore_auth.account a
+                LEFT JOIN acore_characters.characters c ON c.account = a.id
+                GROUP BY a.username
             # 1 per online character; the labels carry what `online` prints. No
             # rows and therefore no series when the realm is empty, which is why
             # wow_players_online exists separately as a plain count.
