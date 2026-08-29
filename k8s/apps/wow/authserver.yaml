@@ -44,6 +44,8 @@ spec:
           image: acore/ac-wotlk-authserver:master@sha256:f34dfcfeca736b55fb2fd74602127ee03fb85f2a92e5a16fcd31e38ff0fe0125
           tty: true
           env:
+            - name: TZ
+              value: America/New_York
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
