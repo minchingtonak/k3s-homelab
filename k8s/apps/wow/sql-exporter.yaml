@@ -113,23 +113,34 @@ spec:
               values: [total]
               query: |
                 SELECT COUNT(*) AS total FROM acore_auth.account
-            # Class and race ids are not resolved to names: those live in the
-            # client's DBC files, not the database. The dashboard maps them.
+            # Names are resolved here rather than by Grafana value mappings.
+            # They live in the client's DBC files, so either way it is a static
+            # lookup — doing it in SQL keeps it in one place and makes the metric
+            # self-describing, so PromQL and alerts read wow_characters_by_class
+            # {class="Hunter"} instead of {class="3"}.
             - metric_name: wow_characters_by_class
               type: gauge
-              help: "Characters by class id."
+              help: "Characters by class."
               key_labels: [class]
               values: [total]
               query: |
-                SELECT class AS class, COUNT(*) AS total
+                SELECT COUNT(*) AS total, CASE class
+                  WHEN 1 THEN 'Warrior' WHEN 2 THEN 'Paladin' WHEN 3 THEN 'Hunter'
+                  WHEN 4 THEN 'Rogue'   WHEN 5 THEN 'Priest'  WHEN 6 THEN 'Death Knight'
+                  WHEN 7 THEN 'Shaman'  WHEN 8 THEN 'Mage'    WHEN 9 THEN 'Warlock'
+                  WHEN 11 THEN 'Druid'  ELSE CONCAT('class-', class) END AS class
                 FROM acore_characters.characters GROUP BY class
             - metric_name: wow_characters_by_race
               type: gauge
-              help: "Characters by race id."
+              help: "Characters by race."
               key_labels: [race]
               values: [total]
               query: |
-                SELECT race AS race, COUNT(*) AS total
+                SELECT COUNT(*) AS total, CASE race
+                  WHEN 1 THEN 'Human'  WHEN 2 THEN 'Orc'   WHEN 3 THEN 'Dwarf'
+                  WHEN 4 THEN 'Night Elf' WHEN 5 THEN 'Undead' WHEN 6 THEN 'Tauren'
+                  WHEN 7 THEN 'Gnome'  WHEN 8 THEN 'Troll' WHEN 10 THEN 'Blood Elf'
+                  WHEN 11 THEN 'Draenei' ELSE CONCAT('race-', race) END AS race
                 FROM acore_characters.characters GROUP BY race
             - metric_name: wow_character_level_max
               type: gauge

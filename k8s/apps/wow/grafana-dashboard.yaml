@@ -2,9 +2,14 @@
 # watches every namespace for ConfigMaps labelled grafana_dashboard=1 — so
 # this can live beside the realm rather than in the monitoring namespace.
 #
-# Class and race ids are mapped to names by Grafana value mappings rather
-# than in SQL: the names come from the client's DBC files and are not in the
-# database, so the exporter can only emit the raw ids.
+# The bar charts read a Prometheus *table*-format instant query and set
+# options.xField to the label column. Without xField, Grafana picks the
+# first string field it finds — which is the metric name, so every bar ends
+# up in one row labelled wow_characters_by_class. Class and race arrive from
+# the exporter already resolved to names (see the CASE expressions in
+# sql-exporter.yaml), so no Grafana value mappings are involved; when they
+# were, they applied to the count axis instead and rendered "Warrior" as an
+# x-axis tick between 0.8 and 1.2.
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -466,7 +471,6 @@ data:
                 "uid": "prometheus"
               },
               "expr": "wow_characters_by_class",
-              "legendFormat": "{{class}}",
               "refId": "A",
               "instant": true,
               "format": "table"
@@ -475,53 +479,7 @@ data:
           "fieldConfig": {
             "defaults": {
               "unit": "none",
-              "mappings": [
-                {
-                  "type": "value",
-                  "options": {
-                    "1": {
-                      "text": "Warrior",
-                      "index": 0
-                    },
-                    "2": {
-                      "text": "Paladin",
-                      "index": 1
-                    },
-                    "3": {
-                      "text": "Hunter",
-                      "index": 2
-                    },
-                    "4": {
-                      "text": "Rogue",
-                      "index": 3
-                    },
-                    "5": {
-                      "text": "Priest",
-                      "index": 4
-                    },
-                    "6": {
-                      "text": "Death Knight",
-                      "index": 5
-                    },
-                    "7": {
-                      "text": "Shaman",
-                      "index": 6
-                    },
-                    "8": {
-                      "text": "Mage",
-                      "index": 7
-                    },
-                    "9": {
-                      "text": "Warlock",
-                      "index": 8
-                    },
-                    "11": {
-                      "text": "Druid",
-                      "index": 9
-                    }
-                  }
-                }
-              ],
+              "min": 0,
               "custom": {
                 "fillOpacity": 80,
                 "lineWidth": 1
@@ -530,14 +488,39 @@ data:
             "overrides": []
           },
           "options": {
+            "xField": "class",
             "orientation": "horizontal",
             "showValue": "always",
             "legend": {
               "showLegend": false
             },
             "xTickLabelRotation": 0,
-            "stacking": "none"
-          }
+            "stacking": "none",
+            "barWidth": 0.8,
+            "groupWidth": 0.7
+          },
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true,
+                  "__name__": true,
+                  "job": true,
+                  "instance": true,
+                  "namespace": true,
+                  "pod": true,
+                  "container": true,
+                  "endpoint": true,
+                  "service": true
+                },
+                "renameByName": {
+                  "Value": "characters"
+                },
+                "indexByName": {}
+              }
+            }
+          ]
         },
         {
           "type": "barchart",
@@ -560,7 +543,6 @@ data:
                 "uid": "prometheus"
               },
               "expr": "wow_characters_by_race",
-              "legendFormat": "{{race}}",
               "refId": "A",
               "instant": true,
               "format": "table"
@@ -569,53 +551,7 @@ data:
           "fieldConfig": {
             "defaults": {
               "unit": "none",
-              "mappings": [
-                {
-                  "type": "value",
-                  "options": {
-                    "1": {
-                      "text": "Human",
-                      "index": 0
-                    },
-                    "2": {
-                      "text": "Orc",
-                      "index": 1
-                    },
-                    "3": {
-                      "text": "Dwarf",
-                      "index": 2
-                    },
-                    "4": {
-                      "text": "Night Elf",
-                      "index": 3
-                    },
-                    "5": {
-                      "text": "Undead",
-                      "index": 4
-                    },
-                    "6": {
-                      "text": "Tauren",
-                      "index": 5
-                    },
-                    "7": {
-                      "text": "Gnome",
-                      "index": 6
-                    },
-                    "8": {
-                      "text": "Troll",
-                      "index": 7
-                    },
-                    "10": {
-                      "text": "Blood Elf",
-                      "index": 8
-                    },
-                    "11": {
-                      "text": "Draenei",
-                      "index": 9
-                    }
-                  }
-                }
-              ],
+              "min": 0,
               "custom": {
                 "fillOpacity": 80,
                 "lineWidth": 1
@@ -624,14 +560,39 @@ data:
             "overrides": []
           },
           "options": {
+            "xField": "race",
             "orientation": "horizontal",
             "showValue": "always",
             "legend": {
               "showLegend": false
             },
             "xTickLabelRotation": 0,
-            "stacking": "none"
-          }
+            "stacking": "none",
+            "barWidth": 0.8,
+            "groupWidth": 0.7
+          },
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true,
+                  "__name__": true,
+                  "job": true,
+                  "instance": true,
+                  "namespace": true,
+                  "pod": true,
+                  "container": true,
+                  "endpoint": true,
+                  "service": true
+                },
+                "renameByName": {
+                  "Value": "characters"
+                },
+                "indexByName": {}
+              }
+            }
+          ]
         }
       ]
     }
