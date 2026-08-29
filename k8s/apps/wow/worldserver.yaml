@@ -82,8 +82,7 @@ spec:
               until mysqladmin ping -h wow-database.wow.svc.cluster.local -uroot -p"$MYSQL_ROOT_PASSWORD" --silent; do
               echo waiting for mysql; sleep 5; done
         - name: db-import
-          # same image & behaviour as the upstream ac-db-import container
-          image: acore/ac-wotlk-db-import:master@sha256:97523baa99ee5bfeb8d173b5057011807804c320b5a78702924ed202359a3234
+          image: forgejo.item.fyi/akmin/ac-wotlk-db-import:20260829@sha256:9501642e3543ae126956ac16317914816ff43a926fdba5719133165e57181aa1
           env:
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
@@ -133,7 +132,7 @@ spec:
               FROM acore_auth.realmlist"
       containers:
         - name: worldserver
-          image: acore/ac-wotlk-worldserver:master@sha256:eb9ce9b8c9b0d9f37670cc75c30f608dc7ccd9613dd17ac8536d2ad911516f1e
+          image: forgejo.item.fyi/akmin/ac-wotlk-worldserver:20260829@sha256:e6ac91f88e768229119adaad13ca34af3377b764897693819cb61bf0682ce139
           # stdin without a tty: worldserver's CLI reads newline-terminated
           # commands from stdin, and `kubectl attach` refuses to attach to a
           # container with tty:true ("tty and stderr cannot both be true"), so
@@ -181,6 +180,118 @@ spec:
             # impersonate GMs or other players.
             - name: AC_STRICT_PLAYER_NAMES
               value: "1"
+            # ---- sizing for a small realm ----
+            # a guild charter needs this many signatures. the stock 9 means
+            # every other player on a ten-person realm has to be online and
+            # sign, which blocks guilds outright until the server fills up.
+            - name: AC_MIN_PETITION_SIGNS
+              value: "0"
+            # converting to a raid group to run autobalance-scaled raid content
+            # otherwise stops ordinary quests completing
+            - name: AC_QUESTS_IGNORE_RAID
+              value: "1"
+            # enter raid instances without a raid group. mostly matters for
+            # soloing old content — a two-person party can already convert to a
+            # raid — but it costs nothing here.
+            - name: AC_INSTANCE_IGNORE_RAID
+              value: "1"
+            # let alliance and horde group and talk. a ten-player realm split
+            # across two factions that cannot party is not much of a realm.
+            # AllowTwoSide.Accounts is already 1 by default, so both factions
+            # can live on one account. Channel/Guild/Auction/Calendar have their
+            # own flags and stay at the stock 0.
+            - name: AC_ALLOW_TWO_SIDE_INTERACTION_GROUP
+              value: "1"
+            - name: AC_ALLOW_TWO_SIDE_INTERACTION_CHAT
+              value: "1"
+            # stock value is 1, and the worldserver already burns ~840m of CPU
+            # with an empty realm because that single map-update thread spins.
+            # the nodes have 16 cores; the request below is raised to match.
+            - name: AC_MAP_UPDATE_THREADS
+              value: "4"
+            # ---- module configuration ----
+            # most of what follows restates the modules' own defaults. that is
+            # deliberate: it puts the knobs worth knowing about in git rather
+            # than only in the .conf files on the Longhorn volume, where they
+            # are invisible to review. env beats file in
+            # ConfigMgr::GetValueDefault, so what is written here is what runs
+            # regardless of what an older image left on the volume. key names
+            # come from the config option via IniKeyToEnvVarKey — see
+            # docs/wow-modules.md for how the mangling works. anything not
+            # listed here runs at its compiled default.
+            #
+            # mod-aoe-loot — all defaults.
+            - name: AC_AOELOOT_ENABLE
+              value: "1"
+            # loot everything in range in one interaction while grouped
+            - name: AC_AOELOOT_GROUP
+              value: "1"
+            - name: AC_AOELOOT_MESSAGE
+              value: "1"
+            # yards to sweep for lootable corpses. module accepts 5.0-100.0
+            - name: AC_AOELOOT_RANGE
+              value: "55.0"
+            # mod-autobalance — defaults except the two REWARD_SCALING toggles.
+            # scaling runs in both directions: a 5-man with more than five
+            # players scales *up*, not just down.
+            - name: AC_AUTO_BALANCE_ENABLE_GLOBAL
+              value: "1"
+            # floor, not target: "if fewer than this number of players enter the
+            # instance, scale to the specified value". 1 means no artificial
+            # floor, so content tracks whoever is actually present. raise it to
+            # stop small groups trivialising an instance.
+            - name: AC_AUTO_BALANCE_MIN_PLAYERS
+              value: "1"
+            - name: AC_AUTO_BALANCE_MIN_PLAYERS_HEROIC
+              value: "1"
+            - name: AC_AUTO_BALANCE_MIN_PLAYERS_RAID
+              value: "1"
+            - name: AC_AUTO_BALANCE_MIN_PLAYERS_RAID_HEROIC
+              value: "1"
+            # scale creature *levels* toward the party as well as their stats,
+            # so a mixed-level group can run content together
+            - name: AC_AUTO_BALANCE_LEVEL_SCALING
+              value: "1"
+            - name: AC_AUTO_BALANCE_LEVEL_SCALING_METHOD
+              value: dynamic
+            # announce rescaling in chat as players join and leave the instance
+            - name: AC_AUTO_BALANCE_PLAYER_CHANGE_NOTIFY
+              value: "1"
+            # "dynamic" cuts rewards in proportion to how far a creature was
+            # scaled down, on top of the party split the core already applies.
+            # METHOD is global: it governs both XP and money, so the two are
+            # steered by their individual toggles below rather than by it.
+            - name: AC_AUTO_BALANCE_REWARD_SCALING_METHOD
+              value: dynamic
+            # XP scaling is off
+            - name: AC_AUTO_BALANCE_REWARD_SCALING_XP
+              value: "0"
+            # inert while the toggle above is 0 — the module skips the whole XP
+            # hook rather than multiplying by this. kept so the knob stays
+            # visible if XP scaling is ever turned back on.
+            - name: AC_AUTO_BALANCE_REWARD_SCALING_XP_MODIFIER
+              value: "1.0"
+            # money scaling is off too, matching XP. with both off the whole
+            # "dynamic" reward path is bypassed and kills pay out as if the
+            # creature had never been scaled — the core's own party split still
+            # applies.
+            - name: AC_AUTO_BALANCE_REWARD_SCALING_MONEY
+              value: "0"
+            # inert while the toggle above is 0, same as the XP modifier
+            - name: AC_AUTO_BALANCE_REWARD_SCALING_MONEY_MODIFIER
+              value: "1.0"
+            # mod-transmog — the two below are the only non-default values in
+            # this block. everything else (quality restrictions, free cost,
+            # collection system, 10 sets) runs at the module's defaults.
+            #
+            # default 0 blocks transmogging into lower-tier gear, which rules
+            # out most of the point of the module — wearing classic sets at 80.
+            - name: AC_TRANSMOGRIFICATION_ALLOW_LOWER_TIERS
+              value: "1"
+            # default 0 requires matching armour class; 1 lets a plate wearer
+            # take a cloth appearance
+            - name: AC_TRANSMOGRIFICATION_ALLOW_MIXED_ARMOR_TYPES
+              value: "1"
           ports:
             - name: world
               containerPort: 8085
@@ -202,7 +313,7 @@ spec:
           resources:
             requests:
               memory: 4096Mi
-              cpu: "1"
+              cpu: "2"
       volumes:
         - name: data
           persistentVolumeClaim:
