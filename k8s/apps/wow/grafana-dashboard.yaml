@@ -1056,7 +1056,7 @@ data:
               "refId": "A",
               "instant": true,
               "format": "table",
-              "expr": "max by (account, gmlevel, expansion) (wow_account_last_login_timestamp_seconds)"
+              "expr": "max by (account, gmlevel, expansion) (wow_account_last_login_timestamp_seconds) * 1000"
             },
             {
               "datasource": {
@@ -1145,6 +1145,20 @@ data:
                   {
                     "id": "unit",
                     "value": "dateTimeAsIso"
+                  },
+                  {
+                    "id": "mappings",
+                    "value": [
+                      {
+                        "type": "value",
+                        "options": {
+                          "0": {
+                            "text": "never",
+                            "index": 0
+                          }
+                        }
+                      }
+                    ]
                   }
                 ]
               }
