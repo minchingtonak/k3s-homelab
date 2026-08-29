@@ -38,32 +38,30 @@ spec:
   upgrade:
     remediation:
       retries: 3
+  # The secret is deliberately NOT named wow-sql-exporter: the chart creates a
+  # Secret of that name for its own rendered config, and a collision hands Helm
+  # ownership of ours as well.
+  valuesFrom:
+    - kind: Secret
+      name: wow-sql-exporter-dsn
+      valuesKey: dsn
+      targetPath: config.target.data_source_name
   values:
     fullnameOverride: wow-sql-exporter
-    # The DSN carries a password, so it comes from a Secret rather than from
-    # config below, which the chart renders into a plain ConfigMap.
-    #
     # The DSN authenticates as `wow_exporter`, a dedicated read-only MySQL user
     # rather than root — root in a metrics pod would carry write access to the
-    # whole realm for the sake of eight COUNT queries. It already exists on
-    # wow-database; it was created with, and is verified to hold, exactly:
+    # whole realm for the sake of eight COUNT queries. It exists on wow-database
+    # holding exactly:
     #
     #   GRANT SELECT ON acore_characters.* TO 'wow_exporter'@'%';
     #   GRANT SELECT ON acore_auth.*       TO 'wow_exporter'@'%';
     #
-    # UPDATE and reads of mysql.* are both denied. If the user is ever lost (a
-    # wipe does not drop it — that only drops the acore_* schemas), recreate it
-    # and re-encrypt the DSN with:
-    #   sops k8s/apps/wow/sql-exporter-secret.sops.yaml
+    # UPDATE and reads of mysql.* are both denied. A realm wipe does not drop the
+    # user — that only drops the acore_* schemas. To rotate:
+    #   sops k8s/apps/wow/sql-exporter-dsn.sops.yaml
     #
     # The tcp(...) wrapper in the DSN is go-sql-driver syntax, not a URL
     # authority; without it the host will not parse.
-    env:
-      SQLEXPORTER_TARGET_DSN:
-        from:
-          kind: Secret
-          name: wow-sql-exporter
-          key: SQLEXPORTER_TARGET_DSN
     serviceMonitor:
       enabled: true
       interval: 30s
@@ -79,9 +77,7 @@ spec:
         max_connections: 3
         max_idle_connections: 3
       target:
-        # data_source_name deliberately omitted — SQLEXPORTER_TARGET_DSN above
-        # supplies it. Setting both makes the config file win, which would put
-        # the password back in a ConfigMap.
+        # data_source_name is absent on purpose — valuesFrom above supplies it.
         collectors:
           - wow
       collectors:

@@ -6,6 +6,6 @@ resources:
   - database.yaml
   - worldserver.yaml
   - authserver.yaml
-  - sql-exporter-secret.sops.yaml
+  - sql-exporter-dsn.sops.yaml
   - sql-exporter.yaml
   - grafana-dashboard.yaml

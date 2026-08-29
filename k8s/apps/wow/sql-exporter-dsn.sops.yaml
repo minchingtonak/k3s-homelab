@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: wow-sql-exporter-dsn
+  namespace: wow
+type: Opaque
+stringData:
+  dsn: ENC[AES256_GCM,data:BFrkopjauA8YfrsC4fAC/uMPDqoKmDHihPB4C7FzXYeX9ySRV6mpJYVWEmPj+9ZwtiXrjUYxRVSJlybRozPX57xMOTNTCGi51Znr/VSrTw9XrpeV5m+VU4DozqVxWDeMYGj2VlixNgXQ35LdBQ==,iv:M1dDwbM9Fi86XH/8Z46hujuqife8c9UZuhDjngt+3iw=,tag:/Vf4d3QzSRaPsUQG11JfVg==,type:str]
+sops:
+  age:
+    - enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBoVFJ3c0l1UzlVeFJNZFZi
+        QXg3SzF1YmszWDlaTUR4UisweitOTWQweVJBCnZRYmM0UWpqRlFsR2tkdkIyVG43
+        SEVYWjd0bUZpa29Oczg3SGhsTytUbzAKLS0tIEN5Q2FMM0FManVTVThmTlRXL0N4
+        dVRVb1hhZWZNdVRnczI3Z1VzWGFzdXMKR4W/TNtNSkiwF5sqpS0AM3EX+uRAh5Ix
+        7vOoVpiVKFglhPEVMHedlaFu+/wiiQG1UIhPgYdwvX9h6il9fGH2eQ==
+        -----END AGE ENCRYPTED FILE-----
+      recipient: age1whm4tsad6ku4u4sdhnaa54tklt8hd9fzvelwem86pxfs9hzk0pjskru2jj
+    - enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBXTU1XNEVGWHV6UDFZWjBv
+        c2czeHlsNTI3b3Z1eStOS2MyS3ErNG53ZzBBCjdPRDAvY01JYXFRMFBpZnNiWGVO
+        UHd6bXllSWZFcW1OUHU4RnFPUlZTVE0KLS0tIGJDemRBYlVpZGpwWHZpc2h6eHJI
+        bGVTU3paVksycFhXQ21IUTJWODR2aTgKTPFbg1Mph5cqbNHOBlBiF/UhNJjrb9mc
+        yBuF8koohzEbD/+yqQ2S2MhTxfakmt6E198QhqKi4COGVNL6mPt9SA==
+        -----END AGE ENCRYPTED FILE-----
+      recipient: age1z4st65rqt3su5rzqw2jvps3d9fjpaygvs263qh9c734m26xedfvsdfzvm7
+  encrypted_regex: ^(data|stringData)$
+  lastmodified: "2026-08-29T14:34:29Z"
+  mac: ENC[AES256_GCM,data:gZUQdKwZArY2OCYa/Me+HdhCMpIjxv/OBcYh7To0uKWlT61BsUY0fnHlS4lhfaAWEFV4ohWZEQT2XdSd7I+V6NrM6gZaHRdxKrjrCaVA8Y1n3r/cOIUtvkEbB8zbBBemR0/2IDn8s+C0sNff5rgBduS/YVYqLpqaqmcNpQKIId0=,iv:3KP8I12dJKKv8caMgUpCjA+zbYO+faeXM284pUcbx7g=,tag:QDDL7tMmKTcplVvKkc1Mfw==,type:str]
+  version: 3.13.3
