@@ -85,10 +85,6 @@ spec:
           # faster than the ServiceMonitor scrapes.
           min_interval: 30s
           metrics:
-            # `online` is set by the worldserver and cleared on logout. A pod
-            # killed mid-session leaves it set, so this can read high until
-            # those characters log in again — compare against the account gauge
-            # below, which is maintained separately, to spot it.
             - metric_name: wow_players_online
               type: gauge
               help: "Characters currently online."
@@ -154,3 +150,54 @@ spec:
               values: [seconds]
               query: |
                 SELECT IFNULL(SUM(totaltime), 0) AS seconds FROM acore_characters.characters
+            - metric_name: wow_accounts_active
+              type: gauge
+              help: "Accounts with a successful login inside the period."
+              key_labels: [period]
+              values: [total]
+              query: |
+                SELECT '24h' AS period, COUNT(*) AS total FROM acore_auth.account
+                  WHERE last_login > NOW() - INTERVAL 1 DAY
+                UNION ALL
+                SELECT '7d' AS period, COUNT(*) AS total FROM acore_auth.account
+                  WHERE last_login > NOW() - INTERVAL 7 DAY
+            - metric_name: wow_accounts_never_logged_in
+              type: gauge
+              help: "Accounts created but never used — handed out and unclaimed."
+              values: [total]
+              query: |
+                SELECT COUNT(*) AS total FROM acore_auth.account WHERE last_login IS NULL
+            # Per-character series. Cardinality is one series per character, which
+            # is nothing at this realm's size but would not suit a public server.
+            - metric_name: wow_character_playtime_seconds
+              type: gauge
+              help: "Played time per character, in seconds."
+              key_labels: [character_name]
+              values: [seconds]
+              query: |
+                SELECT name AS character_name, totaltime AS seconds
+                FROM acore_characters.characters
+            # 1 per online character; the labels carry what `online` prints. No
+            # rows and therefore no series when the realm is empty, which is why
+            # wow_players_online exists separately as a plain count.
+            - metric_name: wow_character_online
+              type: gauge
+              help: "1 while the character is online."
+              key_labels: [character_name, account, class, race, level]
+              values: [online]
+              query: |
+                SELECT 1 AS online, c.name AS character_name, a.username AS account,
+                  c.level AS level,
+                  CASE c.class
+                    WHEN 1 THEN 'Warrior' WHEN 2 THEN 'Paladin' WHEN 3 THEN 'Hunter'
+                    WHEN 4 THEN 'Rogue'   WHEN 5 THEN 'Priest'  WHEN 6 THEN 'Death Knight'
+                    WHEN 7 THEN 'Shaman'  WHEN 8 THEN 'Mage'    WHEN 9 THEN 'Warlock'
+                    WHEN 11 THEN 'Druid'  ELSE CONCAT('class-', c.class) END AS class,
+                  CASE c.race
+                    WHEN 1 THEN 'Human'  WHEN 2 THEN 'Orc'   WHEN 3 THEN 'Dwarf'
+                    WHEN 4 THEN 'Night Elf' WHEN 5 THEN 'Undead' WHEN 6 THEN 'Tauren'
+                    WHEN 7 THEN 'Gnome'  WHEN 8 THEN 'Troll' WHEN 10 THEN 'Blood Elf'
+                    WHEN 11 THEN 'Draenei' ELSE CONCAT('race-', c.race) END AS race
+                FROM acore_characters.characters c
+                JOIN acore_auth.account a ON a.id = c.account
+                WHERE c.online = 1

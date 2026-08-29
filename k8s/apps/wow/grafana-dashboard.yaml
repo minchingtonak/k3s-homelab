@@ -2,14 +2,16 @@
 # watches every namespace for ConfigMaps labelled grafana_dashboard=1 — so
 # this can live beside the realm rather than in the monitoring namespace.
 #
-# The bar charts read a Prometheus *table*-format instant query and set
-# options.xField to the label column. Without xField, Grafana picks the
-# first string field it finds — which is the metric name, so every bar ends
-# up in one row labelled wow_characters_by_class. Class and race arrive from
-# the exporter already resolved to names (see the CASE expressions in
-# sql-exporter.yaml), so no Grafana value mappings are involved; when they
-# were, they applied to the count axis instead and rendered "Warrior" as an
-# x-axis tick between 0.8 and 1.2.
+# Panels mirror `scripts/wow-accounts.py stats` and `online` so the dashboard
+# and the CLI report the same things.
+#
+# Bar charts and the table read Prometheus *table*-format instant queries and
+# set options.xField (or an organize transform) to the label column. Without
+# that, Grafana picks the first string field it finds — which is the metric
+# name, so every bar collapses into one row. Class and race arrive already
+# resolved to names from the exporter's CASE expressions, so no Grafana value
+# mappings are involved; when they were, they applied to the count axis and
+# rendered "Warrior" as an x-axis tick between 0.8 and 1.2.
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -342,7 +344,7 @@ data:
           },
           "gridPos": {
             "h": 4,
-            "w": 6,
+            "w": 4,
             "x": 0,
             "y": 12
           },
@@ -401,8 +403,8 @@ data:
           },
           "gridPos": {
             "h": 4,
-            "w": 6,
-            "x": 6,
+            "w": 5,
+            "x": 4,
             "y": 12
           },
           "targets": [
@@ -451,6 +453,266 @@ data:
           }
         },
         {
+          "type": "stat",
+          "title": "Active 24h",
+          "id": 11,
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 5,
+            "x": 9,
+            "y": 12
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "wow_accounts_active{period=\"24h\"}",
+              "refId": "A",
+              "instant": true
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "mappings": [],
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "text",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto",
+            "colorMode": "none",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto"
+          }
+        },
+        {
+          "type": "stat",
+          "title": "Active 7d",
+          "id": 12,
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 5,
+            "x": 14,
+            "y": 12
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "wow_accounts_active{period=\"7d\"}",
+              "refId": "A",
+              "instant": true
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "mappings": [],
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "text",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto",
+            "colorMode": "none",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto"
+          }
+        },
+        {
+          "type": "stat",
+          "title": "Never logged in",
+          "id": 13,
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 5,
+            "x": 19,
+            "y": 12
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "wow_accounts_never_logged_in",
+              "refId": "A",
+              "instant": true
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "mappings": [],
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "text",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto",
+            "colorMode": "none",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto"
+          }
+        },
+        {
+          "type": "table",
+          "title": "Online now",
+          "id": 10,
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 16
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "wow_character_online",
+              "refId": "A",
+              "instant": true,
+              "format": "table"
+            }
+          ],
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true,
+                  "__name__": true,
+                  "job": true,
+                  "instance": true,
+                  "namespace": true,
+                  "pod": true,
+                  "container": true,
+                  "endpoint": true,
+                  "service": true,
+                  "Value": true
+                },
+                "renameByName": {
+                  "character_name": "Character",
+                  "account": "Account",
+                  "class": "Class",
+                  "race": "Race",
+                  "level": "Level"
+                },
+                "indexByName": {
+                  "character_name": 0,
+                  "level": 1,
+                  "class": 2,
+                  "race": 3,
+                  "account": 4
+                }
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                }
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "showHeader": true,
+            "footer": {
+              "show": false
+            },
+            "sortBy": [
+              {
+                "displayName": "Level",
+                "desc": true
+              }
+            ]
+          }
+        },
+        {
           "type": "barchart",
           "title": "Characters by class",
           "id": 8,
@@ -460,9 +722,9 @@ data:
           },
           "gridPos": {
             "h": 8,
-            "w": 12,
+            "w": 8,
             "x": 0,
-            "y": 16
+            "y": 24
           },
           "targets": [
             {
@@ -474,6 +736,28 @@ data:
               "refId": "A",
               "instant": true,
               "format": "table"
+            }
+          ],
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true,
+                  "__name__": true,
+                  "job": true,
+                  "instance": true,
+                  "namespace": true,
+                  "pod": true,
+                  "container": true,
+                  "endpoint": true,
+                  "service": true
+                },
+                "renameByName": {
+                  "Value": "characters"
+                },
+                "indexByName": {}
+              }
             }
           ],
           "fieldConfig": {
@@ -498,7 +782,34 @@ data:
             "stacking": "none",
             "barWidth": 0.8,
             "groupWidth": 0.7
+          }
+        },
+        {
+          "type": "barchart",
+          "title": "Characters by race",
+          "id": 9,
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
           },
+          "gridPos": {
+            "h": 8,
+            "w": 8,
+            "x": 8,
+            "y": 24
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "wow_characters_by_race",
+              "refId": "A",
+              "instant": true,
+              "format": "table"
+            }
+          ],
           "transformations": [
             {
               "id": "organize",
@@ -519,33 +830,6 @@ data:
                 },
                 "indexByName": {}
               }
-            }
-          ]
-        },
-        {
-          "type": "barchart",
-          "title": "Characters by race",
-          "id": 9,
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "gridPos": {
-            "h": 8,
-            "w": 12,
-            "x": 12,
-            "y": 16
-          },
-          "targets": [
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "prometheus"
-              },
-              "expr": "wow_characters_by_race",
-              "refId": "A",
-              "instant": true,
-              "format": "table"
             }
           ],
           "fieldConfig": {
@@ -570,7 +854,34 @@ data:
             "stacking": "none",
             "barWidth": 0.8,
             "groupWidth": 0.7
+          }
+        },
+        {
+          "type": "barchart",
+          "title": "Most played",
+          "id": 14,
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
           },
+          "gridPos": {
+            "h": 8,
+            "w": 8,
+            "x": 16,
+            "y": 24
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "topk(5, wow_character_playtime_seconds)",
+              "refId": "A",
+              "instant": true,
+              "format": "table"
+            }
+          ],
           "transformations": [
             {
               "id": "organize",
@@ -592,7 +903,30 @@ data:
                 "indexByName": {}
               }
             }
-          ]
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "min": 0,
+              "custom": {
+                "fillOpacity": 80,
+                "lineWidth": 1
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "xField": "character_name",
+            "orientation": "horizontal",
+            "showValue": "always",
+            "legend": {
+              "showLegend": false
+            },
+            "xTickLabelRotation": 0,
+            "stacking": "none",
+            "barWidth": 0.8,
+            "groupWidth": 0.7
+          }
         }
       ]
     }
