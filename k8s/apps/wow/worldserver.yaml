@@ -181,7 +181,7 @@ spec:
               value: "1"
             # see the note in authserver.yaml
             - name: AC_NETWORK_ENABLE_PROXY_PROTOCOL
-              value: "1"
+              value: "0"
             # ---- sizing for a small realm ----
             - name: AC_MAIL_DELIVERY_DELAY
               value: "0"

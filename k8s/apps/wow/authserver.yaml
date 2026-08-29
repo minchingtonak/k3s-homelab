@@ -55,7 +55,6 @@ spec:
               value: "5"
             - name: AC_WRONG_PASS_LOGGING
               value: "1"
-            # TODO make below 0 (ip ban)
             # ban the account, not the IP. every client arriving over the Pangolin
             # tunnel is SNATed to newt's pod IP, so an IP ban would take the whole
             # realm offline for all external players after five bad passwords from
@@ -64,9 +63,23 @@ spec:
               value: "1"
             # every client reaches this server through the newt tunnel, so the
             # socket's peer address is newt's pod IP for everyone. PROXY protocol
-            # v2 restores the real client address.
+            # v2 would restore the real client address, and both sides support
+            # it — but it does not work through a Pangolin *tunnelled* TCP
+            # resource. Measured 2026-08-29:
+            #
+            #   pangolin proxy protocol ON  -> the edge accepts the client socket
+            #     but never asks newt to dial the backend. no connection reaches
+            #     this pod at all; newt's connection table shows no dial.
+            #   pangolin proxy protocol OFF -> traffic arrives normally, and this
+            #     server drops it with "received bad PROXY Protocol v2 signature
+            #     for 10.42.1.44" because it is still expecting a preamble.
+            #
+            # So the two halves cannot both be on, and 0 is the only working
+            # combination. Re-test after a Pangolin upgrade; if the edge learns to
+            # forward, flip this and the worldserver's Network.EnableProxyProtocol
+            # back to 1 in the same window as the Pangolin checkboxes.
             - name: AC_ENABLE_PROXY_PROTOCOL
-              value: "1"
+              value: "0"
             - name: AC_TOTPMASTER_SECRET
               valueFrom:
                 secretKeyRef:
