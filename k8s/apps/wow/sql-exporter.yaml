@@ -60,8 +60,7 @@ spec:
     # user — that only drops the acore_* schemas. To rotate:
     #   sops k8s/apps/wow/sql-exporter-dsn.sops.yaml
     #
-    # The tcp(...) wrapper in the DSN is go-sql-driver syntax, not a URL
-    # authority; without it the host will not parse.
+    # The DSN is a plain URL — mysql://user:pass@host:port/dbname
     serviceMonitor:
       enabled: true
       interval: 30s
