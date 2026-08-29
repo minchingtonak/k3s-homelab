@@ -1181,7 +1181,7 @@ data:
           "id": 20,
           "type": "geomap",
           "title": "Player positions",
-          "description": "Online characters on the continent maps. Yards to lon/lat is computed in the exporter and matches the tile projection in the wow-map-assets repo; freshness is bounded by AC_PLAYER_SAVE_INTERVAL (60s).",
+          "description": "Online characters on the continent maps. Positions refresh with each character save (once a minute).",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -1251,13 +1251,13 @@ data:
               "options": {
                 "filters": [
                   {
+                    "fieldName": "Continent",
                     "config": {
-                      "id": "string",
+                      "id": "regex",
                       "options": {
                         "value": "^$continent$"
                       }
                     },
-                    "fieldName": "Continent",
                     "operator": "regex"
                   }
                 ],
@@ -1337,7 +1337,7 @@ data:
           "id": 21,
           "type": "table",
           "title": "Players by zone",
-          "description": "Online characters grouped by current zone, from the same save that feeds the map.",
+          "description": "Online characters grouped by current zone.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -1380,7 +1380,7 @@ data:
                 },
                 "renameByName": {
                   "zone": "Zone",
-                  "Value": "Seconds"
+                  "Value": "Online"
                 }
               }
             }
