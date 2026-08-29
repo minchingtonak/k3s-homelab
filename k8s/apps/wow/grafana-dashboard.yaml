@@ -5,6 +5,12 @@
 # Panels mirror `scripts/wow-accounts.py stats` and `online` so the dashboard
 # and the CLI report the same things.
 #
+# Every query is wrapped in max() / max by (...). A bare metric name resolves
+# to one series per exporter pod that has run inside the retention window, so
+# each restart adds a duplicate line to every graph and a duplicate row to
+# every table. max collapses them to the single replica's value; sum would
+# double-count during a rollout when two pods briefly overlap.
+#
 # Bar charts and the table read Prometheus *table*-format instant queries and
 # set options.xField (or an organize transform) to the label column. Without
 # that, Grafana picks the first string field it finds — which is the metric
@@ -58,7 +64,7 @@ data:
                 "type": "prometheus",
                 "uid": "prometheus"
               },
-              "expr": "wow_players_online",
+              "expr": "max(wow_players_online)",
               "refId": "A",
               "instant": true
             }
@@ -117,7 +123,7 @@ data:
                 "type": "prometheus",
                 "uid": "prometheus"
               },
-              "expr": "wow_accounts_online",
+              "expr": "max(wow_accounts_online)",
               "refId": "A",
               "instant": true
             }
@@ -176,7 +182,7 @@ data:
                 "type": "prometheus",
                 "uid": "prometheus"
               },
-              "expr": "wow_characters_total",
+              "expr": "max(wow_characters_total)",
               "refId": "A",
               "instant": true
             }
@@ -235,7 +241,7 @@ data:
                 "type": "prometheus",
                 "uid": "prometheus"
               },
-              "expr": "wow_accounts_total",
+              "expr": "max(wow_accounts_total)",
               "refId": "A",
               "instant": true
             }
@@ -294,7 +300,7 @@ data:
                 "type": "prometheus",
                 "uid": "prometheus"
               },
-              "expr": "wow_players_online",
+              "expr": "max(wow_players_online)",
               "legendFormat": "characters",
               "refId": "A"
             },
@@ -303,7 +309,7 @@ data:
                 "type": "prometheus",
                 "uid": "prometheus"
               },
-              "expr": "wow_accounts_online",
+              "expr": "max(wow_accounts_online)",
               "legendFormat": "accounts",
               "refId": "B"
             }
@@ -354,7 +360,7 @@ data:
                 "type": "prometheus",
                 "uid": "prometheus"
               },
-              "expr": "wow_character_level_max",
+              "expr": "max(wow_character_level_max)",
               "refId": "A",
               "instant": true
             }
@@ -413,7 +419,7 @@ data:
                 "type": "prometheus",
                 "uid": "prometheus"
               },
-              "expr": "wow_playtime_seconds_total",
+              "expr": "max(wow_playtime_seconds_total)",
               "refId": "A",
               "instant": true
             }
@@ -472,7 +478,7 @@ data:
                 "type": "prometheus",
                 "uid": "prometheus"
               },
-              "expr": "wow_accounts_active{period=\"24h\"}",
+              "expr": "max(wow_accounts_active{period=\"24h\"})",
               "refId": "A",
               "instant": true
             }
@@ -531,7 +537,7 @@ data:
                 "type": "prometheus",
                 "uid": "prometheus"
               },
-              "expr": "wow_accounts_active{period=\"7d\"}",
+              "expr": "max(wow_accounts_active{period=\"7d\"})",
               "refId": "A",
               "instant": true
             }
@@ -590,7 +596,7 @@ data:
                 "type": "prometheus",
                 "uid": "prometheus"
               },
-              "expr": "wow_accounts_never_logged_in",
+              "expr": "max(wow_accounts_never_logged_in)",
               "refId": "A",
               "instant": true
             }
@@ -649,7 +655,7 @@ data:
                 "type": "prometheus",
                 "uid": "prometheus"
               },
-              "expr": "wow_character_online",
+              "expr": "max by (character_name, account, class, race, level) (wow_character_online)",
               "refId": "A",
               "instant": true,
               "format": "table"
@@ -732,7 +738,7 @@ data:
                 "type": "prometheus",
                 "uid": "prometheus"
               },
-              "expr": "wow_characters_by_class",
+              "expr": "max by (class) (wow_characters_by_class)",
               "refId": "A",
               "instant": true,
               "format": "table"
@@ -804,7 +810,7 @@ data:
                 "type": "prometheus",
                 "uid": "prometheus"
               },
-              "expr": "wow_characters_by_race",
+              "expr": "max by (race) (wow_characters_by_race)",
               "refId": "A",
               "instant": true,
               "format": "table"
@@ -876,7 +882,7 @@ data:
                 "type": "prometheus",
                 "uid": "prometheus"
               },
-              "expr": "topk(5, wow_character_playtime_seconds)",
+              "expr": "topk(5, max by (character_name) (wow_character_playtime_seconds))",
               "refId": "A",
               "instant": true,
               "format": "table"
