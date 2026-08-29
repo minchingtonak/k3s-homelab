@@ -245,3 +245,116 @@ spec:
                 FROM acore_characters.characters c
                 JOIN acore_auth.account a ON a.id = c.account
                 WHERE c.online = 1
+            # Map positions for the dashboard's Player positions panel. The yards
+            # to fake-lon/lat projection and the map tiles in assets/wow-maps
+            # come from one math, ported from azerothcore/playermap — see
+            # assets/wow-maps/README.md. Two metrics rather than one with a
+            # coord label so the dashboard joins on character_name and reads
+            # lon/lat straight off the joined frame, no pivot transform.
+            # Freshness is bounded by PlayerSaveInterval (60s here, 15min stock).
+            - metric_name: wow_character_position_lon
+              type: gauge
+              help: "Map longitude of an online character."
+              key_labels: [character_name, continent]
+              values: [lon]
+              query: |
+                SELECT c.name AS character_name,
+                  CASE
+                    WHEN c.map IN (0, 1, 609) THEN 'Azeroth'
+                    WHEN c.map = 571 THEN 'Northrend'
+                    WHEN c.map = 530 AND NOT (c.position_y < -1000 AND c.position_y > -10000 AND c.position_x > 5000)
+                                      AND NOT (c.position_y < -7000 AND c.position_x < 0) THEN 'Outland'
+                    ELSE 'Azeroth'
+                  END AS continent,
+                  CASE
+                    WHEN c.map = 0 THEN (752 - ROUND(c.position_y * 0.025140)) / 966.0 * 26.393442623
+                    WHEN c.map = 1 THEN (194 - ROUND(c.position_y * 0.025140)) / 966.0 * 26.393442623
+                    WHEN c.map = 609 THEN (896 - ROUND((c.position_y + 5662) * 0.025140)) / 966.0 * 26.393442623
+                    WHEN c.map = 571 THEN (505 - ROUND(c.position_y * 0.050085)) / 966.0 * 26.393442623
+                    WHEN c.map = 530 AND c.position_y < -1000 AND c.position_y > -10000 AND c.position_x > 5000
+                      THEN (858 - ROUND((c.position_y + 6357) * 0.025140)) / 966.0 * 26.393442623
+                    WHEN c.map = 530 AND c.position_y < -7000 AND c.position_x < 0
+                      THEN (103 - ROUND((c.position_y + 13931) * 0.025140)) / 966.0 * 26.393442623
+                    ELSE (684 - ROUND((c.position_y - 1265) * 0.051446)) / 966.0 * 27.798561151
+                  END AS lon
+                FROM acore_characters.characters c
+                WHERE c.online = 1
+            # The other half of the position pair; the dashboard joins the two
+            # on character_name. Carries no continent label — one copy between
+            # the pair is enough, and a duplicate would collide in the join.
+            - metric_name: wow_character_position_lat
+              type: gauge
+              help: "Map latitude of an online character."
+              key_labels: [character_name]
+              values: [lat]
+              query: |
+                SELECT c.name AS character_name,
+                  CASE
+                    WHEN c.map = 0 THEN 10 - (291 - ROUND(c.position_x * 0.025140)) / 732.0 * 20
+                    WHEN c.map = 1 THEN 10 - (398 - ROUND(c.position_x * 0.025140)) / 732.0 * 20
+                    WHEN c.map = 609 THEN 10 - (232 - ROUND((c.position_x - 2355) * 0.025140)) / 732.0 * 20
+                    WHEN c.map = 571 THEN 10 - (642 - ROUND(c.position_x * 0.050085)) / 732.0 * 20
+                    WHEN c.map = 530 AND c.position_y < -1000 AND c.position_y > -10000 AND c.position_x > 5000
+                      THEN 10 - (84 - ROUND((c.position_x - 10349) * 0.025140)) / 732.0 * 20
+                    WHEN c.map = 530 AND c.position_y < -7000 AND c.position_x < 0
+                      THEN 10 - (261 - ROUND((c.position_x + 3961) * 0.025140)) / 732.0 * 20
+                    ELSE 10 - (229 - ROUND((c.position_x - 3070) * 0.051446)) / 695.0 * 20
+                  END AS lat
+                FROM acore_characters.characters c
+                WHERE c.online = 1
+            # Zone IDs of online characters, resolved to names for the same
+            # reason class and race are: the dashboard reads them directly.
+            - metric_name: wow_character_zone
+              type: gauge
+              help: "Online characters currently in the zone."
+              key_labels: [zone]
+              values: [online]
+              query: |
+                SELECT COUNT(*) AS online, CASE c.zone
+                  WHEN 1 THEN 'Dun Morogh' WHEN 3 THEN 'Badlands' WHEN 4 THEN 'Blasted Lands'
+                  WHEN 8 THEN 'Swamp of Sorrows' WHEN 9 THEN 'Stranglethorn Vale'
+                  WHEN 10 THEN 'Darkshore' WHEN 11 THEN 'Wetlands' WHEN 12 THEN 'Elwynn Forest'
+                  WHEN 14 THEN 'Durotar' WHEN 15 THEN 'Dustwallow Marsh' WHEN 16 THEN 'Azshara'
+                  WHEN 17 THEN 'The Barrens' WHEN 33 THEN 'Stranglethorn Vale'
+                  WHEN 36 THEN 'Alterac Mountains' WHEN 38 THEN 'Loch Modan'
+                  WHEN 40 THEN 'Westfall' WHEN 41 THEN 'Deadwind Pass' WHEN 44 THEN 'Redridge Mountains'
+                  WHEN 45 THEN 'Arathi Highlands' WHEN 46 THEN 'Burning Steppes'
+                  WHEN 47 THEN 'The Hinterlands' WHEN 51 THEN 'Searing Gorge'
+                  WHEN 65 THEN 'Dragonblight' WHEN 66 THEN 'Zul\'Drak' WHEN 67 THEN 'Storm Peaks'
+                  WHEN 85 THEN 'Tirisfal Glades' WHEN 130 THEN 'Silverpine Forest'
+                  WHEN 139 THEN 'Eastern Plaguelands' WHEN 141 THEN 'Teldrassil'
+                  WHEN 148 THEN 'Ysera\'s Terrace' WHEN 215 THEN 'Mulgore'
+                  WHEN 267 THEN 'Hilsbrad Foothills' WHEN 331 THEN 'Ashenvale'
+                  WHEN 357 THEN 'Feralas' WHEN 361 THEN 'Felwood'
+                  WHEN 400 THEN 'Thousand Needles' WHEN 405 THEN 'Desolace'
+                  WHEN 406 THEN 'Stonetalon Mountains' WHEN 440 THEN 'Tanaris'
+                  WHEN 490 THEN 'Un\'Goro Crater' WHEN 493 THEN 'Moonglade'
+                  WHEN 495 THEN 'Howling Fjord' WHEN 497 THEN 'Borean Tundra'
+                  WHEN 498 THEN 'Sholazar Basin' WHEN 501 THEN 'Crystalsong Forest'
+                  WHEN 502 THEN 'Zul\'Drak' WHEN 528 THEN 'Duskwood'
+                  WHEN 618 THEN 'Winterspring' WHEN 718 THEN 'The Exodar'
+                  WHEN 719 THEN 'Shadowmoon Valley' WHEN 720 THEN 'Zangarmarsh'
+                  WHEN 721 THEN 'Blade\'s Edge Mountains' WHEN 722 THEN 'Nagrand'
+                  WHEN 723 THEN 'Terokkar Forest' WHEN 724 THEN 'Netherstorm'
+                  WHEN 796 THEN 'Hellfire Peninsula' WHEN 876 THEN 'Borean Tundra'
+                  WHEN 976 THEN 'Grizzly Hills' WHEN 1056 THEN 'Naxxramas'
+                  WHEN 1196 THEN 'Utgarde Keep' WHEN 1279 THEN 'Icecrown'
+                  WHEN 1296 THEN 'Sholazar Basin' WHEN 1336 THEN 'Nagrand'
+                  WHEN 1497 THEN 'Undercity' WHEN 1519 THEN 'Stormwind City'
+                  WHEN 1537 THEN 'Ironforge' WHEN 1637 THEN 'Orgrimmar'
+                  WHEN 1638 THEN 'Thunder Bluff' WHEN 1657 THEN 'Darnassus'
+                  WHEN 1753 THEN 'Eversong Woods' WHEN 1763 THEN 'Tranquillien'
+                  WHEN 1779 THEN 'Silvermoon City' WHEN 2100 THEN 'Icecrown Citadel'
+                  WHEN 2817 THEN 'Crystalsong Forest' WHEN 3523 THEN 'Borean Tundra'
+                  WHEN 3524 THEN 'Borean Tundra' WHEN 3525 THEN 'Borean Tundra'
+                  WHEN 3537 THEN 'Borean Tundra' WHEN 3711 THEN 'Sholazar Basin'
+                  WHEN 3713 THEN 'Dragonblight' WHEN 3714 THEN 'Grizzly Hills'
+                  WHEN 3715 THEN 'Howling Fjord' WHEN 3716 THEN 'Icecrown'
+                  WHEN 3717 THEN 'Storm Peaks' WHEN 3718 THEN 'Zul\'Drak'
+                  WHEN 3959 THEN 'Dalaran' WHEN 4019 THEN 'Dalaran'
+                  WHEN 4100 THEN 'Icecrown Citadel' WHEN 4197 THEN 'Wintergrasp'
+                  WHEN 4411 THEN 'Isle of Conquest' WHEN 4710 THEN 'The Storm Peaks'
+                  ELSE CONCAT('zone-', c.zone) END AS zone
+                FROM acore_characters.characters c
+                WHERE c.online = 1
+                GROUP BY c.zone
