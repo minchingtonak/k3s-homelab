@@ -213,6 +213,13 @@ spec:
             # the nodes have 16 cores; the request below is raised to match.
             - name: AC_MAP_UPDATE_THREADS
               value: "4"
+            # stock is 900000 (15 minutes): an online character's position lands
+            # in the characters table only when it is saved, so the dashboard's
+            # player-position map would show 15-minute-old dots. 60s keeps the
+            # map near-live at the cost of a small UPDATE per online player per
+            # minute. not reloadable at runtime — takes effect on pod restart.
+            - name: AC_PLAYER_SAVE_INTERVAL
+              value: "60000"
             # ---- module configuration ----
             # most of what follows restates the modules' own defaults. that is
             # deliberate: it puts the knobs worth knowing about in git rather

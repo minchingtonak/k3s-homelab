@@ -1176,6 +1176,250 @@ data:
               }
             ]
           }
+        },
+        {
+          "id": 20,
+          "type": "geomap",
+          "title": "Player positions",
+          "description": "Online characters on the continent maps. Yards to lon/lat is computed in the exporter and matches the tile projection in the wow-map-assets repo; freshness is bounded by AC_PLAYER_SAVE_INTERVAL (60s).",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "gridPos": {
+            "h": 14,
+            "w": 16,
+            "x": 0,
+            "y": 40
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "max by (character_name, continent) (wow_character_position_lon{continent=~\"$continent\"})",
+              "refId": "A",
+              "instant": true,
+              "format": "table"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "max by (character_name) (wow_character_position_lat)",
+              "refId": "B",
+              "instant": true,
+              "format": "table"
+            }
+          ],
+          "transformations": [
+            {
+              "id": "joinByField",
+              "options": {
+                "byField": "character_name",
+                "mode": "outer"
+              }
+            },
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true,
+                  "Time 1": true,
+                  "Time 2": true,
+                  "__name__": true,
+                  "job": true,
+                  "instance": true,
+                  "namespace": true,
+                  "pod": true,
+                  "container": true,
+                  "endpoint": true,
+                  "service": true
+                },
+                "renameByName": {
+                  "character_name": "Character",
+                  "continent": "Continent",
+                  "wow_character_position_lon": "lon",
+                  "wow_character_position_lat": "lat"
+                }
+              }
+            },
+            {
+              "id": "filterByValue",
+              "options": {
+                "filters": [
+                  {
+                    "config": {
+                      "id": "string",
+                      "options": {
+                        "value": "^$continent$"
+                      }
+                    },
+                    "fieldName": "Continent",
+                    "operator": "regex"
+                  }
+                ],
+                "match": "all",
+                "type": "include"
+              }
+            }
+          ],
+          "options": {
+            "basemap": {
+              "type": "xyz",
+              "name": "wow-tiles",
+              "config": {
+                "url": "https://raw.githubusercontent.com/minchingtonak/k3s-homelab/main/assets/wow-maps/tiles/$continent/{z}/{x}/{y}.jpg",
+                "attribution": "Map images: azerothcore/playermap"
+              }
+            },
+            "controls": {
+              "mouseWheelZoom": true,
+              "showAttribution": true,
+              "showZoom": true
+            },
+            "view": {
+              "id": "coords",
+              "lat": 0,
+              "lon": 13,
+              "zoom": 4
+            },
+            "layers": [
+              {
+                "type": "markers",
+                "name": "players",
+                "tooltip": true,
+                "location": {
+                  "mode": "coords",
+                  "longitude": "lon",
+                  "latitude": "lat",
+                  "gazetteer": "",
+                  "node": ""
+                },
+                "config": {
+                  "style": {
+                    "color": {
+                      "mode": "fixed",
+                      "fixed": "dark-green"
+                    },
+                    "opacity": 0.7,
+                    "size": {
+                      "mode": "fixed",
+                      "fixed": 5
+                    },
+                    "symbol": {
+                      "mode": "fixed",
+                      "fixed": "img/icons/marker/circle.svg"
+                    },
+                    "text": {
+                      "mode": "field",
+                      "fieldName": "Character",
+                      "format": "{}",
+                      "fixed": ""
+                    }
+                  },
+                  "showLegend": false
+                }
+              }
+            ],
+            "tooltip": {
+              "mode": "single"
+            }
+          },
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          }
+        },
+        {
+          "id": 21,
+          "type": "table",
+          "title": "Players by zone",
+          "description": "Online characters grouped by current zone, from the same save that feeds the map.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "gridPos": {
+            "h": 14,
+            "w": 8,
+            "x": 16,
+            "y": 40
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "max by (zone) (wow_character_zone)",
+              "refId": "A",
+              "instant": true,
+              "format": "table"
+            }
+          ],
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true,
+                  "Time 1": true,
+                  "Time 2": true,
+                  "__name__": true,
+                  "job": true,
+                  "instance": true,
+                  "namespace": true,
+                  "pod": true,
+                  "container": true,
+                  "endpoint": true,
+                  "service": true,
+                  "period": true
+                },
+                "renameByName": {
+                  "zone": "Zone",
+                  "Value": "Seconds"
+                }
+              }
+            }
+          ]
         }
-      ]
+      ],
+      "templating": {
+        "list": [
+          {
+            "name": "continent",
+            "label": "Continent",
+            "type": "custom",
+            "show": true,
+            "multi": false,
+            "includeAll": false,
+            "current": {
+              "selected": true,
+              "text": "Azeroth",
+              "value": "Azeroth"
+            },
+            "options": [
+              {
+                "selected": true,
+                "text": "Azeroth",
+                "value": "Azeroth"
+              },
+              {
+                "selected": false,
+                "text": "Outland",
+                "value": "Outland"
+              },
+              {
+                "selected": false,
+                "text": "Northrend",
+                "value": "Northrend"
+              }
+            ],
+            "query": "Azeroth,Outland,Northrend"
+          }
+        ]
+      }
     }

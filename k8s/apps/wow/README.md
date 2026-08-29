@@ -165,3 +165,22 @@ kubectl -n wow exec deploy/wow-database -- sh -c \
    "select id,username,expansion,locked,last_login from acore_auth.account;
     select * from acore_auth.account_access;"'
 ```
+
+## Player positions on the dashboard
+
+The wow-realm dashboard has a `Player positions` geomap panel plotting online
+characters on continent maps, plus a `Players by zone` table. Two things make
+it work; both live in this directory:
+
+- **Projection**: world yards → fake lon/lat is computed in the exporter
+  (`wow_character_position_lon/lat`) from one math shared with the map tiles
+  in `assets/wow-maps/` — see that README for the derivation and ground truth.
+  The dashboard joins the lon/lat metric pair on `character_name` and filters
+  by the `continent` dashboard variable, which also switches the basemap tiles.
+- **Freshness**: an online character's row in `characters` is only written at
+  `PlayerSaveInterval` (stock 15 min), so the map would be 15 minutes stale.
+  `AC_PLAYER_SAVE_INTERVAL=60000` on the worldserver makes dots move about
+  once a minute. Takes effect on worldserver restart.
+
+The tiles are served from this repo over raw.githubusercontent.com; the panel
+URL is versioned with `main`, so tile changes ride ordinary PRs.
