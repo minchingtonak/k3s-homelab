@@ -320,13 +320,13 @@ spec:
             # character leaves the client stuck on "Searching for items..."
             # (upstream README).
             - name: AC_AUCTION_HOUSE_BOT_ENABLE_SELLER
-              value: "0"
+              value: "1"
             - name: AC_AUCTION_HOUSE_BOT_ENABLE_BUYER
-              value: "0"
+              value: "1"
             - name: AC_AUCTION_HOUSE_BOT_ACCOUNT
-              value: "0"
+              value: "13"
             - name: AC_AUCTION_HOUSE_BOT_GUID
-              value: "0"
+              value: "12"
             # which item categories the seller may draw from. these are the
             # module's defaults: loot items and loot trade goods only.
             - name: AC_AUCTION_HOUSE_BOT_VENDOR_ITEMS
