@@ -1302,12 +1302,13 @@ data:
                   "style": {
                     "color": {
                       "mode": "fixed",
-                      "fixed": "dark-green"
+                      "fixed": "#FF2D95"
                     },
-                    "opacity": 0.7,
+                    "opacity": 1,
+                    "lineWidth": 2,
                     "size": {
                       "mode": "fixed",
-                      "fixed": 5
+                      "fixed": 9
                     },
                     "symbol": {
                       "mode": "fixed",
@@ -1318,6 +1319,13 @@ data:
                       "fieldName": "Character",
                       "format": "{}",
                       "fixed": ""
+                    },
+                    "textConfig": {
+                      "fontSize": 12,
+                      "offsetX": 0,
+                      "offsetY": -14,
+                      "textAlign": "center",
+                      "textBaseline": "middle"
                     }
                   },
                   "showLegend": false
