@@ -350,6 +350,172 @@ data:
           }
         },
         {
+          "id": 26,
+          "type": "state-timeline",
+          "title": "Characters online",
+          "description": "One band per character while it was logged in \u2014 the panel above without the sum, so concurrent sessions and who was in them are both visible. A character offline leaves no series, so the gap is the logged-out period.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 12
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "max by (character_name) (wow_character_online)",
+              "refId": "A",
+              "range": true,
+              "legendFormat": "{{character_name}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "lineWidth": 0,
+                "fillOpacity": 80,
+                "spanNulls": false,
+                "hideFrom": {
+                  "tooltip": false,
+                  "viz": false,
+                  "legend": false
+                }
+              },
+              "mappings": [
+                {
+                  "type": "value",
+                  "options": {
+                    "1": {
+                      "text": "online",
+                      "index": 0
+                    }
+                  }
+                }
+              ],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "text",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "mergeValues": true,
+            "showValue": "never",
+            "alignValue": "left",
+            "rowHeight": 0.9,
+            "perPage": 20,
+            "legend": {
+              "showLegend": false,
+              "displayMode": "list",
+              "placement": "bottom",
+              "calcs": []
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          }
+        },
+        {
+          "id": 27,
+          "type": "state-timeline",
+          "title": "Accounts online",
+          "description": "One band per account while any of its characters was logged in. Derived from the same per-character metric, so an account with two characters online still reads as one band.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 12
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "max by (account) (wow_character_online)",
+              "refId": "A",
+              "range": true,
+              "legendFormat": "{{account}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "lineWidth": 0,
+                "fillOpacity": 80,
+                "spanNulls": false,
+                "hideFrom": {
+                  "tooltip": false,
+                  "viz": false,
+                  "legend": false
+                }
+              },
+              "mappings": [
+                {
+                  "type": "value",
+                  "options": {
+                    "1": {
+                      "text": "online",
+                      "index": 0
+                    }
+                  }
+                }
+              ],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "text",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "mergeValues": true,
+            "showValue": "never",
+            "alignValue": "left",
+            "rowHeight": 0.9,
+            "perPage": 20,
+            "legend": {
+              "showLegend": false,
+              "displayMode": "list",
+              "placement": "bottom",
+              "calcs": []
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          }
+        },
+        {
           "type": "stat",
           "title": "Highest level",
           "id": 6,
@@ -361,7 +527,7 @@ data:
             "h": 4,
             "w": 4,
             "x": 0,
-            "y": 12
+            "y": 20
           },
           "targets": [
             {
@@ -420,7 +586,7 @@ data:
             "h": 4,
             "w": 5,
             "x": 4,
-            "y": 12
+            "y": 20
           },
           "targets": [
             {
@@ -479,7 +645,7 @@ data:
             "h": 4,
             "w": 5,
             "x": 9,
-            "y": 12
+            "y": 20
           },
           "targets": [
             {
@@ -538,7 +704,7 @@ data:
             "h": 4,
             "w": 5,
             "x": 14,
-            "y": 12
+            "y": 20
           },
           "targets": [
             {
@@ -597,7 +763,7 @@ data:
             "h": 4,
             "w": 5,
             "x": 19,
-            "y": 12
+            "y": 20
           },
           "targets": [
             {
@@ -657,7 +823,7 @@ data:
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 16
+            "y": 24
           },
           "targets": [
             {
@@ -763,7 +929,7 @@ data:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 24
+            "y": 32
           },
           "panels": [
             {
@@ -779,7 +945,7 @@ data:
                 "h": 26,
                 "w": 16,
                 "x": 0,
-                "y": 25
+                "y": 33
               },
               "targets": [
                 {
@@ -1128,7 +1294,7 @@ data:
                 "h": 26,
                 "w": 8,
                 "x": 16,
-                "y": 25
+                "y": 33
               },
               "targets": [
                 {
@@ -1205,7 +1371,7 @@ data:
                 "h": 26,
                 "w": 16,
                 "x": 0,
-                "y": 51
+                "y": 59
               },
               "maxDataPoints": 2000,
               "targets": [
@@ -1363,7 +1529,7 @@ data:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 25
+            "y": 33
           },
           "panels": []
         },
@@ -1379,7 +1545,7 @@ data:
             "h": 8,
             "w": 8,
             "x": 0,
-            "y": 26
+            "y": 34
           },
           "targets": [
             {
@@ -1451,7 +1617,7 @@ data:
             "h": 8,
             "w": 8,
             "x": 8,
-            "y": 26
+            "y": 34
           },
           "targets": [
             {
@@ -1523,7 +1689,7 @@ data:
             "h": 8,
             "w": 8,
             "x": 16,
-            "y": 26
+            "y": 34
           },
           "targets": [
             {
@@ -1595,7 +1761,7 @@ data:
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 34
+            "y": 42
           },
           "targets": [
             {
@@ -1694,7 +1860,7 @@ data:
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 42
+            "y": 50
           },
           "targets": [
             {
