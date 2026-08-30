@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1
+# syntax=docker/dockerfile:1@sha256:ecfaec9ed6d810b56388c508f4121597bfbba70d41a6dfeee4d8cad5f295fc32
 #
 # AzerothCore worldserver + db-import images with server-side modules compiled in.
 #
@@ -25,7 +25,7 @@
 # in this one file and the build context empty, at the cost of having to restate
 # upstream's cmake invocation below.
 
-ARG UBUNTU_VERSION=24.04
+ARG UBUNTU_VERSION=24.04@sha256:33ceb71981b602c1a7443a53469e4dba065f7503eab3078a2d7a57a2ab987517
 
 # Source refs. Defaults track master because AzerothCore cuts no releases; pass
 # explicit commit SHAs to make a build reproducible:
