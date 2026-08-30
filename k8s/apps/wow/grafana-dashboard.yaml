@@ -1537,15 +1537,15 @@ data:
         },
         {
           "id": 21,
-          "type": "table",
-          "title": "Players by zone",
-          "description": "Online characters grouped by current zone.",
+          "type": "barchart",
+          "title": "Time by zone",
+          "description": "Player-time spent in each zone over the dashboard's range, summed across every character. The subquery samples who-is-where every 30s and multiplies by 30 to get seconds, so the figure follows the time picker and does not depend on the scrape interval. Top 12 zones.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
           },
           "gridPos": {
-            "h": 26,
+            "h": 13,
             "w": 8,
             "x": 16,
             "y": 48
@@ -1556,7 +1556,7 @@ data:
                 "type": "prometheus",
                 "uid": "prometheus"
               },
-              "expr": "count by (zone) (max by (character_name, zone) (wow_character_zone))",
+              "expr": "topk(12, sum by (zone) (sum_over_time((max by (character_name, zone) (wow_character_zone))[$__range:30s])) * 30)",
               "refId": "A",
               "instant": true,
               "format": "table"
@@ -1567,26 +1567,156 @@ data:
               "id": "organize",
               "options": {
                 "excludeByName": {
+                  "Time": true
+                },
+                "renameByName": {
+                  "Value": "played"
+                },
+                "indexByName": {}
+              }
+            },
+            {
+              "id": "sortBy",
+              "options": {
+                "fields": {},
+                "sort": [
+                  {
+                    "field": "played",
+                    "desc": true
+                  }
+                ]
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "min": 0,
+              "custom": {
+                "fillOpacity": 80,
+                "lineWidth": 1
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "xField": "zone",
+            "orientation": "horizontal",
+            "showValue": "always",
+            "legend": {
+              "showLegend": false
+            },
+            "xTickLabelRotation": 0,
+            "stacking": "none",
+            "barWidth": 0.8,
+            "groupWidth": 0.7
+          }
+        },
+        {
+          "id": 22,
+          "type": "table",
+          "title": "Who's where",
+          "description": "Online characters and the zone each is standing in, from the same metrics the map plots.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "gridPos": {
+            "h": 13,
+            "w": 8,
+            "x": 16,
+            "y": 61
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "max by (character_name, zone) (wow_character_zone)",
+              "refId": "A",
+              "instant": true,
+              "format": "table"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "max by (character_name, level, class) (wow_character_online)",
+              "refId": "B",
+              "instant": true,
+              "format": "table"
+            }
+          ],
+          "transformations": [
+            {
+              "id": "joinByField",
+              "options": {
+                "byField": "character_name",
+                "mode": "outer"
+              }
+            },
+            {
+              "id": "convertFieldType",
+              "options": {
+                "fields": {},
+                "conversions": [
+                  {
+                    "targetField": "level",
+                    "destinationType": "number"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
                   "Time": true,
                   "Time 1": true,
                   "Time 2": true,
-                  "__name__": true,
-                  "job": true,
-                  "instance": true,
-                  "namespace": true,
-                  "pod": true,
-                  "container": true,
-                  "endpoint": true,
-                  "service": true,
-                  "period": true
+                  "Value #A": true,
+                  "Value #B": true
                 },
                 "renameByName": {
-                  "zone": "Zone",
-                  "Value": "Online"
+                  "character_name": "Character",
+                  "level": "Level",
+                  "class": "Class",
+                  "zone": "Zone"
+                },
+                "indexByName": {
+                  "character_name": 0,
+                  "level": 1,
+                  "class": 2,
+                  "zone": 3
                 }
               }
             }
-          ]
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                }
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "showHeader": true,
+            "footer": {
+              "show": false
+            },
+            "sortBy": [
+              {
+                "displayName": "Level",
+                "desc": true
+              }
+            ]
+          }
         }
       ],
       "templating": {
