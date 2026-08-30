@@ -1366,7 +1366,7 @@ data:
                 "type": "prometheus",
                 "uid": "prometheus"
               },
-              "expr": "max by (zone) (wow_character_zone)",
+              "expr": "count by (zone) (max by (character_name, zone) (wow_character_zone))",
               "refId": "A",
               "instant": true,
               "format": "table"

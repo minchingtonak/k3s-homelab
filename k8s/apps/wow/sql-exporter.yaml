@@ -304,6 +304,9 @@ spec:
                 WHERE c.online = 1
             # Zone IDs of online characters, resolved to names for the same
             # reason class and race are: the dashboard reads them directly.
+            # One series per character rather than a COUNT(*) per zone, so the
+            # map tooltip can name the zone a marker is standing in; the zone
+            # table gets its counts from `count by (zone)` instead of SQL.
             # Names are the full 3.3.5 area table (2264 zones), generated from
             # azerothcore/playermap zone_names_english.php; Zul'Drak-style names
             # are SQL-escaped as Zul''Drak. A JOIN against the world DB's
@@ -311,11 +314,11 @@ spec:
             # on acore_world — if that ever changes, replace this CASE.
             - metric_name: wow_character_zone
               type: gauge
-              help: "Online characters currently in the zone."
-              key_labels: [zone]
+              help: "1 while the character is in the zone."
+              key_labels: [character_name, zone]
               values: [online]
               query: |
-                SELECT COUNT(*) AS online, CASE c.zone
+                SELECT 1 AS online, c.name AS character_name, CASE c.zone
                   WHEN 1 THEN 'Dun Morogh' WHEN 2 THEN 'Longshore' WHEN 3 THEN 'Badlands'
                   WHEN 4 THEN 'Blasted Lands' WHEN 7 THEN 'Blackwater Cove' WHEN 8 THEN 'Swamp of Sorrows'
                   WHEN 9 THEN 'Northshire Valley' WHEN 10 THEN 'Duskwood' WHEN 11 THEN 'Wetlands'
@@ -1356,4 +1359,3 @@ spec:
                   ELSE CONCAT('zone-', c.zone) END AS zone
                 FROM acore_characters.characters c
                 WHERE c.online = 1
-                GROUP BY c.zone
