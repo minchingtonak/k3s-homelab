@@ -1717,10 +1717,188 @@ data:
               }
             ]
           }
+        },
+        {
+          "id": 23,
+          "type": "geomap",
+          "title": "Position history — $character",
+          "description": "Every position recorded for the selected character over the dashboard's range, drawn oldest to newest. The two coordinate metrics are separate series, so they are joined on timestamp; the lat query is gated on the lon query so both sides share one sample grid and no half-populated point reaches the map. Only positions on the selected continent are plotted — pick the continent the character was actually on. Trail resolution follows the panel's step, so a wide range draws a coarser path.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "gridPos": {
+            "h": 26,
+            "w": 16,
+            "x": 0,
+            "y": 74
+          },
+          "maxDataPoints": 2000,
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "max(wow_character_position_lon{character_name=\"$character\", continent=~\"$continent\"})",
+              "refId": "A",
+              "range": true,
+              "legendFormat": "lon"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "max(wow_character_position_lat{character_name=\"$character\"} and on (character_name) wow_character_position_lon{character_name=\"$character\", continent=~\"$continent\"})",
+              "refId": "B",
+              "range": true,
+              "legendFormat": "lat"
+            }
+          ],
+          "transformations": [
+            {
+              "id": "joinByField",
+              "options": {
+                "byField": "Time",
+                "mode": "outer"
+              }
+            }
+          ],
+          "options": {
+            "basemap": {
+              "type": "xyz",
+              "name": "wow-tiles",
+              "config": {
+                "url": "https://raw.githubusercontent.com/minchingtonak/k3s-homelab/main/assets/wow-maps/tiles/$continent/{z}/{x}/{y}.jpg",
+                "attribution": "Map images: azerothcore/playermap",
+                "minZoom": 4,
+                "maxZoom": 7
+              }
+            },
+            "controls": {
+              "mouseWheelZoom": true,
+              "showAttribution": true,
+              "showZoom": true
+            },
+            "view": {
+              "id": "coords",
+              "lat": 0,
+              "lon": 13.2,
+              "zoom": 6,
+              "minZoom": 4,
+              "maxZoom": 8
+            },
+            "layers": [
+              {
+                "type": "route",
+                "name": "trail",
+                "tooltip": false,
+                "location": {
+                  "mode": "coords",
+                  "longitude": "lon",
+                  "latitude": "lat",
+                  "gazetteer": "",
+                  "node": ""
+                },
+                "config": {
+                  "style": {
+                    "color": {
+                      "mode": "fixed",
+                      "fixed": "#3BE8FF"
+                    },
+                    "opacity": 0.8,
+                    "lineWidth": 2,
+                    "size": {
+                      "mode": "fixed",
+                      "fixed": 2
+                    }
+                  },
+                  "arrow": 0
+                }
+              },
+              {
+                "type": "markers",
+                "name": "recorded positions",
+                "tooltip": true,
+                "location": {
+                  "mode": "coords",
+                  "longitude": "lon",
+                  "latitude": "lat",
+                  "gazetteer": "",
+                  "node": ""
+                },
+                "config": {
+                  "style": {
+                    "color": {
+                      "mode": "fixed",
+                      "fixed": "#FF2D95"
+                    },
+                    "opacity": 0.9,
+                    "lineWidth": 1,
+                    "size": {
+                      "mode": "fixed",
+                      "fixed": 2
+                    },
+                    "symbol": {
+                      "mode": "fixed",
+                      "fixed": "img/icons/marker/circle.svg"
+                    }
+                  },
+                  "showLegend": false
+                }
+              }
+            ],
+            "tooltip": {
+              "mode": "details"
+            }
+          },
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byNames",
+                  "options": {
+                    "mode": "include",
+                    "names": ["lon", "lat"]
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "tooltip": true,
+                      "legend": true,
+                      "viz": false
+                    }
+                  }
+                ]
+              }
+            ]
+          }
         }
       ],
       "templating": {
         "list": [
+          {
+            "name": "character",
+            "label": "Character",
+            "type": "query",
+            "datasource": {
+              "type": "prometheus",
+              "uid": "prometheus"
+            },
+            "definition": "label_values(wow_character_position_lon, character_name)",
+            "query": "label_values(wow_character_position_lon, character_name)",
+            "refresh": 2,
+            "sort": 1,
+            "multi": false,
+            "includeAll": false,
+            "hide": 0,
+            "current": {},
+            "options": []
+          },
           {
             "name": "continent",
             "label": "Continent",
