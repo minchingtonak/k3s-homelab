@@ -251,7 +251,7 @@ spec:
             # assets/wow-maps/README.md. Two metrics rather than one with a
             # coord label so the dashboard joins on character_name and reads
             # lon/lat straight off the joined frame, no pivot transform.
-            # Freshness is bounded by PlayerSaveInterval (60s here, 15min stock).
+            # Freshness is bounded by PlayerSaveInterval (30s here, 15min stock).
             - metric_name: wow_character_position_lon
               type: gauge
               help: "Map longitude of an online character."

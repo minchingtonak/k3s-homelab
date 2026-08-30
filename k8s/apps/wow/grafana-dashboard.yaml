@@ -1190,7 +1190,7 @@ data:
           "id": 20,
           "type": "geomap",
           "title": "Player positions",
-          "description": "Online characters on the continent maps; click a marker for zone, level, class and race. Positions refresh with each character save (once a minute).",
+          "description": "Online characters on the continent maps; click a marker for zone, level, class and race. Positions refresh with each character save (every 30s).",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"

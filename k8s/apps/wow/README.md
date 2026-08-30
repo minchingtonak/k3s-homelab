@@ -179,8 +179,12 @@ it work; both live in this directory:
   by the `continent` dashboard variable, which also switches the basemap tiles.
 - **Freshness**: an online character's row in `characters` is only written at
   `PlayerSaveInterval` (stock 15 min), so the map would be 15 minutes stale.
-  `AC_PLAYER_SAVE_INTERVAL=60000` on the worldserver makes dots move about
-  once a minute. Takes effect on worldserver restart.
+  `AC_PLAYER_SAVE_INTERVAL=30000` on the worldserver makes dots move about
+  every 30s, matching the exporter's scrape interval so each scrape sees a new
+  position instead of repeating every other one. Takes effect on worldserver
+  restart. The two timers are independent, so phase drift can still drop the
+  occasional point; scraping faster than the save interval is what would make
+  capture exact.
 
 The tiles are served from this repo over raw.githubusercontent.com; the panel
 URL is versioned with `main`, so tile changes ride ordinary PRs.
