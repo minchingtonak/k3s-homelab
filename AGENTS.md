@@ -215,6 +215,38 @@ what the workload was doing.
 - `ansible/` — node provisioning and k3s bring-up. The only provisioning path.
 - `scratch/` — work in progress. **Never stage or commit anything here.**
 
+## KEDA scale-to-zero enrollment
+
+Apps idle most of the day are enrolled in the KEDA HTTP add-on: an
+`InterceptorRoute` + `ScaledObject` pair in `k8s/apps/<app>/keda.yaml`, the web
+Deployment's `spec.replicas` removed (KEDA owns the field), a readiness probe
+added, the Service's gatus annotation moved to
+`gatus.home-operations.com/enabled: "false"` (a sleeping app must not page),
+and the IngressRoute service block retargeted to
+`keda-add-ons-http-interceptor-proxy.keda:8080`. Register `keda.yaml` in the
+app kustomization. See `k8s/apps/tandoor/` for a worked example.
+
+Rules learned the hard way:
+
+- The readiness probe must match the app's semantics or the app will never go
+  Ready and every cold start 504s: a Django-style `ALLOWED_HOSTS` needs a probe
+  `httpHeaders` `Host` entry; an app that redirects HTTP to HTTPS (`FORCE_SSL`)
+  needs `tcpSocket` (kubelet follows redirects into a TLS-vs-plain mismatch);
+  the probe path must return <400 unauthenticated (dedicated health endpoints
+  like dawarich's `/api/v1/health` where `/` can 403).
+- InterceptorRoute `paths` entries are `PathMatch` objects (`- value: /mcp`),
+  not strings — Flux's dry-run rejects the string form, and a rejected
+  Kustomization pins at its last good revision.
+- Long-running silent work needs a raised `cooldownPeriod` (ytptube: 7200s for
+  download batches; default 600s kills a pod mid-grind).
+- An app reached by internal cluster traffic (pod-to-pod Service calls,
+  `proxy_pass` to a sibling service, `ExternalName` indirection) cannot be
+  enrolled — internal callers bypass the ingress and cannot wake it. Check the
+  app's own config for how its components talk to each other first.
+- Apps behind the authentik forward-auth middleware still work: unauthenticated
+  pings are answered by authentik without waking the app; only authenticated
+  traffic wakes it.
+
 ## Secrets
 
 Secrets are SOPS-encrypted with age and committed as `*.sops.yaml`. You hold
