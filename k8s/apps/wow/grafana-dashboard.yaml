@@ -1241,8 +1241,8 @@ data:
                 "renameByName": {
                   "character_name": "Character",
                   "continent": "Continent",
-                  "wow_character_position_lon": "lon",
-                  "wow_character_position_lat": "lat"
+                  "Value #A": "lon",
+                  "Value #B": "lat"
                 }
               }
             },
