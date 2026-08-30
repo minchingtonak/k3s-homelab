@@ -1181,7 +1181,7 @@ data:
           "id": 20,
           "type": "geomap",
           "title": "Player positions",
-          "description": "Online characters on the continent maps. Positions refresh with each character save (once a minute).",
+          "description": "Online characters on the continent maps; click a marker for zone, level, class and race. Positions refresh with each character save (once a minute).",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -1212,6 +1212,26 @@ data:
               "refId": "B",
               "instant": true,
               "format": "table"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "max by (character_name, zone) (wow_character_zone)",
+              "refId": "C",
+              "instant": true,
+              "format": "table"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "max by (character_name, level, class, race) (wow_character_online)",
+              "refId": "D",
+              "instant": true,
+              "format": "table"
             }
           ],
           "transformations": [
@@ -1229,20 +1249,30 @@ data:
                   "Time": true,
                   "Time 1": true,
                   "Time 2": true,
-                  "__name__": true,
-                  "job": true,
-                  "instance": true,
-                  "namespace": true,
-                  "pod": true,
-                  "container": true,
-                  "endpoint": true,
-                  "service": true
+                  "Time 3": true,
+                  "Time 4": true,
+                  "Value #C": true,
+                  "Value #D": true
                 },
                 "renameByName": {
                   "character_name": "Character",
+                  "level": "Level",
+                  "class": "Class",
+                  "race": "Race",
+                  "zone": "Zone",
                   "continent": "Continent",
                   "Value #A": "lon",
                   "Value #B": "lat"
+                },
+                "indexByName": {
+                  "character_name": 0,
+                  "level": 1,
+                  "class": 2,
+                  "race": 3,
+                  "zone": 4,
+                  "continent": 5,
+                  "Value #A": 6,
+                  "Value #B": 7
                 }
               }
             },
@@ -1320,8 +1350,7 @@ data:
                     },
                     "text": {
                       "mode": "field",
-                      "fieldName": "Character",
-                      "format": "{}",
+                      "field": "Character",
                       "fixed": ""
                     },
                     "textConfig": {
@@ -1342,7 +1371,27 @@ data:
           },
           "fieldConfig": {
             "defaults": {},
-            "overrides": []
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byNames",
+                  "options": {
+                    "mode": "include",
+                    "names": ["lon", "lat"]
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "tooltip": true,
+                      "legend": true,
+                      "viz": false
+                    }
+                  }
+                ]
+              }
+            ]
           }
         },
         {
