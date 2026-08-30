@@ -645,89 +645,6 @@ data:
           }
         },
         {
-          "type": "table",
-          "title": "Online now",
-          "id": 10,
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "gridPos": {
-            "h": 8,
-            "w": 24,
-            "x": 0,
-            "y": 16
-          },
-          "targets": [
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "prometheus"
-              },
-              "expr": "max by (character_name, account, class, race, level) (wow_character_online)",
-              "refId": "A",
-              "instant": true,
-              "format": "table"
-            }
-          ],
-          "transformations": [
-            {
-              "id": "organize",
-              "options": {
-                "excludeByName": {
-                  "Time": true,
-                  "__name__": true,
-                  "job": true,
-                  "instance": true,
-                  "namespace": true,
-                  "pod": true,
-                  "container": true,
-                  "endpoint": true,
-                  "service": true,
-                  "Value": true
-                },
-                "renameByName": {
-                  "character_name": "Character",
-                  "account": "Account",
-                  "class": "Class",
-                  "race": "Race",
-                  "level": "Level"
-                },
-                "indexByName": {
-                  "character_name": 0,
-                  "level": 1,
-                  "class": 2,
-                  "race": 3,
-                  "account": 4
-                }
-              }
-            }
-          ],
-          "fieldConfig": {
-            "defaults": {
-              "custom": {
-                "align": "auto",
-                "cellOptions": {
-                  "type": "auto"
-                }
-              }
-            },
-            "overrides": []
-          },
-          "options": {
-            "showHeader": true,
-            "footer": {
-              "show": false
-            },
-            "sortBy": [
-              {
-                "displayName": "Level",
-                "desc": true
-              }
-            ]
-          }
-        },
-        {
           "type": "barchart",
           "title": "Characters by class",
           "id": 8,
@@ -739,7 +656,7 @@ data:
             "h": 8,
             "w": 8,
             "x": 0,
-            "y": 24
+            "y": 68
           },
           "targets": [
             {
@@ -811,7 +728,7 @@ data:
             "h": 8,
             "w": 8,
             "x": 8,
-            "y": 24
+            "y": 68
           },
           "targets": [
             {
@@ -883,7 +800,7 @@ data:
             "h": 8,
             "w": 8,
             "x": 16,
-            "y": 24
+            "y": 68
           },
           "targets": [
             {
@@ -955,7 +872,7 @@ data:
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 32
+            "y": 76
           },
           "targets": [
             {
@@ -1054,7 +971,7 @@ data:
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 40
+            "y": 84
           },
           "targets": [
             {
@@ -1189,7 +1106,7 @@ data:
         {
           "id": 20,
           "type": "geomap",
-          "title": "Player positions",
+          "title": "Player positions — $continent",
           "description": "Online characters on the continent maps; click a marker for zone, level, class and race. Positions refresh with each character save (every 30s).",
           "datasource": {
             "type": "prometheus",
@@ -1199,7 +1116,7 @@ data:
             "h": 26,
             "w": 16,
             "x": 0,
-            "y": 48
+            "y": 16
           },
           "targets": [
             {
@@ -1548,7 +1465,7 @@ data:
             "h": 13,
             "w": 8,
             "x": 16,
-            "y": 48
+            "y": 16
           },
           "targets": [
             {
@@ -1615,8 +1532,8 @@ data:
         {
           "id": 22,
           "type": "table",
-          "title": "Who's where",
-          "description": "Online characters and the zone each is standing in, from the same metrics the map plots.",
+          "title": "Online now",
+          "description": "Online characters, what they are, and the zone each is standing in — the roster half comes from the same metric the CLI's `online` command reports, the zone from the metric the map plots.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -1625,7 +1542,7 @@ data:
             "h": 13,
             "w": 8,
             "x": 16,
-            "y": 61
+            "y": 29
           },
           "targets": [
             {
@@ -1643,7 +1560,7 @@ data:
                 "type": "prometheus",
                 "uid": "prometheus"
               },
-              "expr": "max by (character_name, level, class) (wow_character_online)",
+              "expr": "max by (character_name, account, class, race, level) (wow_character_online)",
               "refId": "B",
               "instant": true,
               "format": "table"
@@ -1683,13 +1600,17 @@ data:
                   "character_name": "Character",
                   "level": "Level",
                   "class": "Class",
-                  "zone": "Zone"
+                  "race": "Race",
+                  "zone": "Zone",
+                  "account": "Account"
                 },
                 "indexByName": {
                   "character_name": 0,
                   "level": 1,
                   "class": 2,
-                  "zone": 3
+                  "race": 3,
+                  "zone": 4,
+                  "account": 5
                 }
               }
             }
@@ -1731,7 +1652,7 @@ data:
             "h": 26,
             "w": 16,
             "x": 0,
-            "y": 74
+            "y": 42
           },
           "maxDataPoints": 2000,
           "targets": [
