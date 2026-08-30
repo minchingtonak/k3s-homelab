@@ -4,11 +4,11 @@
 #
 # Why this exists: AzerothCore modules are C++ statically linked into the core, so
 # the upstream `acore/ac-wotlk-*` images cannot load one at runtime. The only way
-# to add mod-transmog, mod-autobalance or mod-aoe-loot is to rebuild.
+# to add mod-transmog, mod-autobalance, mod-aoe-loot or mod-ah-bot is to rebuild.
 # See docs/wow-modules.md.
 #
-# Why *two* images and not just the worldserver: mod-transmog and mod-aoe-loot
-# ship SQL under `data/sql/`, and the update fetcher looks for it at
+# Why *two* images and not just the worldserver: mod-transmog, mod-aoe-loot and
+# mod-ah-bot ship SQL under `data/sql/`, and the update fetcher looks for it at
 # `<source>/modules/<module>/data/sql/` (UpdateFetcher.cpp). The upstream
 # db-import image has an empty modules dir, so it would silently never apply
 # their schema. Building db-import from the same tree also guarantees the two
@@ -38,6 +38,8 @@ ARG MOD_AUTOBALANCE_REPO=https://github.com/azerothcore/mod-autobalance.git
 ARG MOD_AUTOBALANCE_REF=master
 ARG MOD_AOE_LOOT_REPO=https://github.com/azerothcore/mod-aoe-loot.git
 ARG MOD_AOE_LOOT_REF=master
+ARG MOD_AH_BOT_REPO=https://github.com/azerothcore/mod-ah-bot.git
+ARG MOD_AH_BOT_REF=master
 
 ############
 # Skeleton #
@@ -120,6 +122,8 @@ ARG MOD_AUTOBALANCE_REPO
 ARG MOD_AUTOBALANCE_REF
 ARG MOD_AOE_LOOT_REPO
 ARG MOD_AOE_LOOT_REF
+ARG MOD_AH_BOT_REPO
+ARG MOD_AH_BOT_REF
 
 # Module directory names are load-bearing twice over: cmake derives the compiled
 # module list from them, and the update fetcher builds the SQL path from that
@@ -130,6 +134,7 @@ RUN set -eu; \
       "mod-transmog|$MOD_TRANSMOG_REPO|$MOD_TRANSMOG_REF" \
       "mod-autobalance|$MOD_AUTOBALANCE_REPO|$MOD_AUTOBALANCE_REF" \
       "mod-aoe-loot|$MOD_AOE_LOOT_REPO|$MOD_AOE_LOOT_REF" \
+      "mod-ah-bot|$MOD_AH_BOT_REPO|$MOD_AH_BOT_REF" \
     ; do \
       name="${spec%%|*}"; rest="${spec#*|}"; repo="${rest%%|*}"; ref="${rest#*|}"; \
       dir="/azerothcore/modules/$name"; \
