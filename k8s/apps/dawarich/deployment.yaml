@@ -321,7 +321,6 @@ metadata:
   annotations:
     secret.reloader.stakater.com/reload: dawarich
 spec:
-  replicas: 1
   strategy:
     type: Recreate
   selector:
