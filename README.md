@@ -29,6 +29,8 @@ flux `Kustomization` entrypoints for the homelab cluster. defines the reconcilia
 - [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller) for automated k3s node upgrades via GitOps
 - [reloader](https://github.com/stakater/Reloader) to restart pods when config changes
 - [descheduler](https://github.com/kubernetes-sigs/descheduler) to dynamically schedule pods based on node metrics
+- [KEDA](https://github.com/kedacore/keda) for event-driven autoscaling
+  - [http-add-on](https://github.com/kedacore/http-add-on) to scale idle apps to zero and wake them on the first HTTP request
 - [Longhorn](https://github.com/longhorn/longhorn) for distributed block storage
 
 ### bundled with k3s
