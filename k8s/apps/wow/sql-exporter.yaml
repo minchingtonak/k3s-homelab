@@ -252,6 +252,18 @@ spec:
             # coord label so the dashboard joins on character_name and reads
             # lon/lat straight off the joined frame, no pivot transform.
             # Freshness is bounded by PlayerSaveInterval (30s here, 15min stock).
+            #
+            # Both queries are restricted to the five maps the projection covers.
+            # Without that, a character inside a dungeon, raid or battleground
+            # falls through the ELSE of both CASEs: the continent reads 'Azeroth'
+            # while the coordinates are computed with the *Outland* math, which
+            # plots a garbage point in the sea off Eastern Kingdoms. It is not a
+            # rounding artefact — one such sample decoded to 270 yards from the
+            # Icecrown Citadel entrance on map 631. Instance interiors have no
+            # place on a continent map, so the right answer is no series at all;
+            # the character still shows up in the roster with its zone name.
+            # The filter also makes both ELSE branches correct by construction
+            # rather than by accident: the only map left reaching them is 530.
             - metric_name: wow_character_position_lon
               type: gauge
               help: "Map longitude of an online character."
@@ -278,7 +290,7 @@ spec:
                     ELSE (684 - ROUND((c.position_y - 1265) * 0.051446)) / 966.0 * 27.798561151
                   END AS lon
                 FROM acore_characters.characters c
-                WHERE c.online = 1
+                WHERE c.online = 1 AND c.map IN (0, 1, 530, 571, 609)
             # The other half of the position pair; the dashboard joins the two
             # on character_name. Carries no continent label — one copy between
             # the pair is enough, and a duplicate would collide in the join.
@@ -301,7 +313,7 @@ spec:
                     ELSE 10 - (229 - ROUND((c.position_x - 3070) * 0.051446)) / 695.0 * 20
                   END AS lat
                 FROM acore_characters.characters c
-                WHERE c.online = 1
+                WHERE c.online = 1 AND c.map IN (0, 1, 530, 571, 609)
             # Zone IDs of online characters, resolved to names for the same
             # reason class and race are: the dashboard reads them directly.
             # One series per character rather than a COUNT(*) per zone, so the
