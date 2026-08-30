@@ -86,6 +86,12 @@ lint: ## Lint k8s manifests
 .PHONY: check
 check: check-fmt lint ## Run every check CI runs
 
+# Override any of the WOW_IMAGE_* / WOW_*_REF variables the script reads to retag or pin
+# sources, e.g. `make wow-image WOW_IMAGE_PUSH=0` to build without publishing.
+.PHONY: wow-image
+wow-image: ## Build and push the AzerothCore worldserver/db-import images with modules
+	scripts/build-azerothcore-images.sh
+
 .PHONY: help
 help: ## List targets
 	@grep -hE '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) \
