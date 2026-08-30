@@ -12,7 +12,9 @@
   dependencyDashboard: true,
   dependencyDashboardTitle: 'Renovate Dashboard',
 
-  schedule: '* 7 * * 5',
+  // all day friday: renovate checks this window when a job happens to run, so a
+  // narrow hour is silently skipped whenever the hosted bot doesn't fire inside it
+  schedule: '* * * * 5',
   timezone: 'America/New_York',
 
   // always open vulnerability-fixing pull requests immediately
