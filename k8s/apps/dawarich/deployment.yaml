@@ -222,7 +222,7 @@ spec:
             - name: RAILS_ENV
               value: development
             - name: APPLICATION_HOSTS
-              value: dawarich.item.fyi
+              value: dawarich.item.fyi,dawarich.dawarich.svc.cluster.local
             - name: APPLICATION_PROTOCOL
               value: http
             - name: TIME_ZONE
