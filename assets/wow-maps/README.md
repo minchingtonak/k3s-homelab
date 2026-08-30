@@ -22,6 +22,14 @@ Everything derives from one projection, so tiles and markers cannot disagree:
    Markers (which Grafana places by plain lon/lat) and tiles therefore share
    one geometry by construction.
 
+Zoom 4 fits a continent into ~300 px and zoom 7 stretches it to ~2400, so the
+sampler resizes the source to the exact mercator pixel size of each zoom
+(Lanczos) before cutting tiles, and does only the sub-pixel linear-lat →
+mercator-lat row remap by hand. Point-sampling instead — every third source
+pixel at zoom 4 — is what made the old tiles look noisier than the source.
+966 px across a continent is the ceiling on real detail either way: that is
+playermap's image size, and the projection constants are calibrated to it.
+
 The same math lives in two other places that must stay in sync with this file:
 
 - `k8s/apps/wow/sql-exporter.yaml` — `wow_character_position_lon` /
@@ -56,12 +64,15 @@ playermap's `img/map/*.jpg` — 966×732 (azeroth, northrend), 966×695 (outland
 ## Regenerating
 
 ```bash
-python3 generate_tiles.py --selftest-only   # round-trip check only
-python3 generate_tiles.py --out tiles --zooms 4,5,6,7
+uv run generate_tiles.py --selftest-only   # round-trip check only
+uv run generate_tiles.py --out tiles --zooms 4,5,6,7
 ```
 
-Pillow is the only dependency. Regeneration takes a few minutes (pure-Python
-pixel loop; 330 tiles across zooms 4–7). The source jpgs are committed beside
+Pillow is the only dependency, declared inline (PEP 723) so `uv run` resolves
+it. Regeneration takes about a second — the sampler works in whole rows rather
+than per pixel — and writes 330 tiles across zooms 4–7. Zoom 7 is the last one
+generated; the panel's `maxZoom` matches, so closer views upscale zoom 7 rather
+than requesting tiles that do not exist. The source jpgs are committed beside
 the tiles so regeneration never depends on playermap still hosting them.
 
 ## Attribution

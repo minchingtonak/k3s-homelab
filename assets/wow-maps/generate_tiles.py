@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.11"
+# dependencies = ["pillow>=10"]
+# ///
 """Generate XYZ tiles from the flat continent maps for Grafana's Geomap xyz basemap.
 
 The map images are flat; XYZ tiles live in Web Mercator space. We define a small
@@ -6,6 +10,12 @@ fake lon/lat bbox per continent, render tiles by sampling the image *linearly in
 lat* (which is exactly what the marker SQL does in reverse), so markers and tiles
 can never disagree. Self-test: every landmark must round-trip image px -> lon/lat
 -> mercator px -> image px within 0.5 px, and land on a generated tile.
+
+Sampling is resolution-correct rather than nearest-neighbour: per zoom the source
+is Lanczos-resampled to exactly the mercator pixel size the bbox occupies at that
+zoom, which antialiases the low zooms instead of point-sampling every third pixel
+of a 966px image into a 300px tile row. Only the remaining vertical remap (linear
+lat -> mercator lat) is done per row, and that is bilinear.
 """
 import argparse, math, os
 from PIL import Image
@@ -61,21 +71,36 @@ def px_to_ll(gx, gy, z):
     lat = math.degrees(math.atan(math.sinh(math.pi * (1 - 2 * gy / n))))
     return lon, lat
 
-def warp_tile(img, box, z, tx, ty):
-    tile = Image.new("RGB", (TILE, TILE))
-    src_w, src_h = img.size
-    pix = img.load()
-    out = tile.load()
-    for j in range(TILE):
-        gy = ty * TILE + j + 0.5
-        for i in range(TILE):
-            gx = tx * TILE + i + 0.5
-            lon, lat = px_to_ll(gx, gy, z)
-            u, v = ll_to_img(lon, lat, img, box)
-            ui, vi = int(u), int(v)
-            if 0 <= ui < src_w and 0 <= vi < src_h:
-                out[i, j] = pix[ui, vi]
-    return tile
+def merc_canvas(img, box, z):
+    """Source image -> one image covering the bbox in mercator pixels at zoom z.
+
+    Longitude is linear in mercator x and the bbox spans only +/-10 deg of
+    latitude, so a Lanczos resize to the exact mercator pixel size does nearly
+    all the work with proper antialiasing; the residual linear-lat -> mercator-lat
+    warp (under a pixel across the whole image) is a bilinear per-row remap.
+    Returns the canvas and its mercator-pixel origin.
+    """
+    L0, L1, B0, B1 = box
+    gx0, gy0 = merc_px(L0, B1, z)
+    gx1, gy1 = merc_px(L1, B0, z)
+    W, H = max(1, round(gx1 - gx0)), max(1, round(gy1 - gy0))
+    mip = img.resize((W, H), Image.Resampling.LANCZOS)
+    canvas = Image.new("RGB", (W, H))
+    for j in range(H):
+        _, lat = px_to_ll(gx0, gy0 + j + 0.5, z)
+        v = (B1 - lat) / (B1 - B0) * H - 0.5
+        vi = math.floor(v)
+        v0, v1 = max(0, min(H - 1, vi)), max(0, min(H - 1, vi + 1))
+        row = mip.crop((0, v0, W, v0 + 1))
+        if v1 != v0:
+            row = Image.blend(row, mip.crop((0, v1, W, v1 + 1)), max(0.0, min(1.0, v - vi)))
+        canvas.paste(row, (0, j))
+    return canvas, gx0, gy0
+
+def cut_tile(canvas, gx0, gy0, tx, ty):
+    """One tile out of the mercator canvas. Crop pads with black outside the bbox."""
+    left, top = round(tx * TILE - gx0), round(ty * TILE - gy0)
+    return canvas.crop((left, top, left + TILE, top + TILE))
 
 CONTINENTS = {
     "Azeroth":   ("azeroth.jpg",   0),
@@ -130,14 +155,14 @@ def main():
         n_tiles = 0
         for z in zooms:
             # tiles covering the bbox
-            gx0, gy0 = merc_px(box[0], box[3], z)
+            canvas, gx0, gy0 = merc_canvas(img, box, z)
             gx1, gy1 = merc_px(box[1], box[2], z)
             for tx in range(int(gx0 // TILE), int(gx1 // TILE) + 1):
                 for ty in range(int(gy0 // TILE), int(gy1 // TILE) + 1):
-                    t = warp_tile(img, box, z, tx, ty)
+                    t = cut_tile(canvas, gx0, gy0, tx, ty)
                     d = os.path.join(args.out, cont, str(z), str(tx))
                     os.makedirs(d, exist_ok=True)
-                    t.save(os.path.join(d, f"{ty}.jpg"), quality=88)
+                    t.save(os.path.join(d, f"{ty}.jpg"), quality=92, subsampling=0)
                     n_tiles += 1
         print(f"{cont}: {n_tiles} tiles")
 
