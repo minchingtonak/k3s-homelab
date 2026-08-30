@@ -42,8 +42,8 @@ spec:
               containerPort: 27017
               protocol: TCP
           livenessProbe:
-            exec:
-              command: ["mongosh", "--eval", "db.adminCommand('ping')"]
+            tcpSocket:
+              port: mongo
             initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 5
@@ -55,7 +55,7 @@ spec:
               memory: 128Mi
               cpu: 100m
             limits:
-              memory: 512Mi
+              memory: 1Gi
       volumes:
         - name: mongo-data
           persistentVolumeClaim:
