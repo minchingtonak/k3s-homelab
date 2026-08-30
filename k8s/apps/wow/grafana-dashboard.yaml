@@ -1187,10 +1187,10 @@ data:
             "uid": "prometheus"
           },
           "gridPos": {
-            "h": 14,
+            "h": 26,
             "w": 16,
             "x": 0,
-            "y": 40
+            "y": 48
           },
           "targets": [
             {
@@ -1272,7 +1272,9 @@ data:
               "name": "wow-tiles",
               "config": {
                 "url": "https://raw.githubusercontent.com/minchingtonak/k3s-homelab/main/assets/wow-maps/tiles/$continent/{z}/{x}/{y}.jpg",
-                "attribution": "Map images: azerothcore/playermap"
+                "attribution": "Map images: azerothcore/playermap",
+                "minZoom": 4,
+                "maxZoom": 7
               }
             },
             "controls": {
@@ -1283,8 +1285,10 @@ data:
             "view": {
               "id": "coords",
               "lat": 0,
-              "lon": 13,
-              "zoom": 4
+              "lon": 13.2,
+              "zoom": 6,
+              "minZoom": 4,
+              "maxZoom": 8
             },
             "layers": [
               {
@@ -1351,10 +1355,10 @@ data:
             "uid": "prometheus"
           },
           "gridPos": {
-            "h": 14,
+            "h": 26,
             "w": 8,
             "x": 16,
-            "y": 40
+            "y": 48
           },
           "targets": [
             {
