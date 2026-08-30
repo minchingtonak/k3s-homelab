@@ -11,6 +11,15 @@
 # every table. max collapses them to the single replica's value; sum would
 # double-count during a rollout when two pods briefly overlap.
 #
+# The player map stacks four "label halo" marker layers under the real one.
+# Grafana builds the label as an OpenLayers Text with a fill and no stroke and
+# offers no outline option, so the only way to keep names readable over both
+# snow and ocean is to draw them four times in black at +/-1px and let the
+# pink copy land on top. A markers layer with no `symbol` renders text only
+# (getMarkerMaker returns textMarker when the symbol is unset and a text field
+# is bound), which is what makes the halo layers dotless. They set
+# tooltip: false so clicks still land on the real layer.
+#
 # Bar charts and the table read Prometheus *table*-format instant queries and
 # set options.xField (or an organize transform) to the label column. Without
 # that, Grafana picks the first string field it finds — which is the metric
@@ -1321,6 +1330,138 @@ data:
               "maxZoom": 8
             },
             "layers": [
+              {
+                "type": "markers",
+                "name": "label halo NW",
+                "tooltip": false,
+                "location": {
+                  "mode": "coords",
+                  "longitude": "lon",
+                  "latitude": "lat",
+                  "gazetteer": "",
+                  "node": ""
+                },
+                "config": {
+                  "style": {
+                    "color": {
+                      "mode": "fixed",
+                      "fixed": "#000000"
+                    },
+                    "text": {
+                      "mode": "field",
+                      "field": "Character",
+                      "fixed": ""
+                    },
+                    "textConfig": {
+                      "fontSize": 12,
+                      "offsetX": -1,
+                      "offsetY": -15,
+                      "textAlign": "center",
+                      "textBaseline": "middle"
+                    }
+                  },
+                  "showLegend": false
+                }
+              },
+              {
+                "type": "markers",
+                "name": "label halo NE",
+                "tooltip": false,
+                "location": {
+                  "mode": "coords",
+                  "longitude": "lon",
+                  "latitude": "lat",
+                  "gazetteer": "",
+                  "node": ""
+                },
+                "config": {
+                  "style": {
+                    "color": {
+                      "mode": "fixed",
+                      "fixed": "#000000"
+                    },
+                    "text": {
+                      "mode": "field",
+                      "field": "Character",
+                      "fixed": ""
+                    },
+                    "textConfig": {
+                      "fontSize": 12,
+                      "offsetX": 1,
+                      "offsetY": -15,
+                      "textAlign": "center",
+                      "textBaseline": "middle"
+                    }
+                  },
+                  "showLegend": false
+                }
+              },
+              {
+                "type": "markers",
+                "name": "label halo SW",
+                "tooltip": false,
+                "location": {
+                  "mode": "coords",
+                  "longitude": "lon",
+                  "latitude": "lat",
+                  "gazetteer": "",
+                  "node": ""
+                },
+                "config": {
+                  "style": {
+                    "color": {
+                      "mode": "fixed",
+                      "fixed": "#000000"
+                    },
+                    "text": {
+                      "mode": "field",
+                      "field": "Character",
+                      "fixed": ""
+                    },
+                    "textConfig": {
+                      "fontSize": 12,
+                      "offsetX": -1,
+                      "offsetY": -13,
+                      "textAlign": "center",
+                      "textBaseline": "middle"
+                    }
+                  },
+                  "showLegend": false
+                }
+              },
+              {
+                "type": "markers",
+                "name": "label halo SE",
+                "tooltip": false,
+                "location": {
+                  "mode": "coords",
+                  "longitude": "lon",
+                  "latitude": "lat",
+                  "gazetteer": "",
+                  "node": ""
+                },
+                "config": {
+                  "style": {
+                    "color": {
+                      "mode": "fixed",
+                      "fixed": "#000000"
+                    },
+                    "text": {
+                      "mode": "field",
+                      "field": "Character",
+                      "fixed": ""
+                    },
+                    "textConfig": {
+                      "fontSize": 12,
+                      "offsetX": 1,
+                      "offsetY": -13,
+                      "textAlign": "center",
+                      "textBaseline": "middle"
+                    }
+                  },
+                  "showLegend": false
+                }
+              },
               {
                 "type": "markers",
                 "name": "players",
