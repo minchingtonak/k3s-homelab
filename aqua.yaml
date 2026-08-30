@@ -16,7 +16,7 @@ registries:
 # described in one place. This is because the command names cannot be inferred
 # from the package name
 packages:
-  - name: dprint/dprint@0.55.2 # bin: dprint
+  - name: dprint/dprint@0.56.1 # bin: dprint
   - name: gitleaks/gitleaks@v8.30.1 # bin: gitleaks
   - name: astral-sh/uv@0.12.5 # bin: uv uvx
   - name: getsops/sops@v3.13.3 # bin: sops
