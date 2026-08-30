@@ -82,7 +82,7 @@ spec:
               until mysqladmin ping -h wow-database.wow.svc.cluster.local -uroot -p"$MYSQL_ROOT_PASSWORD" --silent; do
               echo waiting for mysql; sleep 5; done
         - name: db-import
-          image: forgejo.item.fyi/akmin/ac-wotlk-db-import:20260829@sha256:9501642e3543ae126956ac16317914816ff43a926fdba5719133165e57181aa1
+          image: forgejo.item.fyi/akmin/ac-wotlk-db-import:20260830@sha256:1294810e1e82ebcee6aa895c0ea63ffc4ac1bac122377d6d87bffc3775666f73
           env:
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
@@ -129,7 +129,7 @@ spec:
               FROM acore_auth.realmlist"
       containers:
         - name: worldserver
-          image: forgejo.item.fyi/akmin/ac-wotlk-worldserver:20260829@sha256:e6ac91f88e768229119adaad13ca34af3377b764897693819cb61bf0682ce139
+          image: forgejo.item.fyi/akmin/ac-wotlk-worldserver:20260830@sha256:f889c1a108576e0f17fbf29dd91fe0f12ce7ad85b90a2445ab64d9e63e9843ce
           # stdin without a tty: worldserver's CLI reads newline-terminated
           # commands from stdin, and `kubectl attach` refuses to attach to a
           # container with tty:true ("tty and stderr cannot both be true"), so
@@ -301,6 +301,60 @@ spec:
             # take a cloth appearance
             - name: AC_TRANSMOGRIFICATION_ALLOW_MIXED_ARMOR_TYPES
               value: "1"
+            # mod-ah-bot — compiled in but deliberately inert. Both toggles are
+            # the module's own defaults (0), so nothing lists or bids until they
+            # are flipped; the module still creates its tables via db-import.
+            #
+            # Turning it on needs two ids the database assigns, so they cannot be
+            # known ahead of time:
+            #   1. create a dedicated account (scripts/wow-accounts.py create ...)
+            #   2. log in on it and create one character — there is no console
+            #      command for character creation
+            #   3. read the ids back:
+            #        SELECT id FROM acore_auth.account WHERE username = '<NAME>';
+            #        SELECT guid FROM acore_characters.characters WHERE account = <id>;
+            #   4. set ACCOUNT and GUID below, then ENABLE_SELLER / ENABLE_BUYER
+            #
+            # That character owns every listing, so its name is what players see
+            # as the seller. Do not play it: browsing the auction house on the bot
+            # character leaves the client stuck on "Searching for items..."
+            # (upstream README).
+            - name: AC_AUCTION_HOUSE_BOT_ENABLE_SELLER
+              value: "0"
+            - name: AC_AUCTION_HOUSE_BOT_ENABLE_BUYER
+              value: "0"
+            - name: AC_AUCTION_HOUSE_BOT_ACCOUNT
+              value: "0"
+            - name: AC_AUCTION_HOUSE_BOT_GUID
+              value: "0"
+            # which item categories the seller may draw from. these are the
+            # module's defaults: loot items and loot trade goods only.
+            - name: AC_AUCTION_HOUSE_BOT_VENDOR_ITEMS
+              value: "0"
+            - name: AC_AUCTION_HOUSE_BOT_VENDOR_TRADE_GOODS
+              value: "0"
+            - name: AC_AUCTION_HOUSE_BOT_LOOT_ITEMS
+              value: "1"
+            - name: AC_AUCTION_HOUSE_BOT_LOOT_TRADE_GOODS
+              value: "1"
+            - name: AC_AUCTION_HOUSE_BOT_OTHER_ITEMS
+              value: "0"
+            - name: AC_AUCTION_HOUSE_BOT_OTHER_TRADE_GOODS
+              value: "0"
+            - name: AC_AUCTION_HOUSE_BOT_PROFESSION_ITEMS
+              value: "1"
+            # bind rules — which binding types are listable at all.
+            # note the DOUBLE underscores.
+            - name: AC_AUCTION_HOUSE_BOT_NO__BIND
+              value: "1"
+            - name: AC_AUCTION_HOUSE_BOT_BIND__WHEN__PICKED__UP
+              value: "0"
+            - name: AC_AUCTION_HOUSE_BOT_BIND__WHEN__EQUIPPED
+              value: "1"
+            - name: AC_AUCTION_HOUSE_BOT_BIND__WHEN__USE
+              value: "1"
+            - name: AC_AUCTION_HOUSE_BOT_BIND__QUEST__ITEM
+              value: "0"
           ports:
             - name: world
               containerPort: 8085
