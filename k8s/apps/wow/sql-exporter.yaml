@@ -144,6 +144,20 @@ spec:
               values: [level]
               query: |
                 SELECT IFNULL(MAX(level), 0) AS level FROM acore_characters.characters
+            # Level as a *value*, not a label. wow_character_online and
+            # wow_character_playtime_seconds both carry `level`, but a label
+            # cannot be graphed — PromQL has no label-to-number conversion, and
+            # every ding would start a new series rather than move a line. This
+            # covers offline characters too, so the curve does not go flat the
+            # moment someone logs out. One series per character.
+            - metric_name: wow_character_level
+              type: gauge
+              help: "Current level of a character."
+              key_labels: [character_name]
+              values: [level]
+              query: |
+                SELECT c.name AS character_name, c.level AS level
+                FROM acore_characters.characters c
             - metric_name: wow_playtime_seconds_total
               type: gauge
               help: "Summed played time across all characters, in seconds."

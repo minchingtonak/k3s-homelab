@@ -1534,6 +1534,66 @@ data:
           "panels": []
         },
         {
+          "id": 28,
+          "type": "timeseries",
+          "title": "Character level over time",
+          "description": "Every character's level across the dashboard range. Offline characters are included, so a line does not go flat just because someone logged out. Level is exported as a metric *value* rather than a label — a label cannot be graphed, and every ding would mint a new series instead of moving the line.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 34
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "max by (character_name) (wow_character_level)",
+              "refId": "A",
+              "range": true,
+              "legendFormat": "{{character_name}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "min": 0,
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "stepAfter",
+                "lineWidth": 2,
+                "fillOpacity": 0,
+                "showPoints": "never",
+                "spanNulls": true,
+                "axisLabel": "level",
+                "pointSize": 5
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "showLegend": true,
+              "displayMode": "list",
+              "placement": "bottom",
+              "calcs": []
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          }
+        },
+        {
           "type": "barchart",
           "title": "Characters by class",
           "id": 8,
@@ -1545,7 +1605,7 @@ data:
             "h": 8,
             "w": 8,
             "x": 0,
-            "y": 34
+            "y": 42
           },
           "targets": [
             {
@@ -1617,7 +1677,7 @@ data:
             "h": 8,
             "w": 8,
             "x": 8,
-            "y": 34
+            "y": 42
           },
           "targets": [
             {
@@ -1689,7 +1749,7 @@ data:
             "h": 8,
             "w": 8,
             "x": 16,
-            "y": 34
+            "y": 42
           },
           "targets": [
             {
@@ -1761,7 +1821,7 @@ data:
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 42
+            "y": 50
           },
           "targets": [
             {
@@ -1860,7 +1920,7 @@ data:
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 50
+            "y": 58
           },
           "targets": [
             {
