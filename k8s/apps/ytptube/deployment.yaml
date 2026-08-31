@@ -71,7 +71,7 @@ spec:
         fsGroup: 100000
       containers:
         - name: ytptube
-          image: ghcr.io/arabcoders/ytptube:v2.7.0@sha256:deae383004a10e0e33c63dbabebcec67fcf5d411e281d91e34804924221b3d20
+          image: ghcr.io/arabcoders/ytptube:v2.7.2@sha256:b7a2e5506b787e03acb4eb57a7d0459de946fe0e10c0a4b15fc123237ae83495
           ports:
             - name: http
               containerPort: 8081
