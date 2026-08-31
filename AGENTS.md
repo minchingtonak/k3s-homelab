@@ -215,6 +215,30 @@ what the workload was doing.
 - `ansible/` — node provisioning and k3s bring-up. The only provisioning path.
 - `scratch/` — work in progress. **Never stage or commit anything here.**
 
+## Agent cron jobs
+
+Scheduled checks follow the renovate-digest pattern: the logic lives in
+`scripts/<name>.sh` here, PR-reviewed, and the entry point on the agent host
+(`HERMES_HOME/scripts/`) is a stub that fetches origin/main and runs the file
+from git — so unmerged changes never execute, and the stub rarely needs
+touching when the logic changes.
+
+The scheduler runs scripts in a minimal environment: bare `PATH`, no
+`KUBECONFIG`, no `GIT_SSH_COMMAND`. A stub that needs git or kubectl pins its
+own environment:
+
+```bash
+export PATH="/home/hermes/.hermes/bin:/usr/bin:/bin${PATH:+:${PATH}}"
+export KUBECONFIG="${KUBECONFIG:-/secrets/kubeconfig}"
+export GIT_SSH_COMMAND="${GIT_SSH_COMMAND:-ssh -i /secrets/id_ed25519 -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=/secrets/known_hosts}"
+```
+
+The GitHub deploy key and known_hosts live under `/secrets`, not `~/.ssh`;
+without the export a stub's `git fetch` dies with `Host key verification
+failed`. Aqua shims are not on the minimal PATH — invoke real binaries by
+absolute path (kubectl: `/home/hermes/.hermes/bin/kubectl`). Verify a stub
+with `env -i PATH=/usr/bin:/bin HOME=/home/hermes bash <stub>`.
+
 ## KEDA scale-to-zero enrollment
 
 Apps idle most of the day are enrolled in the KEDA HTTP add-on: an
