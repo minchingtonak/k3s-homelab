@@ -41,7 +41,7 @@ spec:
               echo "waiting for acore_auth schema (worldserver db-import)"; sleep 5; done
       containers:
         - name: authserver
-          image: acore/ac-wotlk-authserver:master@sha256:f34dfcfeca736b55fb2fd74602127ee03fb85f2a92e5a16fcd31e38ff0fe0125
+          image: acore/ac-wotlk-authserver:master@sha256:b706953e8fe4b5b6627149f3bff95539a7ea96803a82d6ac70cf1fdd6d2acd16
           tty: true
           env:
             - name: TZ
