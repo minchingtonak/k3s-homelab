@@ -55,7 +55,7 @@ data:
       "panels": [
         {
           "type": "stat",
-          "title": "Players online",
+          "title": "Characters online",
           "id": 1,
           "datasource": {
             "type": "prometheus",
@@ -291,7 +291,7 @@ data:
         },
         {
           "type": "timeseries",
-          "title": "Players online",
+          "title": "Online over time",
           "id": 5,
           "datasource": {
             "type": "prometheus",
@@ -352,7 +352,7 @@ data:
         {
           "id": 26,
           "type": "state-timeline",
-          "title": "Characters online",
+          "title": "Character sessions",
           "description": "One band per character while it was logged in \u2014 the panel above without the sum, so concurrent sessions and who was in them are both visible. A character offline leaves no series, so the gap is the logged-out period.",
           "datasource": {
             "type": "prometheus",
@@ -435,7 +435,7 @@ data:
         {
           "id": 27,
           "type": "state-timeline",
-          "title": "Accounts online",
+          "title": "Account sessions",
           "description": "One band per account while any of its characters was logged in. Derived from the same per-character metric, so an account with two characters online still reads as one band.",
           "datasource": {
             "type": "prometheus",
@@ -923,7 +923,7 @@ data:
         {
           "id": 24,
           "type": "row",
-          "title": "Player locations",
+          "title": "Character locations",
           "collapsed": true,
           "gridPos": {
             "h": 1,
@@ -935,7 +935,7 @@ data:
             {
               "id": 20,
               "type": "geomap",
-              "title": "Player positions — $continent",
+              "title": "Character positions — $continent",
               "description": "Online characters on the continent maps; click a marker for zone, level, class and race. Positions refresh with each character save (every 30s).",
               "datasource": {
                 "type": "prometheus",
@@ -1285,7 +1285,7 @@ data:
               "id": 21,
               "type": "barchart",
               "title": "Time by zone",
-              "description": "Player-time spent in each zone over the dashboard's range, summed across every character. The subquery samples who-is-where every 30s and multiplies by 30 to get seconds, so the figure follows the time picker and does not depend on the scrape interval. Top 12 zones.",
+              "description": "Character-time spent in each zone over the dashboard's range, summed across every character. The subquery samples who-is-where every 30s and multiplies by 30 to get seconds, so the figure follows the time picker and does not depend on the scrape interval. Top 12 zones.",
               "datasource": {
                 "type": "prometheus",
                 "uid": "prometheus"
