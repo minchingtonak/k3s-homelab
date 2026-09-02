@@ -1,3 +1,7 @@
+# Volumes with no recurring-job label are auto-enrolled in `default` by
+# Longhorn, so every volume gets the four jobs below unless it is explicitly
+# assigned elsewhere.
+---
 apiVersion: longhorn.io/v1beta2
 kind: RecurringJob
 metadata:
@@ -49,3 +53,38 @@ spec:
     - default
   retain: 24
   concurrency: 3
+---
+# A volume joins this group at provisioning time via the longhorn-metrics
+# StorageClass (storageclass-metrics.yaml), which is the declarative route.
+#
+# Volumes that already existed when this group was added had to be labelled by
+# hand instead, because the selector is only read at creation:
+#   kubectl -n longhorn-system label volume <pvc-name> \
+#     recurring-job-group.longhorn.io/metrics=enabled
+#   kubectl -n longhorn-system label volume <pvc-name> \
+#     recurring-job-group.longhorn.io/default-
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: snapshot-metrics
+  namespace: longhorn-system
+spec:
+  cron: "0 */12 * * *"
+  task: snapshot
+  groups:
+    - metrics
+  retain: 2
+  concurrency: 1
+---
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: backup-metrics
+  namespace: longhorn-system
+spec:
+  cron: "0 9 * * 0" # 5:00 AM EDT (summer, UTC-4), after the default weekly
+  task: backup
+  groups:
+    - metrics
+  retain: 4
+  concurrency: 1

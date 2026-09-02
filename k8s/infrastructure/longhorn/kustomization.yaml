@@ -6,3 +6,4 @@ resources:
   - backup-secret.sops.yaml
   - helmrelease.yaml
   - recurringjobs.yaml
+  - storageclass-metrics.yaml

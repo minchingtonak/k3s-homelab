@@ -1,0 +1,37 @@
+# A volume with no recurring-job label is auto-enrolled in `default`, and the
+# only way to opt out is to carry an explicit assignment instead. This class
+# stamps that assignment on at provisioning time, which is the one moment it can
+# be done declaratively: `recurringJobSelector` is read when the volume is
+# created and never again.
+#
+# Nothing uses it yet. The volume it was written for — Prometheus — already
+# exists, and neither a PVC's storageClassName nor a StatefulSet's
+# volumeClaimTemplate can be changed in place.
+#
+# So that volume was labelled by hand once, and this class sits here for the day
+# it is genuinely rebuilt — a restore from backup, a migration, a fresh cluster.
+# On that day, set storageClassName here on the new claim and the exclusion
+# becomes declarative with no manual step.
+#
+# Parameters mirror the default `longhorn` class exactly; only the selector and
+# the absence of is-default-class differ. Keep them in sync.
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: longhorn-metrics
+provisioner: driver.longhorn.io
+allowVolumeExpansion: true
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+parameters:
+  numberOfReplicas: "2"
+  staleReplicaTimeout: "30"
+  fromBackup: ""
+  fsType: ext4
+  dataLocality: disabled
+  unmapMarkSnapChainRemoved: ignored
+  disableRevisionCounter: "true"
+  dataEngine: v1
+  backupTargetName: default
+  # 2 snapshots/day + a weekly backup, retain 4
+  recurringJobSelector: '[{"name":"metrics","isGroup":true}]'
