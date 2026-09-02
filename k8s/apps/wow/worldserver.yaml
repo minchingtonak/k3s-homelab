@@ -50,11 +50,12 @@ spec:
                     operator: In
                     values:
                       - minicluster-agent-01
-      # first boot runs four init containers and can take 15+ minutes:
-      #   1. client-data  - downloads pre-extracted maps/vmaps/mmaps (~2.7GB)
-      #   2. wait-for-db  - blocks until mysql answers ping
-      #   3. db-import    - creates schemas and applies migrations (idempotent)
-      #   4. realmlist    - points the realm at the worldserver load balancer IP
+      # first boot runs five init containers and can take 15+ minutes:
+      #   1. client-data     - downloads pre-extracted maps/vmaps/mmaps (~2.7GB)
+      #   2. wait-for-db     - blocks until mysql answers ping
+      #   3. db-import       - creates schemas and applies migrations (idempotent)
+      #   4. realmlist       - points the realm at the worldserver load balancer IP
+      #   5. exporter-grants - reapplies the sql-exporter's read-only grants
       # subsequent boots skip the download and the migrations are no-ops.
       initContainers:
         - name: client-data
@@ -127,6 +128,47 @@ spec:
               && mysql -h wow-database.wow.svc.cluster.local -uroot -p"$MYSQL_ROOT_PASSWORD"
               -e "SELECT id,name,address,localAddress,localSubnetMask,port,flag,gamebuild
               FROM acore_auth.realmlist"
+        # The sql-exporter reads through a dedicated read-only user. Its grants
+        # used to be applied by hand and recorded only in a comment, which meant
+        # a rebuilt database silently lost them — wow_character_xp_total would
+        # just go flat, with no error anywhere to explain it. Reapplying them on
+        # every worldserver start makes the grants reproducible instead.
+        #
+        # This lives here rather than on the exporter because the credentials to
+        # run GRANT are root's, and this pod already holds them; putting them in
+        # the metrics pod would hand it the write access the read-only user
+        # exists to avoid. GRANT is idempotent, so re-running costs nothing.
+        #
+        # Creating the user is deliberately not done here: that needs its
+        # password, which lives in the exporter's own DSN secret. If the user is
+        # missing this logs and moves on rather than blocking the realm from
+        # starting over a metrics concern.
+        - name: exporter-grants
+          image: docker.io/library/mysql:8.4@sha256:b3b90af2a6552ae30c266fdb7d5dd55f3afb72404bb78d37fe8a23eb857fd3fb
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: wow
+                  key: MYSQL_ROOT_PASSWORD
+          command:
+            - sh
+            - -c
+            - |
+              set -eu
+              DB="mysql -h wow-database.wow.svc.cluster.local -uroot -p$MYSQL_ROOT_PASSWORD"
+              until $DB -e "SELECT 1 FROM acore_world.player_xp_for_level LIMIT 1" >/dev/null 2>&1; do
+                echo "waiting for the world schema"; sleep 5
+              done
+              if [ "$($DB -N -B -e "SELECT COUNT(*) FROM mysql.user WHERE user='wow_exporter'")" = "0" ]; then
+                echo "wow_exporter does not exist yet - skipping grants"
+                exit 0
+              fi
+              $DB -e "
+                GRANT SELECT ON acore_characters.* TO 'wow_exporter'@'%';
+                GRANT SELECT ON acore_auth.*       TO 'wow_exporter'@'%';
+                GRANT SELECT ON acore_world.player_xp_for_level TO 'wow_exporter'@'%';"
+              $DB -N -B -e "SHOW GRANTS FOR 'wow_exporter'@'%'"
       containers:
         - name: worldserver
           image: forgejo.item.fyi/akmin/ac-wotlk-worldserver:20260830@sha256:f889c1a108576e0f17fbf29dd91fe0f12ce7ad85b90a2445ab64d9e63e9843ce

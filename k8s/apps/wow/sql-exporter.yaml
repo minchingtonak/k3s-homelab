@@ -59,9 +59,16 @@ spec:
     #
     # The third is table-scoped rather than schema-wide on purpose: it is the one
     # world table any metric reads, and acore_world is otherwise none of the
-    # exporter's business. wow_character_xp_total depends on it — if that grant
-    # goes missing the metric disappears silently, so recreate the user with all
-    # three or that graph goes flat with no error anywhere.
+    # exporter's business.
+    #
+    # These are not applied by hand. The worldserver's `exporter-grants` init
+    # container reapplies all three on every start, so a rebuilt database cannot
+    # silently drop them and leave wow_character_xp_total flat with no error to
+    # explain it. Change this list and that init container together.
+    #
+    # The user itself is still created by hand, because creating it needs the
+    # password below rather than root's. If it is missing the init container logs
+    # and continues rather than holding the realm down over metrics.
     #
     # UPDATE and reads of mysql.* are both denied. A realm wipe does not drop the
     # user — that only drops the acore_* schemas. To rotate:
