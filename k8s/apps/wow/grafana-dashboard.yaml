@@ -38,7 +38,7 @@ data:
   wow-realm.json: |
     {
       "uid": "wow-realm",
-      "title": "WoW realm \u2014 Stalley of Vardew",
+      "title": "WoW realm: Stalley of Vardew",
       "tags": [
         "wow",
         "azerothcore"
@@ -1805,6 +1805,124 @@ data:
           }
         },
         {
+          "id": 32,
+          "type": "timeseries",
+          "title": "Money earned — ${coin:text}",
+          "description": "Gold acquired across the dashboard range, derived by summing the rises in each character's purse — nothing records lifetime earnings, so this is reconstructed from the balance beside it. It rises and never falls, so spending does not show. The 30s window matches the scrape interval, which is the finest resolution the data supports: the balance only changes in Prometheus once per scrape, so a shorter window would add cost without adding detail. Money gained and spent between two consecutive scrapes still cancels out and stays invisible.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 50
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "sum_over_time(clamp_min(max by (character_name) (wow_character_money_copper) - max by (character_name) (wow_character_money_copper offset 30s), 0)[$__range:30s]) / $coin",
+              "refId": "A",
+              "range": true,
+              "legendFormat": "{{character_name}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "min": 0,
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "fillOpacity": 0,
+                "showPoints": "never",
+                "spanNulls": true,
+                "axisLabel": "${coin:text}"
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "showLegend": true,
+              "displayMode": "list",
+              "placement": "bottom",
+              "calcs": []
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          }
+        },
+        {
+          "id": 33,
+          "type": "timeseries",
+          "title": "Money held — ${coin:text}",
+          "description": "Each character's purse as it actually is, so it falls when they spend. Offline characters keep their last balance rather than dropping out.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 50
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "max by (character_name) (wow_character_money_copper) / $coin",
+              "refId": "A",
+              "range": true,
+              "legendFormat": "{{character_name}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "min": 0,
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "fillOpacity": 0,
+                "showPoints": "never",
+                "spanNulls": true,
+                "axisLabel": "${coin:text}"
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "showLegend": true,
+              "displayMode": "list",
+              "placement": "bottom",
+              "calcs": []
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          }
+        },
+        {
           "type": "barchart",
           "title": "Characters by class",
           "id": 8,
@@ -1816,7 +1934,7 @@ data:
             "h": 8,
             "w": 8,
             "x": 0,
-            "y": 50
+            "y": 58
           },
           "targets": [
             {
@@ -1888,7 +2006,7 @@ data:
             "h": 8,
             "w": 8,
             "x": 8,
-            "y": 50
+            "y": 58
           },
           "targets": [
             {
@@ -1960,7 +2078,7 @@ data:
             "h": 8,
             "w": 8,
             "x": 16,
-            "y": 50
+            "y": 58
           },
           "targets": [
             {
@@ -2032,7 +2150,7 @@ data:
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 58
+            "y": 66
           },
           "targets": [
             {
@@ -2131,7 +2249,7 @@ data:
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 66
+            "y": 74
           },
           "targets": [
             {
@@ -2283,6 +2401,38 @@ data:
             "hide": 0,
             "current": {},
             "options": []
+          },
+          {
+            "name": "coin",
+            "label": "Coin",
+            "type": "custom",
+            "description": "Divisor applied to the money panels. The server stores copper; 100c = 1 silver, 10000c = 1 gold.",
+            "show": true,
+            "multi": false,
+            "includeAll": false,
+            "current": {
+              "selected": true,
+              "text": "Silver",
+              "value": "100"
+            },
+            "options": [
+              {
+                "selected": false,
+                "text": "Copper",
+                "value": "1"
+              },
+              {
+                "selected": true,
+                "text": "Silver",
+                "value": "100"
+              },
+              {
+                "selected": false,
+                "text": "Gold",
+                "value": "10000"
+              }
+            ],
+            "query": "Copper : 1,Silver : 100,Gold : 10000"
           },
           {
             "name": "continent",

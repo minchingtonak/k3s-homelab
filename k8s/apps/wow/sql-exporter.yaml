@@ -181,6 +181,18 @@ spec:
                                  FROM acore_world.player_xp_for_level x
                                  WHERE x.Level < c.level), 0) AS xp_total
                 FROM acore_characters.characters c
+            # Current purse in copper (1g = 100s = 10000c).
+            #
+            # Offline characters included, so a line holds its value instead of
+            # vanishing when someone logs out.
+            - metric_name: wow_character_money_copper
+              type: gauge
+              help: "Copper currently held by a character."
+              key_labels: [character_name]
+              values: [copper]
+              query: |
+                SELECT c.name AS character_name, c.money AS copper
+                FROM acore_characters.characters c
             # Client-reported round-trip time, keyed on the account rather than
             # the character. Latency belongs to the WorldSession — the TCP
             # connection — and a session belongs to an account; it only lands on
