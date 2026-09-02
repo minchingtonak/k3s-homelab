@@ -1696,7 +1696,7 @@ data:
           },
           "gridPos": {
             "h": 8,
-            "w": 24,
+            "w": 12,
             "x": 0,
             "y": 42
           },
@@ -1728,6 +1728,65 @@ data:
                 "spanNulls": true,
                 "axisLabel": "level",
                 "pointSize": 5
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "showLegend": true,
+              "displayMode": "list",
+              "placement": "bottom",
+              "calcs": []
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          }
+        },
+        {
+          "id": 31,
+          "type": "timeseries",
+          "title": "Character XP over time",
+          "description": "Total experience earned, summed across every level a character has completed rather than experience into the current level — the raw column resets to 0 on each ding, which would draw a sawtooth instead of progress. Offline characters are included, so a curve holds its value rather than disappearing. A vertical jump here and a step on the level chart beside it are the same ding.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 42
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "max by (character_name) (wow_character_xp_total)",
+              "refId": "A",
+              "range": true,
+              "legendFormat": "{{character_name}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "min": 0,
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "fillOpacity": 0,
+                "showPoints": "never",
+                "spanNulls": true,
+                "axisLabel": "total xp"
               }
             },
             "overrides": []
