@@ -9,3 +9,4 @@ resources:
   - sql-exporter-dsn.sops.yaml
   - sql-exporter.yaml
   - grafana-dashboard.yaml
+  - grafana-dashboard-public.yaml

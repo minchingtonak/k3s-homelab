@@ -1,0 +1,2147 @@
+# A second, deliberately reduced dashboard for players rather than operators.
+#
+# Two constraints shape it. Grafana's externally shared dashboards do not
+# interpolate template variables, so every query and the map's tile URL is a
+# literal — the continent picker and the copper/silver/gold switcher cannot come
+# along. And nothing here may reveal accounts: no usernames, GM levels, last
+# logins, IPs or per-account latency. Account labels are aggregated away in the
+# queries themselves rather than hidden by an organize transform, because a
+# transform only drops a column from the view, not from the query result the
+# browser receives.
+#
+# Derived from wow-realm's panels rather than written by hand, so the two can be
+# kept in step. Anything added must clear the same two bars.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wow-grafana-dashboard-public
+  namespace: wow
+  labels:
+    grafana_dashboard: "1"
+data:
+  wow-public.json: |
+    {
+      "uid": "wow-public",
+      "title": "Stalley of Vardew — realm status",
+      "tags": [
+        "wow",
+        "azerothcore",
+        "public"
+      ],
+      "timezone": "browser",
+      "schemaVersion": 39,
+      "version": 1,
+      "editable": false,
+      "refresh": "1m",
+      "time": {
+        "from": "now-24h",
+        "to": "now"
+      },
+      "templating": {
+        "list": []
+      },
+      "panels": [
+        {
+          "type": "stat",
+          "title": "Characters online",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 6,
+            "x": 0,
+            "y": 0
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "max(wow_players_online)",
+              "refId": "A",
+              "instant": true
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "mappings": [],
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "text",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto",
+            "colorMode": "none",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto"
+          },
+          "id": 1
+        },
+        {
+          "type": "stat",
+          "title": "Characters",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 6,
+            "x": 6,
+            "y": 0
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "max(wow_characters_total)",
+              "refId": "A",
+              "instant": true
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "mappings": [],
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "text",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto",
+            "colorMode": "none",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto"
+          },
+          "id": 2
+        },
+        {
+          "type": "stat",
+          "title": "Highest level",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 6,
+            "x": 12,
+            "y": 0
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "max(wow_character_level_max)",
+              "refId": "A",
+              "instant": true
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "mappings": [],
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "text",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto",
+            "colorMode": "none",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto"
+          },
+          "id": 3
+        },
+        {
+          "type": "stat",
+          "title": "Total playtime",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 6,
+            "x": 18,
+            "y": 0
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "max(wow_playtime_seconds_total)",
+              "refId": "A",
+              "instant": true
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "mappings": [],
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "text",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto",
+            "colorMode": "none",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto"
+          },
+          "id": 4
+        },
+        {
+          "type": "timeseries",
+          "title": "Characters online over time",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 4
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "max(wow_players_online)",
+              "refId": "A",
+              "range": true,
+              "legendFormat": "characters"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "min": 0,
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 2,
+                "fillOpacity": 15,
+                "showPoints": "never",
+                "spanNulls": true
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "description": "Characters logged in across the range.",
+          "id": 5
+        },
+        {
+          "type": "state-timeline",
+          "title": "Character sessions",
+          "description": "One band per character while it was logged in.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 12
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "max by (character_name) (wow_character_online)",
+              "refId": "A",
+              "range": true,
+              "legendFormat": "{{character_name}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "lineWidth": 0,
+                "fillOpacity": 80,
+                "spanNulls": false,
+                "hideFrom": {
+                  "tooltip": false,
+                  "viz": false,
+                  "legend": false
+                }
+              },
+              "mappings": [
+                {
+                  "type": "value",
+                  "options": {
+                    "1": {
+                      "text": "online",
+                      "index": 0
+                    }
+                  }
+                }
+              ],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "text",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "mergeValues": true,
+            "showValue": "never",
+            "alignValue": "left",
+            "rowHeight": 0.9,
+            "perPage": 20,
+            "legend": {
+              "showLegend": false,
+              "displayMode": "list",
+              "placement": "bottom",
+              "calcs": []
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "id": 6
+        },
+        {
+          "type": "timeseries",
+          "title": "Server latency",
+          "gridPos": {
+            "h": 6,
+            "w": 24,
+            "x": 0,
+            "y": 20
+          },
+          "description": "Round-trip time across everyone online, as mean and median. No line appears while nobody is logged in.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "avg(wow_account_latency_ms)",
+              "refId": "A",
+              "range": true,
+              "legendFormat": "mean"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "quantile(0.50, wow_account_latency_ms)",
+              "refId": "B",
+              "range": true,
+              "legendFormat": "median"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ms",
+              "min": 0,
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "fillOpacity": 0,
+                "showPoints": "never",
+                "spanNulls": false,
+                "axisLabel": "round-trip time"
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "showLegend": true,
+              "displayMode": "list",
+              "placement": "bottom",
+              "calcs": []
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "id": 7
+        },
+        {
+          "type": "geomap",
+          "title": "Where players are",
+          "description": "Online characters on the Azeroth continent map.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "gridPos": {
+            "h": 26,
+            "w": 16,
+            "x": 0,
+            "y": 26
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "max by (character_name) (wow_character_position_lon{continent=\"Azeroth\"})",
+              "refId": "A",
+              "instant": true,
+              "format": "table"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "max by (character_name) (wow_character_position_lat and on (character_name) wow_character_position_lon{continent=\"Azeroth\"})",
+              "refId": "B",
+              "instant": true,
+              "format": "table"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "max by (character_name, zone) (wow_character_zone)",
+              "refId": "C",
+              "instant": true,
+              "format": "table"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "max by (character_name, level, class, race) (wow_character_online)",
+              "refId": "D",
+              "instant": true,
+              "format": "table"
+            }
+          ],
+          "transformations": [
+            {
+              "id": "joinByField",
+              "options": {
+                "byField": "character_name",
+                "mode": "outer"
+              }
+            },
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true,
+                  "Time 1": true,
+                  "Time 2": true,
+                  "Time 3": true,
+                  "Time 4": true,
+                  "Value #C": true,
+                  "Value #D": true,
+                  "continent": true
+                },
+                "renameByName": {
+                  "character_name": "Character",
+                  "level": "Level",
+                  "class": "Class",
+                  "race": "Race",
+                  "zone": "Zone",
+                  "Value #A": "lon",
+                  "Value #B": "lat"
+                },
+                "indexByName": {
+                  "character_name": 0,
+                  "level": 1,
+                  "class": 2,
+                  "race": 3,
+                  "zone": 4,
+                  "Value #A": 6,
+                  "Value #B": 7
+                }
+              }
+            }
+          ],
+          "options": {
+            "basemap": {
+              "type": "xyz",
+              "name": "wow-tiles",
+              "config": {
+                "url": "https://raw.githubusercontent.com/minchingtonak/k3s-homelab/main/assets/wow-maps/tiles/Azeroth/{z}/{x}/{y}.jpg",
+                "attribution": "Map images: azerothcore/playermap",
+                "minZoom": 4,
+                "maxZoom": 7
+              }
+            },
+            "controls": {
+              "mouseWheelZoom": true,
+              "showAttribution": true,
+              "showZoom": true
+            },
+            "view": {
+              "id": "coords",
+              "lat": 0,
+              "lon": 13.2,
+              "zoom": 6,
+              "minZoom": 4,
+              "maxZoom": 8
+            },
+            "layers": [
+              {
+                "type": "markers",
+                "name": "label halo NW",
+                "tooltip": false,
+                "location": {
+                  "mode": "coords",
+                  "longitude": "lon",
+                  "latitude": "lat",
+                  "gazetteer": "",
+                  "node": ""
+                },
+                "config": {
+                  "style": {
+                    "color": {
+                      "mode": "fixed",
+                      "fixed": "#000000"
+                    },
+                    "text": {
+                      "mode": "field",
+                      "field": "Character",
+                      "fixed": ""
+                    },
+                    "textConfig": {
+                      "fontSize": 12,
+                      "offsetX": -1,
+                      "offsetY": -15,
+                      "textAlign": "center",
+                      "textBaseline": "middle"
+                    }
+                  },
+                  "showLegend": false
+                }
+              },
+              {
+                "type": "markers",
+                "name": "label halo NE",
+                "tooltip": false,
+                "location": {
+                  "mode": "coords",
+                  "longitude": "lon",
+                  "latitude": "lat",
+                  "gazetteer": "",
+                  "node": ""
+                },
+                "config": {
+                  "style": {
+                    "color": {
+                      "mode": "fixed",
+                      "fixed": "#000000"
+                    },
+                    "text": {
+                      "mode": "field",
+                      "field": "Character",
+                      "fixed": ""
+                    },
+                    "textConfig": {
+                      "fontSize": 12,
+                      "offsetX": 1,
+                      "offsetY": -15,
+                      "textAlign": "center",
+                      "textBaseline": "middle"
+                    }
+                  },
+                  "showLegend": false
+                }
+              },
+              {
+                "type": "markers",
+                "name": "label halo SW",
+                "tooltip": false,
+                "location": {
+                  "mode": "coords",
+                  "longitude": "lon",
+                  "latitude": "lat",
+                  "gazetteer": "",
+                  "node": ""
+                },
+                "config": {
+                  "style": {
+                    "color": {
+                      "mode": "fixed",
+                      "fixed": "#000000"
+                    },
+                    "text": {
+                      "mode": "field",
+                      "field": "Character",
+                      "fixed": ""
+                    },
+                    "textConfig": {
+                      "fontSize": 12,
+                      "offsetX": -1,
+                      "offsetY": -13,
+                      "textAlign": "center",
+                      "textBaseline": "middle"
+                    }
+                  },
+                  "showLegend": false
+                }
+              },
+              {
+                "type": "markers",
+                "name": "label halo SE",
+                "tooltip": false,
+                "location": {
+                  "mode": "coords",
+                  "longitude": "lon",
+                  "latitude": "lat",
+                  "gazetteer": "",
+                  "node": ""
+                },
+                "config": {
+                  "style": {
+                    "color": {
+                      "mode": "fixed",
+                      "fixed": "#000000"
+                    },
+                    "text": {
+                      "mode": "field",
+                      "field": "Character",
+                      "fixed": ""
+                    },
+                    "textConfig": {
+                      "fontSize": 12,
+                      "offsetX": 1,
+                      "offsetY": -13,
+                      "textAlign": "center",
+                      "textBaseline": "middle"
+                    }
+                  },
+                  "showLegend": false
+                }
+              },
+              {
+                "type": "markers",
+                "name": "players",
+                "tooltip": true,
+                "location": {
+                  "mode": "coords",
+                  "longitude": "lon",
+                  "latitude": "lat",
+                  "gazetteer": "",
+                  "node": ""
+                },
+                "config": {
+                  "style": {
+                    "color": {
+                      "mode": "fixed",
+                      "fixed": "#FF2D95"
+                    },
+                    "opacity": 1,
+                    "lineWidth": 2,
+                    "size": {
+                      "mode": "fixed",
+                      "fixed": 9
+                    },
+                    "symbol": {
+                      "mode": "fixed",
+                      "fixed": "img/icons/marker/circle.svg"
+                    },
+                    "text": {
+                      "mode": "field",
+                      "field": "Character",
+                      "fixed": ""
+                    },
+                    "textConfig": {
+                      "fontSize": 12,
+                      "offsetX": 0,
+                      "offsetY": -14,
+                      "textAlign": "center",
+                      "textBaseline": "middle"
+                    }
+                  },
+                  "showLegend": false
+                }
+              }
+            ],
+            "tooltip": {
+              "mode": "single"
+            }
+          },
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byNames",
+                  "options": {
+                    "mode": "include",
+                    "names": [
+                      "lon",
+                      "lat"
+                    ]
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "tooltip": true,
+                      "legend": true,
+                      "viz": false
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "id": 8
+        },
+        {
+          "type": "barchart",
+          "title": "Time by zone",
+          "description": "Character-time spent in each zone over the dashboard's range, summed across every character. Top 12 zones.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "gridPos": {
+            "h": 26,
+            "w": 8,
+            "x": 16,
+            "y": 26
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "topk(12, sum by (zone) (sum_over_time((max by (character_name, zone) (wow_character_zone))[$__range:30s])) * 30)",
+              "refId": "A",
+              "instant": true,
+              "format": "table"
+            }
+          ],
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true
+                },
+                "renameByName": {
+                  "Value": "played"
+                },
+                "indexByName": {}
+              }
+            },
+            {
+              "id": "sortBy",
+              "options": {
+                "fields": {},
+                "sort": [
+                  {
+                    "field": "played",
+                    "desc": true
+                  }
+                ]
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "min": 0,
+              "custom": {
+                "fillOpacity": 80,
+                "lineWidth": 1
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "xField": "zone",
+            "orientation": "horizontal",
+            "showValue": "always",
+            "legend": {
+              "showLegend": false
+            },
+            "xTickLabelRotation": 0,
+            "stacking": "none",
+            "barWidth": 0.8,
+            "groupWidth": 0.7
+          },
+          "id": 9
+        },
+        {
+          "type": "row",
+          "title": "Other continents",
+          "collapsed": true,
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 52
+          },
+          "panels": [
+            {
+              "type": "geomap",
+              "title": "Where players are — Outland",
+              "description": "Online characters on the Outland map.",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "gridPos": {
+                "h": 26,
+                "w": 16,
+                "x": 0,
+                "y": 53
+              },
+              "targets": [
+                {
+                  "datasource": {
+                    "type": "prometheus",
+                    "uid": "prometheus"
+                  },
+                  "expr": "max by (character_name) (wow_character_position_lon{continent=\"Outland\"})",
+                  "refId": "A",
+                  "instant": true,
+                  "format": "table"
+                },
+                {
+                  "datasource": {
+                    "type": "prometheus",
+                    "uid": "prometheus"
+                  },
+                  "expr": "max by (character_name) (wow_character_position_lat and on (character_name) wow_character_position_lon{continent=\"Outland\"})",
+                  "refId": "B",
+                  "instant": true,
+                  "format": "table"
+                },
+                {
+                  "datasource": {
+                    "type": "prometheus",
+                    "uid": "prometheus"
+                  },
+                  "expr": "max by (character_name, zone) (wow_character_zone)",
+                  "refId": "C",
+                  "instant": true,
+                  "format": "table"
+                },
+                {
+                  "datasource": {
+                    "type": "prometheus",
+                    "uid": "prometheus"
+                  },
+                  "expr": "max by (character_name, level, class, race) (wow_character_online)",
+                  "refId": "D",
+                  "instant": true,
+                  "format": "table"
+                }
+              ],
+              "transformations": [
+                {
+                  "id": "joinByField",
+                  "options": {
+                    "byField": "character_name",
+                    "mode": "outer"
+                  }
+                },
+                {
+                  "id": "organize",
+                  "options": {
+                    "excludeByName": {
+                      "Time": true,
+                      "Time 1": true,
+                      "Time 2": true,
+                      "Time 3": true,
+                      "Time 4": true,
+                      "Value #C": true,
+                      "Value #D": true,
+                      "continent": true
+                    },
+                    "renameByName": {
+                      "character_name": "Character",
+                      "level": "Level",
+                      "class": "Class",
+                      "race": "Race",
+                      "zone": "Zone",
+                      "Value #A": "lon",
+                      "Value #B": "lat"
+                    },
+                    "indexByName": {
+                      "character_name": 0,
+                      "level": 1,
+                      "class": 2,
+                      "race": 3,
+                      "zone": 4,
+                      "Value #A": 6,
+                      "Value #B": 7
+                    }
+                  }
+                }
+              ],
+              "options": {
+                "basemap": {
+                  "type": "xyz",
+                  "name": "wow-tiles",
+                  "config": {
+                    "url": "https://raw.githubusercontent.com/minchingtonak/k3s-homelab/main/assets/wow-maps/tiles/Outland/{z}/{x}/{y}.jpg",
+                    "attribution": "Map images: azerothcore/playermap",
+                    "minZoom": 4,
+                    "maxZoom": 7
+                  }
+                },
+                "controls": {
+                  "mouseWheelZoom": true,
+                  "showAttribution": true,
+                  "showZoom": true
+                },
+                "view": {
+                  "id": "coords",
+                  "lat": 0,
+                  "lon": 13.2,
+                  "zoom": 6,
+                  "minZoom": 4,
+                  "maxZoom": 8
+                },
+                "layers": [
+                  {
+                    "type": "markers",
+                    "name": "label halo NW",
+                    "tooltip": false,
+                    "location": {
+                      "mode": "coords",
+                      "longitude": "lon",
+                      "latitude": "lat",
+                      "gazetteer": "",
+                      "node": ""
+                    },
+                    "config": {
+                      "style": {
+                        "color": {
+                          "mode": "fixed",
+                          "fixed": "#000000"
+                        },
+                        "text": {
+                          "mode": "field",
+                          "field": "Character",
+                          "fixed": ""
+                        },
+                        "textConfig": {
+                          "fontSize": 12,
+                          "offsetX": -1,
+                          "offsetY": -15,
+                          "textAlign": "center",
+                          "textBaseline": "middle"
+                        }
+                      },
+                      "showLegend": false
+                    }
+                  },
+                  {
+                    "type": "markers",
+                    "name": "label halo NE",
+                    "tooltip": false,
+                    "location": {
+                      "mode": "coords",
+                      "longitude": "lon",
+                      "latitude": "lat",
+                      "gazetteer": "",
+                      "node": ""
+                    },
+                    "config": {
+                      "style": {
+                        "color": {
+                          "mode": "fixed",
+                          "fixed": "#000000"
+                        },
+                        "text": {
+                          "mode": "field",
+                          "field": "Character",
+                          "fixed": ""
+                        },
+                        "textConfig": {
+                          "fontSize": 12,
+                          "offsetX": 1,
+                          "offsetY": -15,
+                          "textAlign": "center",
+                          "textBaseline": "middle"
+                        }
+                      },
+                      "showLegend": false
+                    }
+                  },
+                  {
+                    "type": "markers",
+                    "name": "label halo SW",
+                    "tooltip": false,
+                    "location": {
+                      "mode": "coords",
+                      "longitude": "lon",
+                      "latitude": "lat",
+                      "gazetteer": "",
+                      "node": ""
+                    },
+                    "config": {
+                      "style": {
+                        "color": {
+                          "mode": "fixed",
+                          "fixed": "#000000"
+                        },
+                        "text": {
+                          "mode": "field",
+                          "field": "Character",
+                          "fixed": ""
+                        },
+                        "textConfig": {
+                          "fontSize": 12,
+                          "offsetX": -1,
+                          "offsetY": -13,
+                          "textAlign": "center",
+                          "textBaseline": "middle"
+                        }
+                      },
+                      "showLegend": false
+                    }
+                  },
+                  {
+                    "type": "markers",
+                    "name": "label halo SE",
+                    "tooltip": false,
+                    "location": {
+                      "mode": "coords",
+                      "longitude": "lon",
+                      "latitude": "lat",
+                      "gazetteer": "",
+                      "node": ""
+                    },
+                    "config": {
+                      "style": {
+                        "color": {
+                          "mode": "fixed",
+                          "fixed": "#000000"
+                        },
+                        "text": {
+                          "mode": "field",
+                          "field": "Character",
+                          "fixed": ""
+                        },
+                        "textConfig": {
+                          "fontSize": 12,
+                          "offsetX": 1,
+                          "offsetY": -13,
+                          "textAlign": "center",
+                          "textBaseline": "middle"
+                        }
+                      },
+                      "showLegend": false
+                    }
+                  },
+                  {
+                    "type": "markers",
+                    "name": "players",
+                    "tooltip": true,
+                    "location": {
+                      "mode": "coords",
+                      "longitude": "lon",
+                      "latitude": "lat",
+                      "gazetteer": "",
+                      "node": ""
+                    },
+                    "config": {
+                      "style": {
+                        "color": {
+                          "mode": "fixed",
+                          "fixed": "#FF2D95"
+                        },
+                        "opacity": 1,
+                        "lineWidth": 2,
+                        "size": {
+                          "mode": "fixed",
+                          "fixed": 9
+                        },
+                        "symbol": {
+                          "mode": "fixed",
+                          "fixed": "img/icons/marker/circle.svg"
+                        },
+                        "text": {
+                          "mode": "field",
+                          "field": "Character",
+                          "fixed": ""
+                        },
+                        "textConfig": {
+                          "fontSize": 12,
+                          "offsetX": 0,
+                          "offsetY": -14,
+                          "textAlign": "center",
+                          "textBaseline": "middle"
+                        }
+                      },
+                      "showLegend": false
+                    }
+                  }
+                ],
+                "tooltip": {
+                  "mode": "single"
+                }
+              },
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": [
+                  {
+                    "matcher": {
+                      "id": "byNames",
+                      "options": {
+                        "mode": "include",
+                        "names": [
+                          "lon",
+                          "lat"
+                        ]
+                      }
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.hideFrom",
+                        "value": {
+                          "tooltip": true,
+                          "legend": true,
+                          "viz": false
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              "id": 11
+            },
+            {
+              "type": "geomap",
+              "title": "Where players are — Northrend",
+              "description": "Online characters on the Northrend map.",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "gridPos": {
+                "h": 26,
+                "w": 16,
+                "x": 0,
+                "y": 79
+              },
+              "targets": [
+                {
+                  "datasource": {
+                    "type": "prometheus",
+                    "uid": "prometheus"
+                  },
+                  "expr": "max by (character_name) (wow_character_position_lon{continent=\"Northrend\"})",
+                  "refId": "A",
+                  "instant": true,
+                  "format": "table"
+                },
+                {
+                  "datasource": {
+                    "type": "prometheus",
+                    "uid": "prometheus"
+                  },
+                  "expr": "max by (character_name) (wow_character_position_lat and on (character_name) wow_character_position_lon{continent=\"Northrend\"})",
+                  "refId": "B",
+                  "instant": true,
+                  "format": "table"
+                },
+                {
+                  "datasource": {
+                    "type": "prometheus",
+                    "uid": "prometheus"
+                  },
+                  "expr": "max by (character_name, zone) (wow_character_zone)",
+                  "refId": "C",
+                  "instant": true,
+                  "format": "table"
+                },
+                {
+                  "datasource": {
+                    "type": "prometheus",
+                    "uid": "prometheus"
+                  },
+                  "expr": "max by (character_name, level, class, race) (wow_character_online)",
+                  "refId": "D",
+                  "instant": true,
+                  "format": "table"
+                }
+              ],
+              "transformations": [
+                {
+                  "id": "joinByField",
+                  "options": {
+                    "byField": "character_name",
+                    "mode": "outer"
+                  }
+                },
+                {
+                  "id": "organize",
+                  "options": {
+                    "excludeByName": {
+                      "Time": true,
+                      "Time 1": true,
+                      "Time 2": true,
+                      "Time 3": true,
+                      "Time 4": true,
+                      "Value #C": true,
+                      "Value #D": true,
+                      "continent": true
+                    },
+                    "renameByName": {
+                      "character_name": "Character",
+                      "level": "Level",
+                      "class": "Class",
+                      "race": "Race",
+                      "zone": "Zone",
+                      "Value #A": "lon",
+                      "Value #B": "lat"
+                    },
+                    "indexByName": {
+                      "character_name": 0,
+                      "level": 1,
+                      "class": 2,
+                      "race": 3,
+                      "zone": 4,
+                      "Value #A": 6,
+                      "Value #B": 7
+                    }
+                  }
+                }
+              ],
+              "options": {
+                "basemap": {
+                  "type": "xyz",
+                  "name": "wow-tiles",
+                  "config": {
+                    "url": "https://raw.githubusercontent.com/minchingtonak/k3s-homelab/main/assets/wow-maps/tiles/Northrend/{z}/{x}/{y}.jpg",
+                    "attribution": "Map images: azerothcore/playermap",
+                    "minZoom": 4,
+                    "maxZoom": 7
+                  }
+                },
+                "controls": {
+                  "mouseWheelZoom": true,
+                  "showAttribution": true,
+                  "showZoom": true
+                },
+                "view": {
+                  "id": "coords",
+                  "lat": 0,
+                  "lon": 13.2,
+                  "zoom": 6,
+                  "minZoom": 4,
+                  "maxZoom": 8
+                },
+                "layers": [
+                  {
+                    "type": "markers",
+                    "name": "label halo NW",
+                    "tooltip": false,
+                    "location": {
+                      "mode": "coords",
+                      "longitude": "lon",
+                      "latitude": "lat",
+                      "gazetteer": "",
+                      "node": ""
+                    },
+                    "config": {
+                      "style": {
+                        "color": {
+                          "mode": "fixed",
+                          "fixed": "#000000"
+                        },
+                        "text": {
+                          "mode": "field",
+                          "field": "Character",
+                          "fixed": ""
+                        },
+                        "textConfig": {
+                          "fontSize": 12,
+                          "offsetX": -1,
+                          "offsetY": -15,
+                          "textAlign": "center",
+                          "textBaseline": "middle"
+                        }
+                      },
+                      "showLegend": false
+                    }
+                  },
+                  {
+                    "type": "markers",
+                    "name": "label halo NE",
+                    "tooltip": false,
+                    "location": {
+                      "mode": "coords",
+                      "longitude": "lon",
+                      "latitude": "lat",
+                      "gazetteer": "",
+                      "node": ""
+                    },
+                    "config": {
+                      "style": {
+                        "color": {
+                          "mode": "fixed",
+                          "fixed": "#000000"
+                        },
+                        "text": {
+                          "mode": "field",
+                          "field": "Character",
+                          "fixed": ""
+                        },
+                        "textConfig": {
+                          "fontSize": 12,
+                          "offsetX": 1,
+                          "offsetY": -15,
+                          "textAlign": "center",
+                          "textBaseline": "middle"
+                        }
+                      },
+                      "showLegend": false
+                    }
+                  },
+                  {
+                    "type": "markers",
+                    "name": "label halo SW",
+                    "tooltip": false,
+                    "location": {
+                      "mode": "coords",
+                      "longitude": "lon",
+                      "latitude": "lat",
+                      "gazetteer": "",
+                      "node": ""
+                    },
+                    "config": {
+                      "style": {
+                        "color": {
+                          "mode": "fixed",
+                          "fixed": "#000000"
+                        },
+                        "text": {
+                          "mode": "field",
+                          "field": "Character",
+                          "fixed": ""
+                        },
+                        "textConfig": {
+                          "fontSize": 12,
+                          "offsetX": -1,
+                          "offsetY": -13,
+                          "textAlign": "center",
+                          "textBaseline": "middle"
+                        }
+                      },
+                      "showLegend": false
+                    }
+                  },
+                  {
+                    "type": "markers",
+                    "name": "label halo SE",
+                    "tooltip": false,
+                    "location": {
+                      "mode": "coords",
+                      "longitude": "lon",
+                      "latitude": "lat",
+                      "gazetteer": "",
+                      "node": ""
+                    },
+                    "config": {
+                      "style": {
+                        "color": {
+                          "mode": "fixed",
+                          "fixed": "#000000"
+                        },
+                        "text": {
+                          "mode": "field",
+                          "field": "Character",
+                          "fixed": ""
+                        },
+                        "textConfig": {
+                          "fontSize": 12,
+                          "offsetX": 1,
+                          "offsetY": -13,
+                          "textAlign": "center",
+                          "textBaseline": "middle"
+                        }
+                      },
+                      "showLegend": false
+                    }
+                  },
+                  {
+                    "type": "markers",
+                    "name": "players",
+                    "tooltip": true,
+                    "location": {
+                      "mode": "coords",
+                      "longitude": "lon",
+                      "latitude": "lat",
+                      "gazetteer": "",
+                      "node": ""
+                    },
+                    "config": {
+                      "style": {
+                        "color": {
+                          "mode": "fixed",
+                          "fixed": "#FF2D95"
+                        },
+                        "opacity": 1,
+                        "lineWidth": 2,
+                        "size": {
+                          "mode": "fixed",
+                          "fixed": 9
+                        },
+                        "symbol": {
+                          "mode": "fixed",
+                          "fixed": "img/icons/marker/circle.svg"
+                        },
+                        "text": {
+                          "mode": "field",
+                          "field": "Character",
+                          "fixed": ""
+                        },
+                        "textConfig": {
+                          "fontSize": 12,
+                          "offsetX": 0,
+                          "offsetY": -14,
+                          "textAlign": "center",
+                          "textBaseline": "middle"
+                        }
+                      },
+                      "showLegend": false
+                    }
+                  }
+                ],
+                "tooltip": {
+                  "mode": "single"
+                }
+              },
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": [
+                  {
+                    "matcher": {
+                      "id": "byNames",
+                      "options": {
+                        "mode": "include",
+                        "names": [
+                          "lon",
+                          "lat"
+                        ]
+                      }
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.hideFrom",
+                        "value": {
+                          "tooltip": true,
+                          "legend": true,
+                          "viz": false
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              "id": 12
+            }
+          ],
+          "id": 10
+        },
+        {
+          "type": "row",
+          "title": "Characters",
+          "collapsed": false,
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 53
+          },
+          "panels": [],
+          "id": 13
+        },
+        {
+          "type": "timeseries",
+          "title": "Character level over time",
+          "description": "Every character's level across the dashboard range.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 54
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "max by (character_name) (wow_character_level)",
+              "refId": "A",
+              "range": true,
+              "legendFormat": "{{character_name}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "min": 0,
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "stepAfter",
+                "lineWidth": 2,
+                "fillOpacity": 0,
+                "showPoints": "never",
+                "spanNulls": true,
+                "axisLabel": "level",
+                "pointSize": 5
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "showLegend": true,
+              "displayMode": "list",
+              "placement": "bottom",
+              "calcs": []
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "id": 14
+        },
+        {
+          "type": "timeseries",
+          "title": "Character XP over time",
+          "description": "Total experience earned, summed across every level a character has completed rather than experience into the current level.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 54
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "max by (character_name) (wow_character_xp_total)",
+              "refId": "A",
+              "range": true,
+              "legendFormat": "{{character_name}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "min": 0,
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "fillOpacity": 0,
+                "showPoints": "never",
+                "spanNulls": true,
+                "axisLabel": "total xp"
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "showLegend": true,
+              "displayMode": "list",
+              "placement": "bottom",
+              "calcs": []
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "id": 15
+        },
+        {
+          "type": "timeseries",
+          "title": "Money held (silver)",
+          "description": "Each character's purse as it actually is, so it falls when they spend. Offline characters keep their last balance rather than dropping out.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 62
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "max by (character_name) (wow_character_money_copper) / 100",
+              "refId": "A",
+              "range": true,
+              "legendFormat": "{{character_name}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "min": 0,
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "fillOpacity": 0,
+                "showPoints": "never",
+                "spanNulls": true,
+                "axisLabel": "silver"
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "showLegend": true,
+              "displayMode": "list",
+              "placement": "bottom",
+              "calcs": []
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "id": 16
+        },
+        {
+          "type": "timeseries",
+          "title": "Money earned (silver)",
+          "description": "Gold acquired across the dashboard range. It rises and never falls, so spending does not show.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 62
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "sum_over_time(clamp_min(max by (character_name) (wow_character_money_copper) - max by (character_name) (wow_character_money_copper offset 30s), 0)[$__range:30s]) / 100",
+              "refId": "A",
+              "range": true,
+              "legendFormat": "{{character_name}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "min": 0,
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "fillOpacity": 0,
+                "showPoints": "never",
+                "spanNulls": true,
+                "axisLabel": "silver"
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "showLegend": true,
+              "displayMode": "list",
+              "placement": "bottom",
+              "calcs": []
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "id": 17
+        },
+        {
+          "type": "barchart",
+          "title": "Characters by class",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 8,
+            "x": 0,
+            "y": 70
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "max by (class) (wow_characters_by_class)",
+              "refId": "A",
+              "instant": true,
+              "format": "table"
+            }
+          ],
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true,
+                  "__name__": true,
+                  "job": true,
+                  "instance": true,
+                  "namespace": true,
+                  "pod": true,
+                  "container": true,
+                  "endpoint": true,
+                  "service": true
+                },
+                "renameByName": {
+                  "Value": "characters"
+                },
+                "indexByName": {}
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "min": 0,
+              "custom": {
+                "fillOpacity": 80,
+                "lineWidth": 1
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "xField": "class",
+            "orientation": "horizontal",
+            "showValue": "always",
+            "legend": {
+              "showLegend": false
+            },
+            "xTickLabelRotation": 0,
+            "stacking": "none",
+            "barWidth": 0.8,
+            "groupWidth": 0.7
+          },
+          "id": 18
+        },
+        {
+          "type": "barchart",
+          "title": "Characters by race",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 8,
+            "x": 8,
+            "y": 70
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "max by (race) (wow_characters_by_race)",
+              "refId": "A",
+              "instant": true,
+              "format": "table"
+            }
+          ],
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true,
+                  "__name__": true,
+                  "job": true,
+                  "instance": true,
+                  "namespace": true,
+                  "pod": true,
+                  "container": true,
+                  "endpoint": true,
+                  "service": true
+                },
+                "renameByName": {
+                  "Value": "characters"
+                },
+                "indexByName": {}
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "min": 0,
+              "custom": {
+                "fillOpacity": 80,
+                "lineWidth": 1
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "xField": "race",
+            "orientation": "horizontal",
+            "showValue": "always",
+            "legend": {
+              "showLegend": false
+            },
+            "xTickLabelRotation": 0,
+            "stacking": "none",
+            "barWidth": 0.8,
+            "groupWidth": 0.7
+          },
+          "id": 19
+        },
+        {
+          "type": "barchart",
+          "title": "Most played",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 8,
+            "x": 16,
+            "y": 70
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "topk(5, max by (character_name) (wow_character_playtime_seconds))",
+              "refId": "A",
+              "instant": true,
+              "format": "table"
+            }
+          ],
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true,
+                  "__name__": true,
+                  "job": true,
+                  "instance": true,
+                  "namespace": true,
+                  "pod": true,
+                  "container": true,
+                  "endpoint": true,
+                  "service": true
+                },
+                "renameByName": {
+                  "Value": "characters"
+                },
+                "indexByName": {}
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "min": 0,
+              "custom": {
+                "fillOpacity": 80,
+                "lineWidth": 1
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "xField": "character_name",
+            "orientation": "horizontal",
+            "showValue": "always",
+            "legend": {
+              "showLegend": false
+            },
+            "xTickLabelRotation": 0,
+            "stacking": "none",
+            "barWidth": 0.8,
+            "groupWidth": 0.7
+          },
+          "id": 20
+        },
+        {
+          "type": "table",
+          "title": "Who is online",
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 78
+          },
+          "description": "Characters currently logged in.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "max by (character_name, zone) (wow_character_zone)",
+              "refId": "A",
+              "instant": true,
+              "format": "table"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "max by (character_name, level, class, race) (wow_character_online)",
+              "refId": "B",
+              "instant": true,
+              "format": "table"
+            }
+          ],
+          "transformations": [
+            {
+              "id": "joinByField",
+              "options": {
+                "byField": "character_name",
+                "mode": "outer"
+              }
+            },
+            {
+              "id": "convertFieldType",
+              "options": {
+                "fields": {},
+                "conversions": [
+                  {
+                    "targetField": "level",
+                    "destinationType": "number"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true,
+                  "Time 1": true,
+                  "Time 2": true,
+                  "Value #A": true,
+                  "Value #B": true
+                },
+                "renameByName": {
+                  "character_name": "Character",
+                  "level": "Level",
+                  "class": "Class",
+                  "race": "Race",
+                  "zone": "Zone"
+                },
+                "indexByName": {
+                  "character_name": 0,
+                  "level": 1,
+                  "class": 2,
+                  "race": 3,
+                  "zone": 4
+                }
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                }
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "showHeader": true,
+            "footer": {
+              "show": false
+            },
+            "sortBy": [
+              {
+                "displayName": "Level",
+                "desc": true
+              }
+            ]
+          },
+          "id": 21
+        }
+      ]
+    }
