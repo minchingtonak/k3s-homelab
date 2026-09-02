@@ -144,6 +144,27 @@ spec:
               values: [level]
               query: |
                 SELECT IFNULL(MAX(level), 0) AS level FROM acore_characters.characters
+            # Client-reported round-trip time, from characters.latency, which
+            # the worldserver rewrites on every character save. Online only:
+            # the column keeps its last value after logout, so including offline
+            # characters would fold hours-old readings from ended sessions into
+            # the live percentiles. latency=0 means "never measured" rather than
+            # a 0ms link, so it is excluded too.
+            #
+            # A plain gauge per character, not a histogram: sql_exporter runs a
+            # query and reports the result, it never observes a stream, so it
+            # cannot fill buckets. Percentiles come from PromQL's quantile()
+            # aggregating across the characters online at each instant.
+            # Freshness is bounded by PlayerSaveInterval, same as position.
+            - metric_name: wow_character_latency_ms
+              type: gauge
+              help: "Client round-trip time of an online character, in milliseconds."
+              key_labels: [character_name]
+              values: [latency]
+              query: |
+                SELECT c.name AS character_name, c.latency AS latency
+                FROM acore_characters.characters c
+                WHERE c.online = 1 AND c.latency > 0
             # Level as a *value*, not a label. wow_character_online and
             # wow_character_playtime_seconds both carry `level`, but a label
             # cannot be graphed — PromQL has no label-to-number conversion, and
