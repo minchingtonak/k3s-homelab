@@ -518,7 +518,7 @@ data:
         {
           "id": 29,
           "type": "timeseries",
-          "title": "Character connection latency",
+          "title": "Connection latency",
           "description": "Round-trip time plotted across the dashboard range, one line each for mean, p50, p95 and p99. Each point is computed across whoever was online at that moment, so p95 reads \"how bad was it for the worst-connected players right then\" — with only a handful online it collapses onto the slowest player, and gets more meaningful as the realm fills. Per-character detail is the panel to the right. Values refresh with each character save, so a spike shorter than the save interval will not appear.",
           "datasource": {
             "type": "prometheus",
@@ -536,7 +536,7 @@ data:
                 "type": "prometheus",
                 "uid": "prometheus"
               },
-              "expr": "avg(wow_character_latency_ms)",
+              "expr": "avg(wow_account_latency_ms)",
               "refId": "A",
               "range": true,
               "legendFormat": "mean"
@@ -546,7 +546,7 @@ data:
                 "type": "prometheus",
                 "uid": "prometheus"
               },
-              "expr": "quantile(0.50, wow_character_latency_ms)",
+              "expr": "quantile(0.50, wow_account_latency_ms)",
               "refId": "B",
               "range": true,
               "legendFormat": "p50"
@@ -556,7 +556,7 @@ data:
                 "type": "prometheus",
                 "uid": "prometheus"
               },
-              "expr": "quantile(0.95, wow_character_latency_ms)",
+              "expr": "quantile(0.95, wow_account_latency_ms)",
               "refId": "C",
               "range": true,
               "legendFormat": "p95"
@@ -566,7 +566,7 @@ data:
                 "type": "prometheus",
                 "uid": "prometheus"
               },
-              "expr": "quantile(0.99, wow_character_latency_ms)",
+              "expr": "quantile(0.99, wow_account_latency_ms)",
               "refId": "D",
               "range": true,
               "legendFormat": "p99"
@@ -610,8 +610,8 @@ data:
         {
           "id": 30,
           "type": "timeseries",
-          "title": "Latency by character",
-          "description": "The same round-trip time, one line per character instead of aggregated — this is what the percentiles beside it are computed from, so a lone high p95 can be traced to whoever is responsible. Lines break where a character is offline rather than joining across the gap, since latency only exists while connected.",
+          "title": "Latency by account",
+          "description": "The same round-trip time, one line per account instead of aggregated — this is what the percentiles beside it are computed from, so a lone high p95 can be traced to whoever is responsible. Keyed on the account, so the line survives an alt switch. Lines break where nobody on the account is online rather than joining across the gap, since latency only exists while connected.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -628,10 +628,10 @@ data:
                 "type": "prometheus",
                 "uid": "prometheus"
               },
-              "expr": "max by (character_name) (wow_character_latency_ms)",
+              "expr": "max by (account) (wow_account_latency_ms)",
               "refId": "A",
               "range": true,
-              "legendFormat": "{{character_name}}"
+              "legendFormat": "{{account}}"
             }
           ],
           "fieldConfig": {
