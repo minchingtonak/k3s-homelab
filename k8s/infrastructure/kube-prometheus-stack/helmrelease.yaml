@@ -44,6 +44,19 @@ spec:
     # all merged control-plane and node metrics
     kubelet:
       enabled: true
+      serviceMonitor:
+        # The first rule is the chart's own default. It must be repeated: the
+        # template renders this list *instead of* the default rather than
+        # appending, so omitting it would silently re-admit the csi/storage
+        # buckets the chart deliberately drops.
+        metricRelabelings:
+          - action: drop
+            sourceLabels: [__name__, le]
+            regex: (csi_operations|storage_operation_duration)_seconds_bucket;(0.25|2.5|15|25|120|600)(\.0)?
+          # drop k3s apiserver quantile metrics to save space
+          - action: drop
+            sourceLabels: [__name__]
+            regex: (apiserver_request_duration_seconds|apiserver_request_sli_duration_seconds|etcd_request_duration_seconds|apiserver_request_body_size_bytes)_bucket
 
     defaultRules:
       create: true
