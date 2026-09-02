@@ -386,9 +386,15 @@ spec:
             # table gets its counts from `count by (zone)` instead of SQL.
             # Names are the full 3.3.5 area table (2264 zones), generated from
             # azerothcore/playermap zone_names_english.php; Zul'Drak-style names
-            # are SQL-escaped as Zul''Drak. A JOIN against the world DB's
-            # areatable_dbc would self-maintain, but wow_exporter has no grant
-            # on acore_world — if that ever changes, replace this CASE.
+            # are SQL-escaped as Zul''Drak.
+            #
+            # This one cannot become a join, and the reason is not permissions:
+            # acore_world.areatable_dbc is empty. AzerothCore leaves it that way
+            # because zone names live in the client's DBC files that the
+            # worldserver reads at startup, never in MySQL — joining against it
+            # returns NULL for every zone. Granting the exporter access to it
+            # would change nothing. Contrast player_xp_for_level above, which is
+            # genuinely populated and therefore is joined.
             - metric_name: wow_character_zone
               type: gauge
               help: "1 while the character is in the zone."
