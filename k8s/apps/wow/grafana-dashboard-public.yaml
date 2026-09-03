@@ -834,7 +834,7 @@ data:
                 "type": "prometheus",
                 "uid": "prometheus"
               },
-              "expr": "topk(12, sum by (zone) (sum_over_time((max by (character_name, zone) (wow_character_zone))[$__range:30s])) * 30)",
+              "expr": "topk(12, sum by (zone) (sum_over_time((max by (character_name, zone) (wow_character_zone{zone!=\"zone-0\"}))[$__range:30s])) * 30)",
               "refId": "A",
               "instant": true,
               "format": "table"
