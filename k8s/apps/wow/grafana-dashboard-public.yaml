@@ -1763,7 +1763,7 @@ data:
         {
           "type": "timeseries",
           "title": "Money earned (silver)",
-          "description": "Gold acquired across the dashboard range. It rises and never falls, so spending does not show.",
+          "description": "Gold acquired since the money recording rules were deployed. It rises and never falls, so spending does not show.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -1780,7 +1780,7 @@ data:
                 "type": "prometheus",
                 "uid": "prometheus"
               },
-              "expr": "sum_over_time(clamp_min(max by (character_name) (wow_character_money_copper) - max by (character_name) (wow_character_money_copper offset 30s), 0)[$__range:30s]) / 100",
+              "expr": "max by (character_name) (wow_character_money_earned_copper) / 100",
               "refId": "A",
               "range": true,
               "legendFormat": "{{character_name}}"

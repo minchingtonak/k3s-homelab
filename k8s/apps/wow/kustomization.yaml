@@ -8,5 +8,6 @@ resources:
   - authserver.yaml
   - sql-exporter-dsn.sops.yaml
   - sql-exporter.yaml
+  - prometheusrule-money.yaml
   - grafana-dashboard.yaml
   - grafana-dashboard-public.yaml
