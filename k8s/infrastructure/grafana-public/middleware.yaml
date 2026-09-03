@@ -1,0 +1,16 @@
+# Never let a caller forge Grafana's auth-proxy header or present credentials
+# through the public route: Authorization, Cookie and X-WEBAUTH-USER are
+# removed from every request this middleware touches (an empty value in
+# customRequestHeaders deletes the header). Public dashboard tokens are
+# URL-path scoped and need none of them.
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: grafana-public-strip-auth
+  namespace: monitoring
+spec:
+  headers:
+    customRequestHeaders:
+      Authorization: ""
+      Cookie: ""
+      X-WEBAUTH-USER: ""

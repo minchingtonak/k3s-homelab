@@ -1,0 +1,41 @@
+# The public face of the realm stats dashboard. This router is the only thing
+# bound to the `tunnel` entrypoint, the only Traefik port the newt NetworkPolicy
+# admits (port 8081, scoped by rule 4 in k8s/apps/newt). Everything else in
+# this repo binds `websecure`, so no other host or router answers on the tunnel.
+#
+# The route allowlist below is the entire anonymous surface of a Grafana
+# externally shared dashboard, taken from the source rather than guessed
+# (pkg/api/api.go and pkg/services/publicdashboards/internal/api/api.go,
+# v13.2.0):
+#
+#   GET  /public-dashboards/:accessToken                    the rendered page
+#   GET  /api/public/dashboards/:accessToken                the dashboard model
+#   GET  /api/public/dashboards/:accessToken/annotations
+#   POST /api/public/dashboards/:accessToken/panels/:id/query   panel data
+#   GET  /public/**                                         js, css, fonts, images
+#
+# /public-dashboards/list shares the prefix but is a signed-in route that
+# lists every shared dashboard on the instance. Grafana would reject an
+# anonymous caller itself, but this layer is the boundary, so the rule denies
+# it explicitly (Traefik v3 `!` negation) rather than relying on the app
+# behind it. No TLS here: Pangolin terminates it publicly and newt reaches
+# Traefik in-cluster over plain HTTP.
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: grafana-public
+  namespace: monitoring
+spec:
+  entryPoints:
+    - tunnel
+  routes:
+    - kind: Rule
+      match: >-
+        Host(`realm.minch.zone`) &&
+        ((PathPrefix(`/public-dashboards/`) && !PathPrefix(`/public-dashboards/list`)) ||
+        PathPrefix(`/api/public/dashboards/`) || PathPrefix(`/public/`))
+      middlewares:
+        - name: grafana-public-strip-auth
+      services:
+        - name: kube-prometheus-stack-grafana
+          port: 80
