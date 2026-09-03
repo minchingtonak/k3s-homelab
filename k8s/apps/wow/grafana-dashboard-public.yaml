@@ -22,7 +22,7 @@ data:
   wow-public.json: |
     {
       "uid": "wow-public",
-      "title": "Stalley of Vardew — realm status",
+      "title": "WoW: Stalley of Vardew",
       "tags": [
         "wow",
         "azerothcore",

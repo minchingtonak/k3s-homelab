@@ -38,7 +38,7 @@ data:
   wow-realm.json: |
     {
       "uid": "wow-realm",
-      "title": "WoW realm: Stalley of Vardew",
+      "title": "WoW: Stalley of Vardew (admin)",
       "tags": [
         "wow",
         "azerothcore"
