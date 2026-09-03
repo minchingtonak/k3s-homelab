@@ -31,7 +31,7 @@ spec:
   routes:
     - kind: Rule
       match: >-
-        Host(`realm.minch.zone`) &&
+        Host(`wow.minch.zone`) &&
         ((PathPrefix(`/public-dashboards/`) && !PathPrefix(`/public-dashboards/list`)) ||
         PathPrefix(`/api/public/dashboards/`) || PathPrefix(`/public/`))
       middlewares:

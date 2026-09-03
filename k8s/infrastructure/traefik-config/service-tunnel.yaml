@@ -1,5 +1,5 @@
 # The in-cluster target for the newt tunnel. Pangolin's resource for
-# realm.minch.zone points here (traefik-tunnel.traefik-system.svc:8081); the
+# wow.minch.zone points here (traefik-tunnel.traefik-system.svc:8081); the
 # newt NetworkPolicy admits the Traefik pods on 8081 only, and the tunnel
 # entrypoint serves nothing but the grafana-public router.
 #
@@ -16,7 +16,7 @@ metadata:
     gatus.home-operations.com/endpoint: |
       url: http://traefik-tunnel.traefik-system.svc.cluster.local:8081/
       headers:
-        Host: realm.minch.zone
+        Host: wow.minch.zone
       conditions:
         - "[STATUS] == 404"
       alerts:
