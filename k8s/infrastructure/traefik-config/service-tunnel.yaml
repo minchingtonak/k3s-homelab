@@ -1,0 +1,31 @@
+# The in-cluster target for the newt tunnel. Pangolin's resource for
+# realm.minch.zone points here (traefik-tunnel.traefik-system.svc:8081); the
+# newt NetworkPolicy admits the Traefik pods on 8081 only, and the tunnel
+# entrypoint serves nothing but the grafana-public router.
+#
+# The gatus check is the allowlist canary: sent with the real Host header, any
+# path outside the allowlisted prefixes 404s. A 200 on / would mean the router
+# rule has been widened to catch-all and tunnel traffic could reach all of
+# Grafana — monitoring goes red instead of silently proxying everything.
+apiVersion: v1
+kind: Service
+metadata:
+  name: traefik-tunnel
+  namespace: traefik-system
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      url: http://traefik-tunnel.traefik-system.svc.cluster.local:8081/
+      headers:
+        Host: realm.minch.zone
+      conditions:
+        - "[STATUS] == 404"
+      alerts:
+        - type: pushover
+spec:
+  selector:
+    app.kubernetes.io/name: traefik
+  ports:
+    - name: tunnel
+      port: 8081
+      targetPort: 8081
+  type: ClusterIP

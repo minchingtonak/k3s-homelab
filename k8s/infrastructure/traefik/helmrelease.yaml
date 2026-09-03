@@ -49,6 +49,18 @@ spec:
           default: true
         exposedPort: 22
         protocol: TCP
+      # Tunnel entrypoint for Pangolin/newt: plain HTTP (Pangolin terminates
+      # TLS publicly, newt reaches Traefik in-cluster), no redirect, no TLS.
+      # Not on any LoadBalancer — the ClusterIP Service
+      # traefik-config/service-tunnel.yaml is the only target, and the newt
+      # NetworkPolicy admits the Traefik pods on port 8081 alone, so the
+      # tunnel can never reach websecure, web, ssh or the insecure API port.
+      tunnel:
+        port: 8081
+        exposedPort: 8081
+        protocol: TCP
+        expose:
+          default: false
       web:
         forwardedHeaders:
           trustedIPs:

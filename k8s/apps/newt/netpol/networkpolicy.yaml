@@ -42,9 +42,27 @@ spec:
               - 10.0.0.0/8
               - 172.16.0.0/12
               - 192.168.0.0/16
-    # 3. Opt-in internal pods (any namespace) bearing newt.homelab/allow=true
+    # 3. Opt-in internal pods (any namespace) bearing newt.homelab/allow=true.
+    #    NOTE: this rule carries no port restriction, so only label pods whose
+    #    every listening port is safe to expose to the tunnel. Traefik is NOT
+    #    labelled for this reason — it is reachable via rule 4 below, scoped
+    #    to the tunnel entrypoint's port alone.
     - to:
         - namespaceSelector: {}
           podSelector:
             matchLabels:
               newt.homelab/allow: "true"
+    # 4. Traefik's tunnel entrypoint, scoped by port: newt can reach the
+    #    Traefik pods on 8081 and nothing else — never websecure, web, the
+    #    ssh entrypoint or the insecure API port on 8080. The entrypoint
+    #    itself only serves routers that list it explicitly (grafana-public).
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: traefik-system
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+      ports:
+        - port: 8081
+          protocol: TCP

@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
   - ingressroute-dashboard.yaml
   - service-api.yaml
+  - service-tunnel.yaml
