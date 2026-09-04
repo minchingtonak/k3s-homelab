@@ -339,3 +339,22 @@ Say plainly what you did, what you verified, and what you did not. If a
 reconcile failed, quote the actual error rather than paraphrasing it. If you
 were blocked, say what blocked you instead of narrowing the task and declaring
 success.
+
+## Raw custom resources beside a Helm chart
+
+When adding a bare CR next to a chart-managed one (e.g. a second `Prometheus`
+CR beside kube-prometheus-stack's, because chart 88.x has no
+`additionalPrometheusInstances` key), the chart's defaults do not apply:
+
+- Copy the working instance's pod `securityContext` verbatim. Without the
+  chart-set `fsGroup` the pod crash-loops on its first volume write
+  (`open /prometheus/queries.active: permission denied`).
+- Namespace selectors are plain `metav1.LabelSelector`s. Flux-style
+  `matchNames` does not exist there, and chart values like
+  `serviceMonitorSelectorNilUsesHelmValues` are not CR fields — both fail
+  Flux's dry-run with `field not declared in schema`.
+
+Neither error is catchable before merge: `make check`, `kubectl kustomize`
+and the flux-local CI workflow do not validate CRs against CRD schemas or
+against the chart's rendered pod spec. Post-merge verification is the only
+net — always do it.
