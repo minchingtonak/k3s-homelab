@@ -12,7 +12,7 @@ spec:
           # prometheus_tsdb_retention_limit_bytes reflects --storage.tsdb.retention.size.
           expr: |
             (
-              prometheus_tsdb_blocks_bytes
+              prometheus_tsdb_storage_blocks_bytes
               /
               prometheus_tsdb_retention_limit_bytes
             ) > 0.8
@@ -30,7 +30,7 @@ spec:
         - alert: PrometheusStorageCritical
           expr: |
             (
-              prometheus_tsdb_blocks_bytes
+              prometheus_tsdb_storage_blocks_bytes
               /
               prometheus_tsdb_retention_limit_bytes
             ) > 0.9
