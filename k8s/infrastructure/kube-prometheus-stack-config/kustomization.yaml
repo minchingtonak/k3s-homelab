@@ -4,3 +4,4 @@ resources:
   - servicemonitor-traefik.yaml
   - prometheus-storage-alerts.yaml
   - prometheus-wow-longterm.yaml
+  - prometheus-wow-longterm-service.yaml
