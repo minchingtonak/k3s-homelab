@@ -122,9 +122,10 @@ spec:
             - name: http
               containerPort: 8080
               protocol: TCP
+          # /version calls the GitHub API per request (no cache) and 500s when
+          # the unauthenticated rate limit trips, so probe the TCP listener.
           readinessProbe:
-            httpGet:
-              path: /version
+            tcpSocket:
               port: http
             periodSeconds: 5
             timeoutSeconds: 3
