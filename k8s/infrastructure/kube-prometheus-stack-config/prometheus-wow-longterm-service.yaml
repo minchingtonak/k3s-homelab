@@ -1,0 +1,25 @@
+# A ClusterIP front-door for the wow-longterm Prometheus.
+#
+# Grafana's `wow-longterm` datasource points at
+# prometheus-wow-longterm.monitoring.svc.cluster.local:9090. The operator only
+# creates the governing headless service (prometheus-operated) for a raw
+# Prometheus CR — it never makes a namespaced ClusterIP service — so without
+# this the datasource URL resolves to nothing and every dashboard panel errors.
+# The selector is the operator's own pod label; targetPort is the container
+# port name, so it stays correct if the operator ever renumbers the port.
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-wow-longterm
+  namespace: monitoring
+  annotations:
+    gatus.home-operations.com/enabled: "false"
+spec:
+  type: ClusterIP
+  ports:
+    - name: web
+      port: 9090
+      targetPort: web
+  selector:
+    app.kubernetes.io/name: prometheus
+    operator.prometheus.io/name: wow-longterm
