@@ -78,6 +78,11 @@ spec:
     serviceMonitor:
       enabled: true
       interval: 30s
+      # Extra label for the wow-longterm Prometheus's serviceMonitorSelector.
+      # The chart's `selector` values key adds labels without touching Helm's;
+      # the main instance ignores it (match-all selector).
+      selector:
+        wow.longterm/scrape: "true"
     resources:
       requests:
         memory: 32Mi

@@ -188,3 +188,14 @@ it work; both live in this directory:
 
 The tiles are served from this repo over raw.githubusercontent.com; the panel
 URL is versioned with `main`, so tile changes ride ordinary PRs.
+
+## Long-term metrics retention
+
+The dashboards read the `wow-longterm` datasource, not `prometheus`. It is a
+second Prometheus instance (`prometheus-wow-longterm`, monitoring namespace,
+defined in `k8s/infrastructure/kube-prometheus-stack-config/`) whose only job
+is to keep realm history indefinitely — the main instance is capacity-bound
+long before its configured 90d, so anything only it holds ages out after a
+couple of months. The wow.money recording rules run on both instances; each
+records an independent earned total, and the long-term one starts from zero
+at the cutover. Raw series (balances, XP, positions) have no such reset.

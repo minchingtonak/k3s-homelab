@@ -1,0 +1,50 @@
+# A second Prometheus whose only job is to keep realm history forever.
+#
+# The main instance is capacity-bound long before its configured 90d (45GiB
+# retentionSize on a 50Gi volume, ~65d effective), so wow_* series would start
+# ageing out a few months after they appeared. Retention is per-TSDB, not
+# per-metric, so the only way to keep one namespace's series indefinitely is
+# a store that ingests nothing else. This one holds ~145 series (<0.5GiB/yr),
+# evaluated here again so recorded series are recorded at equal fidelity.
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  name: wow-longterm
+  namespace: monitoring
+spec:
+  image: quay.io/prometheus/prometheus:v3.14.0-distroless
+  replicas: 1
+  shards: 1
+  serviceAccountName: kube-prometheus-stack-prometheus
+  serviceMonitorSelector:
+    matchLabels:
+      wow.longterm/scrape: "true"
+  serviceMonitorNamespaceSelector:
+    matchNames:
+      - wow
+  ruleSelector:
+    matchLabels:
+      wow.longterm/rules: "true"
+  ruleNamespaceSelector:
+    matchNames:
+      - wow
+  serviceMonitorSelectorNilUsesHelmValues: false
+  ruleSelectorNilUsesHelmValues: false
+  retention: 10y
+  retentionSize: 4GiB
+  scrapeInterval: 30s
+  evaluationInterval: 30s
+  resources:
+    requests:
+      cpu: 10m
+      memory: 128Mi
+    limits:
+      memory: 512Mi
+  storage:
+    volumeClaimTemplate:
+      spec:
+        storageClassName: longhorn-metrics
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 5Gi

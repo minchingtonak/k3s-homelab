@@ -19,11 +19,18 @@
 # total restarts from zero at the resumption point. Pre-gap earnings are not
 # recoverable from the balance. Baseline starts when this rule is first
 # deployed; earnings before that were never observable.
+#
+# Evaluated by both Prometheuses: the main instance (match-all rule selector)
+# and wow-longterm (matching wow.longterm/rules). They run the same expr at the
+# same 30s cadence against their own copies of the raw series, so each records
+# an independent earned total with no shared state.
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
   name: wow-money
   namespace: wow
+  labels:
+    wow.longterm/rules: "true"
 spec:
   groups:
     - name: wow.money

@@ -118,7 +118,17 @@ spec:
           auto_login: false
           use_pkce: true
       # -------------------------------------------------------
+      # Second datasource: the wow-longterm Prometheus keeps realm history
+      # far beyond the main instance's capacity-bound retention. The WoW
+      # dashboards read this one; everything else keeps using `prometheus`.
+      # -------------------------------------------------------
       additionalDataSources:
+        - name: wow-longterm
+          type: prometheus
+          uid: wow-longterm
+          url: http://prometheus-wow-longterm.monitoring.svc.cluster.local:9090
+          access: proxy
+          isDefault: false
         - name: Loki
           type: loki
           uid: loki
