@@ -46,7 +46,7 @@ data:
           "title": "Characters online",
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "wow-longterm"
           },
           "gridPos": {
             "h": 4,
@@ -58,7 +58,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "prometheus"
+                "uid": "wow-longterm"
               },
               "expr": "max(wow_players_online)",
               "refId": "A",
@@ -105,7 +105,7 @@ data:
           "title": "Characters",
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "wow-longterm"
           },
           "gridPos": {
             "h": 4,
@@ -117,7 +117,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "prometheus"
+                "uid": "wow-longterm"
               },
               "expr": "max(wow_characters_total)",
               "refId": "A",
@@ -164,7 +164,7 @@ data:
           "title": "Highest level",
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "wow-longterm"
           },
           "gridPos": {
             "h": 4,
@@ -176,7 +176,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "prometheus"
+                "uid": "wow-longterm"
               },
               "expr": "max(wow_character_level_max)",
               "refId": "A",
@@ -223,7 +223,7 @@ data:
           "title": "Total playtime",
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "wow-longterm"
           },
           "gridPos": {
             "h": 4,
@@ -235,7 +235,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "prometheus"
+                "uid": "wow-longterm"
               },
               "expr": "max(wow_playtime_seconds_total)",
               "refId": "A",
@@ -282,7 +282,7 @@ data:
           "title": "Characters online over time",
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "wow-longterm"
           },
           "gridPos": {
             "h": 8,
@@ -294,7 +294,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "prometheus"
+                "uid": "wow-longterm"
               },
               "expr": "max(wow_players_online)",
               "refId": "A",
@@ -336,7 +336,7 @@ data:
           "description": "One band per character while it was logged in.",
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "wow-longterm"
           },
           "gridPos": {
             "h": 8,
@@ -348,7 +348,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "prometheus"
+                "uid": "wow-longterm"
               },
               "expr": "max by (character_name) (wow_character_online)",
               "refId": "A",
@@ -425,13 +425,13 @@ data:
           "description": "Round-trip time across everyone online, as mean and median. No line appears while nobody is logged in.",
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "wow-longterm"
           },
           "targets": [
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "prometheus"
+                "uid": "wow-longterm"
               },
               "expr": "avg(wow_account_latency_ms)",
               "refId": "A",
@@ -441,7 +441,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "prometheus"
+                "uid": "wow-longterm"
               },
               "expr": "quantile(0.50, wow_account_latency_ms)",
               "refId": "B",
@@ -488,7 +488,7 @@ data:
           "description": "Online characters on the Azeroth continent map.",
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "wow-longterm"
           },
           "gridPos": {
             "h": 26,
@@ -500,7 +500,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "prometheus"
+                "uid": "wow-longterm"
               },
               "expr": "max by (character_name) (wow_character_position_lon{continent=\"Azeroth\"})",
               "refId": "A",
@@ -510,7 +510,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "prometheus"
+                "uid": "wow-longterm"
               },
               "expr": "max by (character_name) (wow_character_position_lat and on (character_name) wow_character_position_lon{continent=\"Azeroth\"})",
               "refId": "B",
@@ -520,7 +520,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "prometheus"
+                "uid": "wow-longterm"
               },
               "expr": "max by (character_name, zone) (wow_character_zone)",
               "refId": "C",
@@ -530,7 +530,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "prometheus"
+                "uid": "wow-longterm"
               },
               "expr": "max by (character_name, level, class, race) (wow_character_online)",
               "refId": "D",
@@ -820,7 +820,7 @@ data:
           "description": "Character-time spent in each zone over the dashboard's range, summed across every character. Top 12 zones.",
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "wow-longterm"
           },
           "gridPos": {
             "h": 26,
@@ -832,7 +832,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "prometheus"
+                "uid": "wow-longterm"
               },
               "expr": "topk(12, sum by (zone) (sum_over_time((max by (character_name, zone) (wow_character_zone{zone!=\"zone-0\"}))[$__range:30s])) * 30)",
               "refId": "A",
@@ -908,7 +908,7 @@ data:
               "description": "Online characters on the Outland map.",
               "datasource": {
                 "type": "prometheus",
-                "uid": "prometheus"
+                "uid": "wow-longterm"
               },
               "gridPos": {
                 "h": 26,
@@ -920,7 +920,7 @@ data:
                 {
                   "datasource": {
                     "type": "prometheus",
-                    "uid": "prometheus"
+                    "uid": "wow-longterm"
                   },
                   "expr": "max by (character_name) (wow_character_position_lon{continent=\"Outland\"})",
                   "refId": "A",
@@ -930,7 +930,7 @@ data:
                 {
                   "datasource": {
                     "type": "prometheus",
-                    "uid": "prometheus"
+                    "uid": "wow-longterm"
                   },
                   "expr": "max by (character_name) (wow_character_position_lat and on (character_name) wow_character_position_lon{continent=\"Outland\"})",
                   "refId": "B",
@@ -940,7 +940,7 @@ data:
                 {
                   "datasource": {
                     "type": "prometheus",
-                    "uid": "prometheus"
+                    "uid": "wow-longterm"
                   },
                   "expr": "max by (character_name, zone) (wow_character_zone)",
                   "refId": "C",
@@ -950,7 +950,7 @@ data:
                 {
                   "datasource": {
                     "type": "prometheus",
-                    "uid": "prometheus"
+                    "uid": "wow-longterm"
                   },
                   "expr": "max by (character_name, level, class, race) (wow_character_online)",
                   "refId": "D",
@@ -1240,7 +1240,7 @@ data:
               "description": "Online characters on the Northrend map.",
               "datasource": {
                 "type": "prometheus",
-                "uid": "prometheus"
+                "uid": "wow-longterm"
               },
               "gridPos": {
                 "h": 26,
@@ -1252,7 +1252,7 @@ data:
                 {
                   "datasource": {
                     "type": "prometheus",
-                    "uid": "prometheus"
+                    "uid": "wow-longterm"
                   },
                   "expr": "max by (character_name) (wow_character_position_lon{continent=\"Northrend\"})",
                   "refId": "A",
@@ -1262,7 +1262,7 @@ data:
                 {
                   "datasource": {
                     "type": "prometheus",
-                    "uid": "prometheus"
+                    "uid": "wow-longterm"
                   },
                   "expr": "max by (character_name) (wow_character_position_lat and on (character_name) wow_character_position_lon{continent=\"Northrend\"})",
                   "refId": "B",
@@ -1272,7 +1272,7 @@ data:
                 {
                   "datasource": {
                     "type": "prometheus",
-                    "uid": "prometheus"
+                    "uid": "wow-longterm"
                   },
                   "expr": "max by (character_name, zone) (wow_character_zone)",
                   "refId": "C",
@@ -1282,7 +1282,7 @@ data:
                 {
                   "datasource": {
                     "type": "prometheus",
-                    "uid": "prometheus"
+                    "uid": "wow-longterm"
                   },
                   "expr": "max by (character_name, level, class, race) (wow_character_online)",
                   "refId": "D",
@@ -1588,7 +1588,7 @@ data:
           "description": "Every character's level across the dashboard range.",
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "wow-longterm"
           },
           "gridPos": {
             "h": 8,
@@ -1600,7 +1600,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "prometheus"
+                "uid": "wow-longterm"
               },
               "expr": "max by (character_name) (wow_character_level)",
               "refId": "A",
@@ -1648,7 +1648,7 @@ data:
           "description": "Total experience earned, summed across every level a character has completed rather than experience into the current level.",
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "wow-longterm"
           },
           "gridPos": {
             "h": 8,
@@ -1660,7 +1660,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "prometheus"
+                "uid": "wow-longterm"
               },
               "expr": "max by (character_name) (wow_character_xp_total)",
               "refId": "A",
@@ -1707,7 +1707,7 @@ data:
           "description": "Each character's purse as it actually is, so it falls when they spend. Offline characters keep their last balance rather than dropping out.",
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "wow-longterm"
           },
           "gridPos": {
             "h": 8,
@@ -1719,7 +1719,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "prometheus"
+                "uid": "wow-longterm"
               },
               "expr": "max by (character_name) (wow_character_money_copper) / 100",
               "refId": "A",
@@ -1766,7 +1766,7 @@ data:
           "description": "Gold acquired since the money recording rules were deployed. It rises and never falls, so spending does not show.",
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "wow-longterm"
           },
           "gridPos": {
             "h": 8,
@@ -1778,7 +1778,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "prometheus"
+                "uid": "wow-longterm"
               },
               "expr": "max by (character_name) (wow_character_money_earned_copper) / 100",
               "refId": "A",
@@ -1824,7 +1824,7 @@ data:
           "title": "Characters by class",
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "wow-longterm"
           },
           "gridPos": {
             "h": 8,
@@ -1836,7 +1836,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "prometheus"
+                "uid": "wow-longterm"
               },
               "expr": "max by (class) (wow_characters_by_class)",
               "refId": "A",
@@ -1896,7 +1896,7 @@ data:
           "title": "Characters by race",
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "wow-longterm"
           },
           "gridPos": {
             "h": 8,
@@ -1908,7 +1908,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "prometheus"
+                "uid": "wow-longterm"
               },
               "expr": "max by (race) (wow_characters_by_race)",
               "refId": "A",
@@ -1968,7 +1968,7 @@ data:
           "title": "Most played",
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "wow-longterm"
           },
           "gridPos": {
             "h": 8,
@@ -1980,7 +1980,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "prometheus"
+                "uid": "wow-longterm"
               },
               "expr": "topk(5, max by (character_name) (wow_character_playtime_seconds))",
               "refId": "A",
@@ -2047,13 +2047,13 @@ data:
           "description": "Characters currently logged in.",
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "wow-longterm"
           },
           "targets": [
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "prometheus"
+                "uid": "wow-longterm"
               },
               "expr": "max by (character_name, zone) (wow_character_zone)",
               "refId": "A",
@@ -2063,7 +2063,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "prometheus"
+                "uid": "wow-longterm"
               },
               "expr": "max by (character_name, level, class, race) (wow_character_online)",
               "refId": "B",

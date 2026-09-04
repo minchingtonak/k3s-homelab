@@ -188,3 +188,21 @@ it work; both live in this directory:
 
 The tiles are served from this repo over raw.githubusercontent.com; the panel
 URL is versioned with `main`, so tile changes ride ordinary PRs.
+
+## Long-term metrics retention
+
+The dashboards read the `wow-longterm` datasource, not `prometheus`. It is a
+second Prometheus instance (`prometheus-wow-longterm`, monitoring namespace,
+defined in `k8s/infrastructure/kube-prometheus-stack-config/`) whose only job
+is to keep realm history indefinitely — the main instance is capacity-bound
+long before its configured 90d, so anything only it holds ages out after a
+couple of months.
+
+At the cutover the long-term store starts empty: dashboards show no history
+until the new instance accumulates it, and pre-cutover data remains queryable
+on the `prometheus` datasource until it ages out there. Launch-week history
+(Aug 29 – Sep 4 2026) was imported once by hand as TSDB blocks — exported from
+the main instance, built with `promtool tsdb create-blocks-from`, copied into
+the pod — so the dashboards have data from day one. The wow.money recording
+rules are not backfilled: each instance accumulates its own earned total from
+its own start, and raw series (balances, XP, positions) have no such reset.
