@@ -20,16 +20,18 @@ spec:
     matchLabels:
       wow.longterm/scrape: "true"
   serviceMonitorNamespaceSelector:
-    matchNames:
-      - wow
+    matchExpressions:
+      - key: kubernetes.io/metadata.name
+        operator: In
+        values: [wow]
   ruleSelector:
     matchLabels:
       wow.longterm/rules: "true"
   ruleNamespaceSelector:
-    matchNames:
-      - wow
-  serviceMonitorSelectorNilUsesHelmValues: false
-  ruleSelectorNilUsesHelmValues: false
+    matchExpressions:
+      - key: kubernetes.io/metadata.name
+        operator: In
+        values: [wow]
   retention: 10y
   retentionSize: 4GiB
   scrapeInterval: 30s
