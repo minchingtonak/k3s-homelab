@@ -50,7 +50,7 @@ spec:
     spec:
       containers:
         - name: postgres
-          image: postgis/postgis:17-3.5-alpine@sha256:61cb994f576480f5736974e5c9aff965d039d965301bcaec9c7ea72f94b61908
+          image: postgis/postgis:17-3.5-alpine@sha256:894f570c0cf0664ed5576a8fd5d5bfb8fb1b19d592885b686c3a88c8bd90c41f
           env:
             - name: POSTGRES_USER
               value: fittrackee
