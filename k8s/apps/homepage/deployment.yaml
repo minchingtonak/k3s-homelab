@@ -199,7 +199,7 @@ spec:
                     app.kubernetes.io/name: homepage
       containers:
         - name: homepage
-          image: ghcr.io/gethomepage/homepage:v2.1.2
+          image: ghcr.io/gethomepage/homepage:v2.2.0
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
