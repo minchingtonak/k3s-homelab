@@ -9,7 +9,7 @@
 #   - all
 registries:
   - type: standard
-    ref: v4.556.0 # renovate: depName=aquaproj/aqua-registry
+    ref: v4.558.1 # renovate: depName=aquaproj/aqua-registry
 # Every package carries a `# bin:` annotation listing the executables it
 # installs, space-separated. The Makefile parses these to learn what `make
 # doctor` should find on PATH, so a package and the commands it provides stay
