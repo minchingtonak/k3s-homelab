@@ -21,4 +21,4 @@ packages:
   - name: astral-sh/uv@0.12.8 # bin: uv uvx
   - name: getsops/sops@v3.13.3 # bin: sops
   - name: kubernetes/kubernetes/kubectl@v1.37.0 # bin: kubectl
-  - name: fluxcd/flux2@v2.9.4 # bin: flux
+  - name: fluxcd/flux2@v2.9.5 # bin: flux
