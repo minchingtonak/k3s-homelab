@@ -282,9 +282,11 @@ spec:
             # yards to sweep for lootable corpses. module accepts 5.0-100.0
             - name: AC_AOELOOT_RANGE
               value: "55.0"
-            # mod-autobalance — defaults except the two REWARD_SCALING toggles.
-            # scaling runs in both directions: a 5-man with more than five
-            # players scales *up*, not just down.
+            # mod-autobalance — defaults except the two REWARD_SCALING toggles
+            # and LEVEL_SCALING. count scaling only runs *down*: the curve's
+            # ceiling is 1.0 by default, so a 5-man with more than five players
+            # gets full-strength mobs, not scaled-up ones. raising
+            # InflectionPoint.CurveCeiling above 1.0 is what would enable that.
             - name: AC_AUTO_BALANCE_ENABLE_GLOBAL
               value: "1"
             # floor, not target: "if fewer than this number of players enter the
@@ -299,10 +301,12 @@ spec:
               value: "1"
             - name: AC_AUTO_BALANCE_MIN_PLAYERS_RAID_HEROIC
               value: "1"
-            # scale creature *levels* toward the party as well as their stats,
-            # so a mixed-level group can run content together
+            # level scaling is OFF. when on, creature levels are rebased to the
+            # *highest* player in the instance
             - name: AC_AUTO_BALANCE_LEVEL_SCALING
-              value: "1"
+              value: "0"
+            # inert while the toggle above is 0 — no level scaling means no
+            # method to choose. kept visible for when it comes back on.
             - name: AC_AUTO_BALANCE_LEVEL_SCALING_METHOD
               value: dynamic
             # announce rescaling in chat as players join and leave the instance
