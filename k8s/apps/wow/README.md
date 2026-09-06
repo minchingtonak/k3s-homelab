@@ -236,6 +236,16 @@ console appender was then the only sink. The init container rewrites its
 conf block on every boot (delete + re-append), so changes to the appender
 wiring converge without touching the volume by hand.
 
+One more console-path gotcha, fixed the hard way: AC's console appender
+writes with `vfprintf` and never flushes, and a piped stdout is
+block-buffered at 4KiB — so console output (chat included) used to sit
+inside the worldserver for 25–50 minutes before reaching the kubelet log
+and Loki. The container `command:` wraps the entrypoint with
+`stdbuf -oL -eL`, whose `LD_PRELOAD` survives the exec chain into the
+worldserver binary and line-buffers stdout, so lines ship within seconds.
+File appenders are unaffected — `Chat.log` always landed immediately, which
+is how the buffering was diagnosed.
+
 **Server logs** shows the worldserver and authserver console streams (minus
 chat lines and the AHBot `Begin Performing Update Cycle` heartbeat, which
 fires continuously and drowns everything else). Authserver login failures

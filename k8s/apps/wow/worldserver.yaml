@@ -223,6 +223,25 @@ spec:
       containers:
         - name: worldserver
           image: forgejo.item.fyi/akmin/ac-wotlk-worldserver:20260830@sha256:f889c1a108576e0f17fbf29dd91fe0f12ce7ad85b90a2445ab64d9e63e9843ce
+          # AC's console appender writes with vfprintf and never fflushes
+          # (AppenderConsole::_write -> utf8printf -> Util.cpp). Under
+          # containerd stdout is a pipe, so glibc block-buffers it at 4KiB
+          # and console output — chat included — sat inside the process for
+          # 25-50 minutes before reaching the kubelet log and Loki. stdbuf
+          # -oL sets LD_PRELOAD=libstdbuf.so, which survives the exec chain
+          # (env -> bash entrypoint -> worldserver) and makes stdout (and
+          # stderr) line-buffered, so every line ships immediately. The
+          # command/args below restate the image's ENTRYPOINT/CMD with the
+          # wrapper prefixed.
+          command:
+            - /usr/bin/stdbuf
+            - -oL
+            - -eL
+            - /usr/bin/env
+            - bash
+            - /azerothcore/entrypoint.sh
+          args:
+            - worldserver
           # stdin without a tty: worldserver's CLI reads newline-terminated
           # commands from stdin, and `kubectl attach` refuses to attach to a
           # container with tty:true ("tty and stderr cannot both be true"), so
