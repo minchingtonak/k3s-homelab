@@ -103,6 +103,44 @@ spec:
             - name: data
               mountPath: /azerothcore/env/dist/logs
               subPath: logs
+        # Chat loggers cannot be enabled through AC_* env vars. Env overrides
+        # only re-value keys that exist in the loaded conf file
+        # (ConfigMgr::OverrideWithEnvVariablesIfAny), and the logging system
+        # discovers appenders/loggers by enumerating those same file keys
+        # (Log::ReadAppendersFromConfig / ReadLoggersFromConfig). Every
+        # Logger.* and Appender.* line in the shipped worldserver.conf is
+        # commented out, so the only way to route chat to the console is to
+        # write the lines into the conf itself — done here, idempotently,
+        # the same pattern as the realmlist patch below.
+        #
+        # Appender.Chat is a second console appender with no colour argument
+        # (AppenderConsole::InitColors only runs when a 4th token exists, so
+        # no ANSI escapes reach Loki) and flags=4, which prefixes each line
+        # with its logger name. The dashboard's Chat panel selects on that
+        # `[chat.` prefix and the Server logs panel excludes it. Logger.chat
+        # at Info covers every chat.* child via GetLoggerByType's parent
+        # walk; chat.addon.* is disabled because addon comms are
+        # WeakAuras/BigWigs sync blobs, not readable chat.
+        - name: chatlog-config
+          image: docker.io/library/mysql:8.4@sha256:b3b90af2a6552ae30c266fdb7d5dd55f3afb72404bb78d37fe8a23eb857fd3fb
+          command:
+            - sh
+            - -c
+            - |
+              set -eu
+              CONF=/azerothcore/env/dist/etc/worldserver.conf
+              # a fresh volume has no live conf until the main container's
+              # entrypoint promotes it — do the same promotion here so there
+              # is always a file to append to
+              [ -f "$CONF" ] || cp /azerothcore/env/dist/etc/worldserver.conf.dist "$CONF"
+              if ! grep -q '^# BEGIN chat logging' "$CONF"; then
+                printf '\n# BEGIN chat logging (chatlog-config init container)\nAppender.Chat=1,6,4\nLogger.chat=4,Chat\nLogger.chat.addon=0,Chat\n# END chat logging (chatlog-config init container)\n' >> "$CONF"
+              fi
+              tail -4 "$CONF"
+          volumeMounts:
+            - name: data
+              mountPath: /azerothcore/env/dist/etc
+              subPath: etc
         # the authserver hands `address` to clients outside localAddress/localSubnetMask
         # and `localAddress` to those inside it. Both are deliberately set to the same
         # hostname with a /32 mask, which sends every client through the tunnel
@@ -260,6 +298,15 @@ spec:
             # player-position map would show 15-minute-old dots.
             - name: AC_PLAYER_SAVE_INTERVAL
               value: "30000"
+            # ---- chat logging ----
+            # enables ChatLogScript (src/server/scripts/World/chat_log.cpp),
+            # which logs say/emote/yell/whisper/party/raid/bg/guild/officer/
+            # channel lines to the chat.* loggers at Info. The name was
+            # verified with the compiled IniKeyToEnvVarKey. The loggers
+            # themselves are wired by the chatlog-config init container —
+            # see its comment for why env vars cannot do that half.
+            - name: AC_CHAT_LOG_ENABLE
+              value: "1"
             # ---- module configuration ----
             # most of what follows restates the modules' own defaults. that is
             # deliberate: it puts the knobs worth knowing about in git rather
