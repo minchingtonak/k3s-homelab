@@ -189,6 +189,54 @@ it work; both live in this directory:
 The tiles are served from this repo over raw.githubusercontent.com; the panel
 URL is versioned with `main`, so tile changes ride ordinary PRs.
 
+## Chat and server logs on the dashboard
+
+The admin dashboard (`wow-realm` — not the public one) has two Loki panels at
+the bottom. Both read logs Alloy already ships from every pod, so no new
+collection was needed: the console streams land in Loki with `cluster`,
+`namespace` and `container` labels, and the panels just select on them.
+
+**Chat** shows player chat. AzerothCore logs chat through two cooperating
+pieces, and neither alone is enough:
+
+- `AC_CHAT_LOG_ENABLE=1` on the worldserver enables `ChatLogScript`
+  (`src/server/scripts/World/chat_log.cpp`), which emits `LOG_INFO` to
+  loggers `chat.say` / `chat.emote` / `chat.yell` / `chat.whisper` /
+  `chat.party` / `chat.raid` / `chat.bg` / `chat.guild` /
+  `chat.guild.officer` / `chat.channel` (system channels: Trade, General,
+  City, LFG) and `chat.channel.<name>` for custom channels.
+- Those `Logger.*` lines ship **commented out** in `worldserver.conf`, and an
+  unconfigured logger inherits `Logger.root` (level 2 = Error), which drops
+  Info. Env vars cannot fix this: AC's env override only re-values keys
+  already present in the conf file, and the logging system _enumerates_ file
+  keys to discover appenders and loggers. So the `chatlog-config` init
+  container appends the wiring to `worldserver.conf` on every boot,
+  idempotently — the same pattern as the `realmlist` patch.
+
+`Appender.Chat=1,6,4` is a second console appender with no colour argument —
+`AppenderConsole::InitColors` only runs when a 4th token exists, so chat
+lines reach Loki without ANSI escapes — and flags=4, which prefixes each
+line with its logger name: `[chat.say] Player Foo says (language 1): hi`.
+The dashboard's Chat panel selects lines containing `[chat.` and the Server
+logs panel excludes them. `Logger.chat.addon=0,Chat` keeps addon comms out:
+those are WeakAuras/BigWigs sync blobs, not readable chat — raise that
+logger's level in the init container's block to include them.
+
+**Server logs** shows the worldserver and authserver console streams (minus
+chat lines and the AHBot `Begin Performing Update Cycle` heartbeat, which
+fires continuously and drowns everything else). Authserver login failures
+(`account X tried to login with invalid password!`) land here.
+
+Things worth knowing:
+
+- Chat now lives in Loki, like everything else the consoles print —
+  including GM passwords typed over `kubectl attach` (see the warning at the
+  top of this file). The public dashboard shows none of it.
+- There is no GM-command audit to add: the `commands.gm` logger exists in
+  AC's logging framework but has no callers in master — dead code.
+- Loki here is a 10Gi filesystem-backed single binary with no retention
+  policy configured, so chat and server logs are kept until it fills.
+
 ## Long-term metrics retention
 
 The dashboards read the `wow-longterm` datasource, not `prometheus`. It is a

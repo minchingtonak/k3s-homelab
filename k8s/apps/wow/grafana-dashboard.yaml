@@ -2380,6 +2380,72 @@ data:
               }
             ]
           }
+        },
+        {
+          "type": "logs",
+          "title": "Chat",
+          "description": "Player chat from ChatLogScript: say/emote/yell/whisper/party/raid/bg/guild/officer plus system and custom channels. Lines are selected by the [chat.*] prefix the Appender.Chat flags add; addon comms are not logged.",
+          "id": 17,
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "gridPos": {
+            "h": 12,
+            "w": 24,
+            "x": 0,
+            "y": 82
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "expr": "{cluster=\"minicluster\", namespace=\"wow\", container=\"worldserver\"} |= \"[chat.\"",
+              "refId": "A",
+              "queryType": "range"
+            }
+          ],
+          "options": {
+            "showTime": true,
+            "wrapLogMessage": true,
+            "sortOrder": "Descending",
+            "dedupStrategy": "none"
+          }
+        },
+        {
+          "type": "logs",
+          "title": "Server logs",
+          "description": "worldserver and authserver console output: boot progress, errors, login failures (authserver 'tried to login with invalid password'), map/lag summaries. Chat lines and the AHBot update-cycle heartbeat are excluded.",
+          "id": 18,
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "gridPos": {
+            "h": 12,
+            "w": 24,
+            "x": 0,
+            "y": 94
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "expr": "{cluster=\"minicluster\", namespace=\"wow\", container=~\"worldserver|authserver\"} != \"AHBot [12]: Begin Performing Update Cycle\" != \"[chat.\"",
+              "refId": "A",
+              "queryType": "range"
+            }
+          ],
+          "options": {
+            "showTime": true,
+            "wrapLogMessage": true,
+            "sortOrder": "Descending",
+            "dedupStrategy": "signature"
+          }
         }
       ],
       "templating": {
