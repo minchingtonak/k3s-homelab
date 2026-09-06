@@ -227,6 +227,15 @@ chat lines and the AHBot `Begin Performing Update Cycle` heartbeat, which
 fires continuously and drowns everything else). Authserver login failures
 (`account X tried to login with invalid password!`) land here.
 
+Both panel queries end with a `regexp` + `line_format` pair trimming a
+trailing newline off each line. Alloy's `loki.source.kubernetes` ships the
+line terminator as line _content_ (measured: every stored entry cluster-wide
+ends with a literal `\n`), which the logs panel renders as a second empty
+line under every entry. The `loki.process` replace stage in the Alloy
+HelmRelease now strips it at ingestion; the query-side trim stays because it
+is a no-op on clean lines and is the only thing that fixes the display of
+entries stored before that fix.
+
 Things worth knowing:
 
 - Chat now lives in Loki, like everything else the consoles print —
