@@ -2409,7 +2409,8 @@ data:
           ],
           "options": {
             "showTime": true,
-            "wrapLogMessage": true,
+            "wrapLogMessage": false,
+            "fontSize": "small",
             "sortOrder": "Descending",
             "dedupStrategy": "none"
           }
@@ -2442,7 +2443,8 @@ data:
           ],
           "options": {
             "showTime": true,
-            "wrapLogMessage": true,
+            "wrapLogMessage": false,
+            "fontSize": "small",
             "sortOrder": "Descending",
             "dedupStrategy": "signature"
           }
