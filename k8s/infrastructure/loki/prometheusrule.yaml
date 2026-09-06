@@ -1,0 +1,61 @@
+# Self-monitoring for Loki, the counterpart of kube-prometheus-stack's
+# PrometheusStorageFillingUp/Critical rules for the metric store.
+# Picked up automatically: kube-prometheus-stack runs with
+# ruleSelectorNilUsesHelmValues: false, so every PrometheusRule in the
+# cluster is selected regardless of labels.
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: loki-alerts
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: loki
+      rules:
+        # Retention is enabled but the compactor has not completed a
+        # successful retention pass in 24h. Without it, disk usage grows
+        # unbounded (~40 MiB/day measured) until the volume fills.
+        - alert: LokiRetentionStalled
+          expr: time() - loki_compactor_apply_retention_last_successful_run_timestamp_seconds > 86400
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: Loki retention has not run in over 24h
+            description: The compactor's last successful retention pass is
+              more than a day old; logs will accumulate until the volume
+              fills. Check the loki-0 pod logs for compactor errors.
+        # Early disk warning specific to Loki. The shared mixin rule
+        # (KubePersistentVolumeFillingUp) only goes critical below 3% free
+        # (~8 days of runway at current ingestion). With 180d retention the
+        # steady state is ~70% of the 10Gi volume, so the threshold sits at
+        # 85%: it fires on sustained growth well beyond plan (~20%) while
+        # leaving ~40 days of runway before the volume is full.
+        - alert: LokiDiskUsageHigh
+          expr: >-
+            kubelet_volume_stats_used_bytes{namespace="monitoring", persistentvolumeclaim="storage-loki-0"}
+            / kubelet_volume_stats_capacity_bytes{namespace="monitoring", persistentvolumeclaim="storage-loki-0"} > 0.85
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: Loki volume over 85% used
+            description: Retention (180d) should plateau usage near 70%.
+              Sustained usage above 85% means log volume has grown past the
+              sizing or retention is not pruning — check LokiRetentionStalled
+              and consider filtering chatty namespaces in Alloy or growing
+              the PVC.
+        # Nothing has reached Loki for 10 minutes — either Alloy stopped
+        # shipping logs or Loki itself is down (absent() arm: the rate
+        # expression alone stays empty when the target has no series).
+        - alert: LokiIngestionStopped
+          expr: sum(rate(loki_distributor_lines_received_total[5m])) == 0 or absent(loki_distributor_lines_received_total)
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: No logs ingested for 10 minutes
+            description: The distributor received no log lines. Check the
+              alloy daemonsets and the loki-0 pod.
