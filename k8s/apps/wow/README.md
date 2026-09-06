@@ -227,15 +227,16 @@ chat lines and the AHBot `Begin Performing Update Cycle` heartbeat, which
 fires continuously and drowns everything else). Authserver login failures
 (`account X tried to login with invalid password!`) land here.
 
-Both panel queries end with a `regexp` + `line_format` pair trimming a
-trailing newline off each line. Alloy's `loki.source.kubernetes` ships the
-line terminator as line _content_ (measured: every stored entry cluster-wide
-ends with a literal `\n`), which the logs panel renders as a second empty
-line under every entry. A `loki.process` replace stage in the Alloy
-HelmRelease (companion branch `alloy-strip-trailing-newlines`, not yet
-merged) strips it at ingestion; the query-side trim stays regardless —
-it is a no-op on clean lines and is the only thing that fixes the display of
-entries stored before that fix.
+Both panel queries are plain label selectors plus substring filters — the
+trailing-newline problem that once needed a `regexp` + `line_format` trim
+here is fixed at ingestion instead. Alloy's `loki.source.kubernetes` ships
+the line terminator as line _content_ (measured: every stored entry
+cluster-wide ends with a literal `\n`), so a `loki.process` `replace` stage
+in the Alloy HelmRelease strips the trailing CR/LF run before entries are
+pushed to Loki (same PR). Entries stored before that fix keep their
+trailing `\n` — Loki here has no retention — so within the dashboard's
+default 24h window they render a phantom blank line underneath until they
+age out of view.
 
 Things worth knowing:
 

@@ -2402,7 +2402,7 @@ data:
                 "type": "loki",
                 "uid": "loki"
               },
-              "expr": "{cluster=\"minicluster\", namespace=\"wow\", container=\"worldserver\"} |= \"[chat.\" | regexp \"(?s)^(?P<trimmed>.*?)[\\r\\n]*$\" | line_format \"{{ .trimmed }}\"",
+              "expr": "{cluster=\"minicluster\", namespace=\"wow\", container=\"worldserver\"} |= \"[chat.\"",
               "refId": "A",
               "queryType": "range"
             }
@@ -2436,7 +2436,7 @@ data:
                 "type": "loki",
                 "uid": "loki"
               },
-              "expr": "{cluster=\"minicluster\", namespace=\"wow\", container=~\"worldserver|authserver\"} != \"AHBot [12]: Begin Performing Update Cycle\" != \"[chat.\" | regexp \"(?s)^(?P<trimmed>.*?)[\\r\\n]*$\" | line_format \"{{ .trimmed }}\"",
+              "expr": "{cluster=\"minicluster\", namespace=\"wow\", container=~\"worldserver|authserver\"} != \"AHBot [12]: Begin Performing Update Cycle\" != \"[chat.\"",
               "refId": "A",
               "queryType": "range"
             }
