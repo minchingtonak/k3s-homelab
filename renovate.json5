@@ -25,7 +25,7 @@
     schedule: 'at any time',
   },
   ignoreUnstable: true,
-  minimumReleaseAge: '4 days',
+  minimumReleaseAge: '7 days',
   minimumReleaseAgeBehaviour: 'timestamp-optional',
   prHourlyLimit: 0,
   prConcurrentLimit: 0,
