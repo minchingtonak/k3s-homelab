@@ -222,6 +222,20 @@ logs panel excludes them. `Logger.chat.addon=0,Chat` keeps addon comms out:
 those are WeakAuras/BigWigs sync blobs, not readable chat — raise that
 logger's level in the init container's block to include them.
 
+Chat is also durable on the volume, not just in the console stream:
+`Logger.chat=4,Chat ChatFile` routes it to `Appender.ChatFile` — a file
+appender in append mode with timestamp + logger-name prefixes — and
+`AC_LOGS_DIR=/azerothcore/env/dist/logs` points every file appender at the
+PVC mount (the stock empty `LogsDir` resolves against the process cwd,
+which is container-local and dies with the pod; `Server.log` used to live
+there). So `/azerothcore/env/dist/logs/Chat.log` accumulates chat across
+restarts and survives a wedged stdout pipe: on 2026-09-06 the worldserver's
+containerd shim stopped draining its stdout pipe mid-day while the server
+kept serving — chat emitted into the dead pipe was lost because the
+console appender was then the only sink. The init container rewrites its
+conf block on every boot (delete + re-append), so changes to the appender
+wiring converge without touching the volume by hand.
+
 **Server logs** shows the worldserver and authserver console streams (minus
 chat lines and the AHBot `Begin Performing Update Cycle` heartbeat, which
 fires continuously and drowns everything else). Authserver login failures

@@ -110,17 +110,28 @@ spec:
         # (Log::ReadAppendersFromConfig / ReadLoggersFromConfig). Every
         # Logger.* and Appender.* line in the shipped worldserver.conf is
         # commented out, so the only way to route chat to the console is to
-        # write the lines into the conf itself — done here, idempotently,
+        # write the lines into the conf itself — done here on every boot,
         # the same pattern as the realmlist patch below.
         #
         # Appender.Chat is a second console appender with no colour argument
         # (AppenderConsole::InitColors only runs when a 4th token exists, so
         # no ANSI escapes reach Loki) and flags=4, which prefixes each line
         # with its logger name. The dashboard's Chat panel selects on that
-        # `[chat.` prefix and the Server logs panel excludes it. Logger.chat
-        # at Info covers every chat.* child via GetLoggerByType's parent
+        # `[chat.` prefix and the Server logs panel excludes it.
+        #
+        # Appender.ChatFile is the durable half: a file appender in append
+        # mode with flags=5 (timestamp + logger-name prefix), resolving
+        # against LogsDir — pointed at the PVC mount via AC_LOGS_DIR on the
+        # main container. Chat therefore survives both pod restarts and a
+        # wedged stdout pipe (the 2026-09-06 shim failure, where chat
+        # emitted into a dead pipe and was lost). Logger.chat at Info
+        # covers every chat.* child via GetLoggerByType's parent
         # walk; chat.addon.* is disabled because addon comms are
         # WeakAuras/BigWigs sync blobs, not readable chat.
+        #
+        # The block is rewritten on every boot (delete + re-append), so a
+        # change here converges the conf on the volume without manual
+        # intervention.
         - name: chatlog-config
           image: docker.io/library/mysql:8.4@sha256:b3b90af2a6552ae30c266fdb7d5dd55f3afb72404bb78d37fe8a23eb857fd3fb
           command:
@@ -131,12 +142,14 @@ spec:
               CONF=/azerothcore/env/dist/etc/worldserver.conf
               # a fresh volume has no live conf until the main container's
               # entrypoint promotes it — do the same promotion here so there
-              # is always a file to append to
+              # is always a file to edit
               [ -f "$CONF" ] || cp /azerothcore/env/dist/etc/worldserver.conf.dist "$CONF"
-              if ! grep -q '^# BEGIN chat logging' "$CONF"; then
-                printf '\n# BEGIN chat logging (chatlog-config init container)\nAppender.Chat=1,6,4\nLogger.chat=4,Chat\nLogger.chat.addon=0,Chat\n# END chat logging (chatlog-config init container)\n' >> "$CONF"
-              fi
-              tail -4 "$CONF"
+              # the block is declarative: drop any previous copy and append
+              # the current one, so a change here converges on every boot
+              sed -i '/^# BEGIN chat logging/,/^# END chat logging/d' "$CONF"
+              if [ -n "$(tail -c1 "$CONF")" ]; then echo >> "$CONF"; fi
+              printf '# BEGIN chat logging (chatlog-config init container)\nAppender.Chat=1,6,4\nAppender.ChatFile=2,6,5,Chat.log,a\nLogger.chat=4,Chat ChatFile\nLogger.chat.addon=0,Chat ChatFile\n# END chat logging (chatlog-config init container)\n' >> "$CONF"
+              tail -6 "$CONF"
           volumeMounts:
             - name: data
               mountPath: /azerothcore/env/dist/etc
@@ -307,6 +320,15 @@ spec:
             # see its comment for why env vars cannot do that half.
             - name: AC_CHAT_LOG_ENABLE
               value: "1"
+            # file appenders resolve relative filenames against LogsDir,
+            # whose stock empty value is the process cwd (/azerothcore —
+            # container-local, lost with the pod). Point it at the volume so
+            # Server.log/Errors.log survive restarts and Chat.log — the
+            # durable chat sink wired by the chatlog-config init container —
+            # lands there too. Name verified with IniKeyToEnvVarKey; the key
+            # is read in Log::Log and prefixes every file appender's path.
+            - name: AC_LOGS_DIR
+              value: /azerothcore/env/dist/logs
             # ---- module configuration ----
             # most of what follows restates the modules' own defaults. that is
             # deliberate: it puts the knobs worth knowing about in git rather
