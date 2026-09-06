@@ -66,6 +66,28 @@ curl -s -u "<admin>:<admin-password>" -H 'Content-Type: text/xml' \
 unset NEWPW
 ```
 
+## Account management over SOAP
+
+`scripts/wow-accounts.py` drives `create`, `delete`, `gmlevel` and `addon` through
+the worldserver's SOAP endpoint, not the stdin console: it holds a `kubectl
+port-forward` to the ClusterIP service for the duration of each call and posts
+the `executeCommand` envelope with urllib (no extra dependencies). This is why
+those subcommands need an existing gmlevel 3 account — credentials come from
+`WOW_SOAP_USER` / `WOW_SOAP_PASS`, or an interactive prompt when unset.
+
+Password-bearing flows are unchanged: `account create` still uses a disposable
+password that is immediately overwritten with a locally-computed SRP6
+salt/verifier written straight to the database, so the plaintext never leaves
+the script — the SOAP request body would otherwise pass through the
+port-forward and the worldserver process.
+
+The one thing that still needs the stdin console is the **first-account
+bootstrap** above, on a fresh realm where no GM account exists yet for SOAP to
+authenticate as. That is why `stdin: true` stays on the worldserver for now;
+dropping it (e.g. if the console is ever implicated in another stdout-pipe
+wedge, as suspected on 2026-09-06) requires replacing that one-time flow with
+a direct-DB insert first.
+
 The password is interpolated raw into an XML body, so `&`, `<` and `>` will be mangled — stick to
 alphanumerics, or use the script above.
 

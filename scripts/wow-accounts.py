@@ -11,7 +11,8 @@ puts the password in the container log and ships it to Loki. Anything involving 
 password is therefore written straight to `acore_auth.account` as an SRP6
 salt/verifier pair computed locally; the plaintext never leaves this process.
 
-Everything else — create, delete, gmlevel, addon — goes through the console so
+Everything else — create, delete, gmlevel, addon — goes through the worldserver's
+SOAP endpoint (an existing gmlevel 3 account is required; see the README) so
 AzerothCore's own logic applies (notably `account delete`, which cascades to the
 account's characters; deleting the row by hand would orphan them).
 
@@ -26,20 +27,38 @@ Usage:
     scripts/wow-accounts.py addon <name> <0-2>
     scripts/wow-accounts.py verify <name>
 
-Passwords are prompted for without echo, or read from stdin with --stdin.
+Passwords are prompted for without echo, or read from stdin with --stdin. SOAP
+credentials come from WOW_SOAP_USER / WOW_SOAP_PASS, or an interactive prompt
+when unset.
 """
 import argparse
+import base64
 import getpass
 import hashlib
+import os
 import re
 import secrets
 import subprocess
 import sys
 import time
+import urllib.error
+import urllib.request
+from xml.sax.saxutils import escape as xml_escape
 
 NAMESPACE = "wow"
 DB_DEPLOY = "deploy/wow-database"
-WORLD_DEPLOY = "deploy/wow-worldserver"
+SOAP_PORT = 7878
+SOAP_ENVELOPE = (
+    '<?xml version="1.0" encoding="utf-8"?>'
+    '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" '
+    'xmlns:ns1="urn:AC">'
+    "<SOAP-ENV:Body>"
+    "<ns1:executeCommand>"
+    "<command>{command}</command>"
+    "</ns1:executeCommand>"
+    "</SOAP-ENV:Body>"
+    "</SOAP-ENV:Envelope>"
+)
 
 # WoW SRP6: N is the well-known 256-bit safe prime, g = 7.
 SRP6_N = 0x894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7
@@ -76,16 +95,70 @@ def mysql(sql, batch=True):
     return [line.split("\t") for line in out.splitlines() if line.strip()]
 
 
-def console(*commands, timeout=20):
-    """Feed commands to the worldserver's stdin console.
+_soap_credentials = None
 
-    Never pass a password here — see the module docstring.
+
+def soap_credentials():
+    """SOAP admin credentials: env vars, or an interactive prompt. Cached per run."""
+    global _soap_credentials
+    if _soap_credentials is None:
+        user = os.environ.get("WOW_SOAP_USER") or input("soap user: ").strip()
+        password = os.environ.get("WOW_SOAP_PASS") or getpass.getpass("soap password: ")
+        _soap_credentials = (user, password)
+    return _soap_credentials
+
+
+def soap(command, timeout=20):
+    """Run one CLI command on the worldserver over SOAP, returning its output.
+
+    The worldserver service is ClusterIP-only, so a kubectl port-forward is held
+    for the duration of the call. Never pass a password here either: the request
+    body travels through the forward and the worldserver process, and this
+    module's contract is that plaintext passwords never leave it.
     """
-    payload = "".join(f"{c}\n" for c in commands)
-    subprocess.run(
-        ["timeout", str(timeout), "kubectl", "-n", NAMESPACE, "attach", "-i", WORLD_DEPLOY],
-        input=payload, capture_output=True, text=True,
+    user, password = soap_credentials()
+    forward = subprocess.Popen(
+        ["kubectl", "-n", NAMESPACE, "port-forward", "svc/wow-worldserver", f":{SOAP_PORT}"],
+        stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True,
     )
+    try:
+        # kubectl prints the chosen local port to stderr once the forward is up.
+        # (An explicit local port would race with anything else forwarding 7878.)
+        port = None
+        while port is None:
+            line = forward.stderr.readline()
+            match = re.search(r"127\.0\.0\.1:(\d+)", line)
+            if match:
+                port = int(match.group(1))
+            elif forward.poll() is not None:
+                raise Failure(f"port-forward exited: {forward.stderr.read().strip()}")
+
+        request = urllib.request.Request(
+            f"http://127.0.0.1:{port}/",
+            data=SOAP_ENVELOPE.format(command=xml_escape(command)).encode(),
+            headers={
+                "Content-Type": "text/xml; charset=utf-8",
+                "Authorization": "Basic " + base64.b64encode(
+                    f"{user}:{password}".encode()).decode(),
+            },
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=timeout) as response:
+                text = response.read().decode(errors="replace")
+        except urllib.error.HTTPError as exc:
+            body = exc.read().decode(errors="replace")
+            fault = re.search(r"<faultstring>(.*?)</faultstring>", body, re.S)
+            detail = fault.group(1).strip() if fault else f"HTTP {exc.code}"
+            raise Failure(f"soap call failed: {detail}")
+        result = re.search(r"<result>(.*?)</result>", text, re.S)
+        return result.group(1).strip() if result else ""
+    finally:
+        forward.terminate()
+        try:
+            forward.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            forward.kill()
 
 
 def account_row(name):
@@ -252,15 +325,17 @@ def cmd_create(args):
     require(args.name, exists=False)
     password = read_password(args)
 
-    # The console needs *a* password to create the account; use a disposable one
-    # and overwrite it below, so only the throwaway is ever written to the log.
-    console(f"account create {args.name} {secrets.token_hex(8)}")
+    # Account creation needs *a* password; use a disposable one and overwrite
+    # it below via the DB, so the plaintext never leaves this process (SOAP
+    # would not echo it to the container logs, but the request body does pass
+    # through the port-forward and the worldserver process).
+    soap(f"account create {args.name} {secrets.token_hex(8)}")
     if not wait_for(args.name, should_exist=True):
         raise Failure("account did not appear — check `kubectl -n wow logs deploy/wow-worldserver`")
 
-    console(f"account set addon {args.name} {args.addon}")
+    soap(f"account set addon {args.name} {args.addon}")
     if args.gmlevel:
-        console(f"account set gmlevel {args.name} {args.gmlevel} -1")
+        soap(f"account set gmlevel {args.name} {args.gmlevel} -1")
     set_password(args.name, password)
     print(f"created {args.name} (addon {args.addon}, gmlevel {args.gmlevel or 0})")
 
@@ -279,7 +354,7 @@ def cmd_delete(args):
         confirm = input(f"delete {args.name} and all its characters? type the name to confirm: ")
         if confirm.strip().upper() != args.name.upper():
             raise Failure("aborted")
-    console(f"account delete {args.name}")
+    soap(f"account delete {args.name}")
     if not wait_for(args.name, should_exist=False):
         raise Failure("account still present — check the worldserver log")
     print(f"deleted {args.name}")
@@ -290,7 +365,7 @@ def cmd_gmlevel(args):
     require(args.name)
     if not 0 <= args.level <= MAX_GMLEVEL:
         raise Failure(f"gmlevel must be 0-{MAX_GMLEVEL} ({MAX_GMLEVEL} is SEC_ADMINISTRATOR)")
-    console(f"account set gmlevel {args.name} {args.level} -1")
+    soap(f"account set gmlevel {args.name} {args.level} -1")
     print(f"{args.name} gmlevel -> {args.level}")
 
 
@@ -299,7 +374,7 @@ def cmd_addon(args):
     require(args.name)
     if not 0 <= args.expansion <= 2:
         raise Failure("addon must be 0 (vanilla), 1 (TBC) or 2 (WotLK)")
-    console(f"account set addon {args.name} {args.expansion}")
+    soap(f"account set addon {args.name} {args.expansion}")
     print(f"{args.name} addon -> {args.expansion}")
 
 
