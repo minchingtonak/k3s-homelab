@@ -1,0 +1,44 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: loki-alerts
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: loki
+      rules:
+        - alert: LokiRetentionStalled
+          expr: time() - loki_compactor_apply_retention_last_successful_run_timestamp_seconds > 86400
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: Loki retention has not run in over 24h
+            description: The compactor's last successful retention pass is
+              more than a day old; logs will accumulate until the volume
+              fills. Check the loki-0 pod logs for compactor errors.
+        - alert: LokiDiskUsageHigh
+          expr: >-
+            kubelet_volume_stats_used_bytes{namespace="monitoring", persistentvolumeclaim="storage-loki-0"}
+            / kubelet_volume_stats_capacity_bytes{namespace="monitoring", persistentvolumeclaim="storage-loki-0"} > 0.85
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: Loki volume over 85% used
+            description: Retention (180d) should plateau usage near 70%.
+              Sustained usage above 85% means log volume has grown past the
+              sizing or retention is not pruning — check LokiRetentionStalled
+              and consider filtering chatty namespaces in Alloy or growing
+              the PVC.
+        - alert: LokiIngestionStopped
+          expr: sum(rate(loki_distributor_lines_received_total[5m])) == 0 or absent(loki_distributor_lines_received_total)
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: No logs ingested for 10 minutes
+            description: The distributor received no log lines. Check the
+              alloy daemonsets and the loki-0 pod.

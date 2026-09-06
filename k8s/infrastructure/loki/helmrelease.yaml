@@ -48,9 +48,14 @@ spec:
             index:
               prefix: loki_index_
               period: 24h
+      # delete_request_store is mandatory when retention_enabled — Loki 3.x refuses to start without it
+      compactor:
+        retention_enabled: true
+        delete_request_store: filesystem
       limits_config:
         allow_structured_metadata: true
         volume_enabled: true
+        retention_period: 180d
 
     # Disable gateway — Alloy connects directly on port 3100
     gateway:
