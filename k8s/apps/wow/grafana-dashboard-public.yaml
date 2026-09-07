@@ -339,96 +339,13 @@ data:
           "id": 5
         },
         {
-          "type": "state-timeline",
-          "title": "Character sessions",
-          "description": "One band per character while it was logged in.",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "wow-longterm"
-          },
-          "gridPos": {
-            "h": 8,
-            "w": 24,
-            "x": 0,
-            "y": 12
-          },
-          "targets": [
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "wow-longterm"
-              },
-              "expr": "max by (character_name) (wow_character_online)",
-              "refId": "A",
-              "range": true,
-              "legendFormat": "{{character_name}}"
-            }
-          ],
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "lineWidth": 0,
-                "fillOpacity": 80,
-                "spanNulls": false,
-                "hideFrom": {
-                  "tooltip": false,
-                  "viz": false,
-                  "legend": false
-                }
-              },
-              "mappings": [
-                {
-                  "type": "value",
-                  "options": {
-                    "1": {
-                      "text": "online",
-                      "index": 0
-                    }
-                  }
-                }
-              ],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "text",
-                    "value": null
-                  }
-                ]
-              }
-            },
-            "overrides": []
-          },
-          "options": {
-            "mergeValues": true,
-            "showValue": "never",
-            "alignValue": "left",
-            "rowHeight": 0.9,
-            "perPage": 20,
-            "legend": {
-              "showLegend": false,
-              "displayMode": "list",
-              "placement": "bottom",
-              "calcs": []
-            },
-            "tooltip": {
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "id": 6
-        },
-        {
           "type": "timeseries",
           "title": "Server latency",
           "gridPos": {
             "h": 6,
             "w": 24,
             "x": 0,
-            "y": 20
+            "y": 12
           },
           "description": "Round-trip latency: mean and median.",
           "datasource": {
@@ -502,7 +419,7 @@ data:
             "h": 26,
             "w": 16,
             "x": 0,
-            "y": 26
+            "y": 18
           },
           "targets": [
             {
@@ -834,7 +751,7 @@ data:
             "h": 26,
             "w": 8,
             "x": 16,
-            "y": 26
+            "y": 18
           },
           "targets": [
             {
@@ -907,7 +824,7 @@ data:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 52
+            "y": 44
           },
           "panels": [
             {
@@ -1585,10 +1502,93 @@ data:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 53
+            "y": 45
           },
           "panels": [],
           "id": 13
+        },
+        {
+          "type": "state-timeline",
+          "title": "Character sessions",
+          "description": "One band per character while it was logged in.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "wow-longterm"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 46
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "wow-longterm"
+              },
+              "expr": "max by (character_name) (wow_character_online)",
+              "refId": "A",
+              "range": true,
+              "legendFormat": "{{character_name}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "lineWidth": 0,
+                "fillOpacity": 80,
+                "spanNulls": false,
+                "hideFrom": {
+                  "tooltip": false,
+                  "viz": false,
+                  "legend": false
+                }
+              },
+              "mappings": [
+                {
+                  "type": "value",
+                  "options": {
+                    "1": {
+                      "text": "online",
+                      "index": 0
+                    }
+                  }
+                }
+              ],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "text",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "mergeValues": true,
+            "showValue": "never",
+            "alignValue": "left",
+            "rowHeight": 0.9,
+            "perPage": 20,
+            "legend": {
+              "showLegend": false,
+              "displayMode": "list",
+              "placement": "bottom",
+              "calcs": []
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "id": 6
         },
         {
           "type": "timeseries",

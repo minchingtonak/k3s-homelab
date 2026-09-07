@@ -357,172 +357,6 @@ data:
           }
         },
         {
-          "id": 26,
-          "type": "state-timeline",
-          "title": "Character sessions",
-          "description": "One band per character while it is logged in.",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "wow-longterm"
-          },
-          "gridPos": {
-            "h": 8,
-            "w": 12,
-            "x": 0,
-            "y": 12
-          },
-          "targets": [
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "wow-longterm"
-              },
-              "expr": "max by (character_name) (wow_character_online)",
-              "refId": "A",
-              "range": true,
-              "legendFormat": "{{character_name}}"
-            }
-          ],
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "lineWidth": 0,
-                "fillOpacity": 80,
-                "spanNulls": false,
-                "hideFrom": {
-                  "tooltip": false,
-                  "viz": false,
-                  "legend": false
-                }
-              },
-              "mappings": [
-                {
-                  "type": "value",
-                  "options": {
-                    "1": {
-                      "text": "online",
-                      "index": 0
-                    }
-                  }
-                }
-              ],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "text",
-                    "value": null
-                  }
-                ]
-              }
-            },
-            "overrides": []
-          },
-          "options": {
-            "mergeValues": true,
-            "showValue": "never",
-            "alignValue": "left",
-            "rowHeight": 0.9,
-            "perPage": 20,
-            "legend": {
-              "showLegend": false,
-              "displayMode": "list",
-              "placement": "bottom",
-              "calcs": []
-            },
-            "tooltip": {
-              "mode": "single",
-              "sort": "none"
-            }
-          }
-        },
-        {
-          "id": 27,
-          "type": "state-timeline",
-          "title": "Account sessions",
-          "description": "One band per account while a character is online.",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "wow-longterm"
-          },
-          "gridPos": {
-            "h": 8,
-            "w": 12,
-            "x": 12,
-            "y": 12
-          },
-          "targets": [
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "wow-longterm"
-              },
-              "expr": "max by (account) (wow_character_online)",
-              "refId": "A",
-              "range": true,
-              "legendFormat": "{{account}}"
-            }
-          ],
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "lineWidth": 0,
-                "fillOpacity": 80,
-                "spanNulls": false,
-                "hideFrom": {
-                  "tooltip": false,
-                  "viz": false,
-                  "legend": false
-                }
-              },
-              "mappings": [
-                {
-                  "type": "value",
-                  "options": {
-                    "1": {
-                      "text": "online",
-                      "index": 0
-                    }
-                  }
-                }
-              ],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "text",
-                    "value": null
-                  }
-                ]
-              }
-            },
-            "overrides": []
-          },
-          "options": {
-            "mergeValues": true,
-            "showValue": "never",
-            "alignValue": "left",
-            "rowHeight": 0.9,
-            "perPage": 20,
-            "legend": {
-              "showLegend": false,
-              "displayMode": "list",
-              "placement": "bottom",
-              "calcs": []
-            },
-            "tooltip": {
-              "mode": "single",
-              "sort": "none"
-            }
-          }
-        },
-        {
           "id": 29,
           "type": "timeseries",
           "title": "Connection latency",
@@ -686,7 +520,7 @@ data:
             "h": 4,
             "w": 4,
             "x": 0,
-            "y": 20
+            "y": 12
           },
           "targets": [
             {
@@ -745,7 +579,7 @@ data:
             "h": 4,
             "w": 5,
             "x": 4,
-            "y": 20
+            "y": 12
           },
           "targets": [
             {
@@ -804,7 +638,7 @@ data:
             "h": 4,
             "w": 5,
             "x": 9,
-            "y": 20
+            "y": 12
           },
           "targets": [
             {
@@ -863,7 +697,7 @@ data:
             "h": 4,
             "w": 5,
             "x": 14,
-            "y": 20
+            "y": 12
           },
           "targets": [
             {
@@ -922,7 +756,7 @@ data:
             "h": 4,
             "w": 5,
             "x": 19,
-            "y": 20
+            "y": 12
           },
           "targets": [
             {
@@ -982,7 +816,7 @@ data:
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 24
+            "y": 16
           },
           "targets": [
             {
@@ -1088,7 +922,7 @@ data:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 32
+            "y": 24
           },
           "panels": [
             {
@@ -1688,9 +1522,175 @@ data:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 33
+            "y": 25
           },
           "panels": []
+        },
+        {
+          "id": 26,
+          "type": "state-timeline",
+          "title": "Character sessions",
+          "description": "One band per character while it is logged in.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "wow-longterm"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 26
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "wow-longterm"
+              },
+              "expr": "max by (character_name) (wow_character_online)",
+              "refId": "A",
+              "range": true,
+              "legendFormat": "{{character_name}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "lineWidth": 0,
+                "fillOpacity": 80,
+                "spanNulls": false,
+                "hideFrom": {
+                  "tooltip": false,
+                  "viz": false,
+                  "legend": false
+                }
+              },
+              "mappings": [
+                {
+                  "type": "value",
+                  "options": {
+                    "1": {
+                      "text": "online",
+                      "index": 0
+                    }
+                  }
+                }
+              ],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "text",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "mergeValues": true,
+            "showValue": "never",
+            "alignValue": "left",
+            "rowHeight": 0.9,
+            "perPage": 20,
+            "legend": {
+              "showLegend": false,
+              "displayMode": "list",
+              "placement": "bottom",
+              "calcs": []
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          }
+        },
+        {
+          "id": 27,
+          "type": "state-timeline",
+          "title": "Account sessions",
+          "description": "One band per account while a character is online.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "wow-longterm"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 26
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "wow-longterm"
+              },
+              "expr": "max by (account) (wow_character_online)",
+              "refId": "A",
+              "range": true,
+              "legendFormat": "{{account}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "lineWidth": 0,
+                "fillOpacity": 80,
+                "spanNulls": false,
+                "hideFrom": {
+                  "tooltip": false,
+                  "viz": false,
+                  "legend": false
+                }
+              },
+              "mappings": [
+                {
+                  "type": "value",
+                  "options": {
+                    "1": {
+                      "text": "online",
+                      "index": 0
+                    }
+                  }
+                }
+              ],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "text",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "mergeValues": true,
+            "showValue": "never",
+            "alignValue": "left",
+            "rowHeight": 0.9,
+            "perPage": 20,
+            "legend": {
+              "showLegend": false,
+              "displayMode": "list",
+              "placement": "bottom",
+              "calcs": []
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          }
         },
         {
           "id": 28,
@@ -2389,6 +2389,19 @@ data:
           }
         },
         {
+          "id": 34,
+          "type": "row",
+          "title": "Logs",
+          "collapsed": false,
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 82
+          },
+          "panels": []
+        },
+        {
           "type": "logs",
           "title": "Chat",
           "description": "Player chat: say, yell, whisper and channels.",
@@ -2401,7 +2414,7 @@ data:
             "h": 12,
             "w": 24,
             "x": 0,
-            "y": 82
+            "y": 83
           },
           "targets": [
             {
@@ -2435,7 +2448,7 @@ data:
             "h": 12,
             "w": 24,
             "x": 0,
-            "y": 94
+            "y": 95
           },
           "targets": [
             {
