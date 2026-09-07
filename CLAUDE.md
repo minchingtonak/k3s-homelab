@@ -12,6 +12,8 @@ Implement, verify, stage — **never commit or push.**
   never `git add -A` or `git add .`.
 - **Do not `git commit`.** The user commits themselves, or explicitly tells
   you to commit. Until then the change waits in the index.
+- **Commit messages are one line only** — a single subject line, no body, no
+  description paragraph. Match the existing log style (`area: what changed`).
 - The user always handles pushing to `main`. Never push a branch or `main`.
 
 ## Research Agent
