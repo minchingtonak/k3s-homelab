@@ -1,69 +1,25 @@
-# Lifetime money earned, reconstructed from balance rises.
+# Lifetime money earned, reconstructed from balance rises: the database
+# records no earnings, only the current purse, so gains are observable
+# solely as rises between scrapes. Accumulated incrementally here so the
+# recorded series is monotonic and the panel is a plain gauge read.
 #
-# Nothing in the database records earnings — characters.money is a balance,
-# so gains are only observable as rises between consecutive scrapes. The
-# dashboard used to compute sum-over-window at query time, which measures
-# "earned in the last N days": old gains leave the trailing window and the
-# line dips, which reads as a bug. These rules make the accumulation
-# incremental instead, so the recorded series is monotonic and the panel is
-# a plain gauge read.
+#   delta  — rise in the balance over the last 30s, clamped at zero
+#            (money gained and spent between scrapes cancels out).
+#   earned — previous total plus the current delta; the `or` fallback
+#            bootstraps a first evaluation from zero.
 #
-#   delta    — rise in the balance over the last 30s, clamped at zero.
-#              Matches the scrape interval; money gained and spent between
-#              two consecutive scrapes cancels and stays invisible.
-#   earned   — previous earned total plus the current delta. The `or`
-#              fallback bootstraps a genuine first evaluation (new
-#              character, fresh cluster) from zero.
+# Every read-back goes through a subquery because a single failed scrape
+# writes staleness markers that terminate the plain-selector lookback —
+# under the previous `offset 30s` design one 30-second blip (2026-09-06)
+# zeroed every character's tally on both instances. Subquery evaluation
+# leaves holes instead of markers, so last_over_time bridges them. The 1h
+# windows survive any gap up to an hour and still book money earned
+# during it; a longer gap restarts the total from zero (pre-gap earnings
+# are unrecoverable) — the alert below detects that.
 #
-# ## Why every read-back is a subquery (the 2026-09-06 wipe)
-#
-# The previous version read its inputs as plain instant selectors
-# (`metric` / `metric offset 30s`). That made the chain fragile in a way
-# the 5-minute selector lookback does not save: ONE failed scrape of the
-# exporter writes staleness markers on every raw series at that timestamp,
-# and a marker terminates the lookback instantly — the selector returns
-# nothing even though perfectly good samples exist minutes earlier. With
-# the delta side empty, the earned rule produced nothing either, which
-# marked *itself* stale; one evaluation later `earned offset 30s` hit that
-# self-inflicted marker, the `or` fallback read "no previous total" as
-# zero, and every character's lifetime tally restarted from nothing. A
-# single 30-second scrape blip at 03:39 EDT wiped both instances
-# permanently — the old design's real tolerance was one evaluation
-# interval, not the documented 5 minutes.
-#
-# Subqueries fix both reads. Evaluating a selector at sub-steps
-# (`expr[range:resolution]`) leaves *holes* where a sub-step finds no
-# data — subquery evaluation writes no staleness markers — so
-# `last_over_time()` over a subquery bridges blips and returns the last
-# good value. Both expressions were replayed against the incident's own
-# markers before deployment: evaluated at the two evaluation instants
-# where the old rules wrote markers/zeroes, these return the pre-blip
-# totals.
-#
-# Both windows are 1h, which is the same tolerance on both sides of a
-# gap: the tally sleeps through it, and the money earned during it is
-# still counted — during an outage shorter than 1h both delta sides keep
-# reading the last pre-outage balance (delta 0, series unbroken), and on
-# recovery the first delta that spans the gap books its whole rise as one
-# lump. Gains netted against spending inside the gap stay invisible, as
-# they always have between consecutive scrapes. The cost is ~120
-# sub-evaluations per rule evaluation at this realm's cardinality —
-# noise. A wider window only moves the cliff, so the alert below watches
-# for going over it.
-#
-# Residual failure mode: a gap longer than 1h (real Prometheus downtime,
-# rule group disabled) empties the delta side, the earned series goes
-# stale with it, and the read-back window expires alongside — the total
-# restarts from zero. Pre-gap earnings are not recoverable from the
-# balance. Baseline starts when this rule is first deployed; earnings
-# before that were never observable.
-#
-# Evaluated by both Prometheuses: the main instance (match-all rule
-# selector) and wow-longterm (matching wow.longterm/rules). They run the
-# same expr at the same 30s cadence against their own copies of the raw
-# series, so each records an independent earned total with no shared
-# state. Only the main instance is wired to Alertmanager, so only its
-# copy of the alert notifies; wow-longterm's firing is inert.
+# Evaluated by both Prometheuses (main and wow-longterm, via
+# wow.longterm/rules), each keeping an independent total; only the main
+# instance is wired to Alertmanager.
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
@@ -76,16 +32,9 @@ spec:
     - name: wow.money
       interval: 30s
       rules:
-        # The balance read through a 1h subquery rather than a bare
-        # instant selector, on both sides of the subtraction: a failed
-        # scrape leaves a staleness marker that hides the series from
-        # instant selectors but only a hole inside a subquery, which
-        # last_over_time bridges. A blip therefore yields delta=0 instead
-        # of a vanished series — a vanished series is what set off the
-        # original chain reaction — and an outage up to 1h yields one
-        # delta spanning the gap. Side effect of the wide window: a
-        # deleted or renamed character lingers here at delta=0 for up to
-        # 1h after its last scrape, then both of its series drop.
+        # Both sides through subqueries: a blip yields delta=0 instead of
+        # a vanished series; an outage up to 1h yields one delta spanning
+        # the gap.
         - record: wow_character_money_delta_copper
           expr: |
             clamp_min(
@@ -101,13 +50,9 @@ spec:
               ),
               0
             )
-        # The tally reads its own previous value the same way. Should
-        # the delta side ever go empty (outage longer than 1h), this rule
-        # writes staleness markers on itself for the outage's remainder —
-        # and the read-back bridges those markers, up to its own 1h
-        # window. The `or` fallback fires only on a genuine first
-        # evaluation, or on the residual failure mode, which is what the
-        # alert below detects.
+        # The tally reads itself the same way, bridging any markers it
+        # wrote while the delta side was empty. `or` fires only on a
+        # first evaluation.
         - record: wow_character_money_earned_copper
           expr: |
             wow_character_money_delta_copper
@@ -117,14 +62,9 @@ spec:
                 )
                 or wow_character_money_delta_copper * 0
               )
-        # The earned tally is monotonic by construction; the only things
-        # that make it fall are the residual failure mode above (an
-        # evaluation gap longer than the 1h windows) and the series being
-        # recreated from scratch. resets() counts downward jumps, so a
-        # wipe pages within minutes of recovery instead of being
-        # discovered weeks later on a graph. No `for`: the loss is
-        # already permanent when it fires, and waiting only delays the
-        # postmortem.
+        # Monotonic by construction, so any fall is a wipe: a gap over
+        # the 1h window, or the series recreated from scratch. No `for`:
+        # the loss is permanent when it fires.
         - alert: WowMoneyEarnedTotalReset
           expr: |
             resets(wow_character_money_earned_copper[10m]) > 0
