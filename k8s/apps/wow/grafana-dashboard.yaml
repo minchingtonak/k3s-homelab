@@ -1808,7 +1808,7 @@ data:
           "id": 32,
           "type": "timeseries",
           "title": "Money earned — ${coin:text}",
-          "description": "Gold acquired since the money recording rules were deployed, accumulated incrementally by Prometheus (wow.money rule group in the wow namespace) from the rises in each character's purse — nothing records lifetime earnings, so this is reconstructed from the balance beside it. It rises and never falls, so spending does not show; the only reset is a Prometheus rule-evaluation gap longer than the lookback window, after which the total restarts. Money gained and spent between two consecutive scrapes still cancels out and stays invisible.",
+          "description": "Gold acquired since the money recording rules were deployed, accumulated incrementally by Prometheus (wow.money rule group in the wow namespace) from the rises in each character's purse — nothing records lifetime earnings, so this is reconstructed from the balance beside it. It rises and never falls, so spending does not show; the accumulator bridges scrape blips and gaps up to about an hour, and only a longer evaluation gap restarts the total. Money gained and spent between two consecutive scrapes still cancels out and stays invisible.",
           "datasource": {
             "type": "prometheus",
             "uid": "wow-longterm"
