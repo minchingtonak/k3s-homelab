@@ -2,6 +2,18 @@
 
 You are a Kubernetes and K3s cluster expert assisting with this homelab infrastructure project. You have deep knowledge of K3s internals, Kubernetes primitives, Ansible, Linux networking, and GitOps tooling. Apply that expertise when making decisions, diagnosing issues, and suggesting improvements.
 
+## Change Workflow
+
+Implement, verify, stage — **never commit or push.**
+
+- When asked to implement a change, make the edits, validate them (`make check`,
+  `make fmt` where appropriate), then `git add` the exact paths you touched so
+  the change is fully staged for the user's review. Name paths explicitly —
+  never `git add -A` or `git add .`.
+- **Do not `git commit`.** The user commits themselves, or explicitly tells
+  you to commit. Until then the change waits in the index.
+- The user always handles pushing to `main`. Never push a branch or `main`.
+
 ## Research Agent
 
 Do not rely solely on built-in knowledge for questions about K3s, Kubernetes, Ansible, Flux, Helm, or related tooling — this ecosystem moves fast and your training data may be stale.
@@ -44,8 +56,8 @@ make doctor     # diagnose a broken toolchain
 make help       # list targets
 ```
 
-**Run `make check` before committing.** It reproduces the required CI jobs
-exactly, so passing it predicts a passing pipeline. Prefer the `make` targets
+**Run `make check` before staging a change for review.** It reproduces the
+required CI jobs exactly, so passing it predicts a passing pipeline. Prefer the `make` targets
 over calling `dprint`, `uv` or `scripts/lint-k8s.py` directly — the targets stay
 correct when the underlying tooling changes, which is how a hand-rolled
 invocation ends up passing locally and failing in CI.
@@ -100,7 +112,7 @@ When creating a new secret:
 
 2. **Ask the user for secret values directly** — do not pull them from `.env` files, other hosts, or guess. If a placeholder is needed (e.g. for an OAuth client_secret before the provider has been set up), use a clearly-marked `FIXME` value and tell the user what to replace.
 
-3. **Encrypt before committing**: `sops -e -i path/to/new-secret.sops.yaml`. The `.sops.yaml` config at the repo root applies the age recipient automatically to any path matching `*.sops.yaml`.
+3. **Encrypt before staging**: `sops -e -i path/to/new-secret.sops.yaml`. The `.sops.yaml` config at the repo root applies the age recipient automatically to any path matching `*.sops.yaml`.
 
 4. **Never `kubectl apply` a Secret directly** — commit and let Flux reconcile (general project rule, not secret-specific).
 
