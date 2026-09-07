@@ -11,6 +11,12 @@
 # every table. max collapses them to the single replica's value; sum would
 # double-count during a rollout when two pods briefly overlap.
 #
+# "Online over time" stacks one band per online character instead of plotting
+# the aggregate counts: the stack's top edge is max(wow_players_online), and
+# the hover tooltip names exactly who was on. stepAfter + spanNulls:false keep
+# bands flat and end them at logout. The accounts count stays a stat, and the
+# per-account view is the Account sessions timeline below.
+#
 # The player map stacks four "label halo" marker layers under the real one.
 # Grafana builds the label as an OpenLayers Text with a fill and no stroke and
 # offers no outline option, so the only way to keep names readable over both
@@ -293,6 +299,7 @@ data:
           "type": "timeseries",
           "title": "Online over time",
           "id": 5,
+          "description": "One band per character; pile height is the count.",
           "datasource": {
             "type": "prometheus",
             "uid": "wow-longterm"
@@ -309,30 +316,30 @@ data:
                 "type": "prometheus",
                 "uid": "wow-longterm"
               },
-              "expr": "max(wow_players_online)",
-              "legendFormat": "characters",
+              "expr": "max by (character_name) (wow_character_online)",
+              "legendFormat": "{{character_name}}",
+              "range": true,
               "refId": "A"
-            },
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "wow-longterm"
-              },
-              "expr": "max(wow_accounts_online)",
-              "legendFormat": "accounts",
-              "refId": "B"
             }
           ],
           "fieldConfig": {
             "defaults": {
               "unit": "none",
               "min": 0,
+              "color": {
+                "mode": "palette-classic"
+              },
               "custom": {
                 "drawStyle": "line",
-                "lineWidth": 2,
-                "fillOpacity": 15,
+                "lineInterpolation": "stepAfter",
+                "lineWidth": 1,
+                "fillOpacity": 40,
                 "showPoints": "never",
-                "spanNulls": true
+                "spanNulls": false,
+                "stacking": {
+                  "mode": "normal",
+                  "group": "A"
+                }
               }
             },
             "overrides": []
@@ -353,7 +360,7 @@ data:
           "id": 26,
           "type": "state-timeline",
           "title": "Character sessions",
-          "description": "One band per character while it was logged in \u2014 the panel above without the sum, so concurrent sessions and who was in them are both visible. A character offline leaves no series, so the gap is the logged-out period.",
+          "description": "One band per character while it is logged in.",
           "datasource": {
             "type": "prometheus",
             "uid": "wow-longterm"
@@ -436,7 +443,7 @@ data:
           "id": 27,
           "type": "state-timeline",
           "title": "Account sessions",
-          "description": "One band per account while any of its characters was logged in. Derived from the same per-character metric, so an account with two characters online still reads as one band.",
+          "description": "One band per account while a character is online.",
           "datasource": {
             "type": "prometheus",
             "uid": "wow-longterm"
@@ -519,7 +526,7 @@ data:
           "id": 29,
           "type": "timeseries",
           "title": "Connection latency",
-          "description": "Round-trip time plotted across the dashboard range, one line each for mean, p50, p95 and p99. Each point is computed across whoever was online at that moment, so p95 reads \"how bad was it for the worst-connected players right then\" — with only a handful online it collapses onto the slowest player, and gets more meaningful as the realm fills. Per-character detail is the panel to the right. Values refresh with each character save, so a spike shorter than the save interval will not appear.",
+          "description": "Round-trip latency: mean, p50, p95 and p99.",
           "datasource": {
             "type": "prometheus",
             "uid": "wow-longterm"
@@ -611,7 +618,7 @@ data:
           "id": 30,
           "type": "timeseries",
           "title": "Latency by account",
-          "description": "The same round-trip time, one line per account instead of aggregated — this is what the percentiles beside it are computed from, so a lone high p95 can be traced to whoever is responsible. Keyed on the account, so the line survives an alt switch. Lines break where nobody on the account is online rather than joining across the gap, since latency only exists while connected.",
+          "description": "Round-trip latency, one line per account.",
           "datasource": {
             "type": "prometheus",
             "uid": "wow-longterm"
@@ -966,7 +973,7 @@ data:
           "id": 22,
           "type": "table",
           "title": "Online now",
-          "description": "Online characters, what they are, and the zone each is standing in — the roster half comes from the same metric the CLI's `online` command reports, the zone from the metric the map plots.",
+          "description": "Who is online, and the zone each stands in.",
           "datasource": {
             "type": "prometheus",
             "uid": "wow-longterm"
@@ -1088,7 +1095,7 @@ data:
               "id": 20,
               "type": "geomap",
               "title": "Character positions — $continent",
-              "description": "Online characters on the continent maps; click a marker for zone, level, class and race. Positions refresh with each character save (every 30s).",
+              "description": "Live position of every online character.",
               "datasource": {
                 "type": "prometheus",
                 "uid": "wow-longterm"
@@ -1437,7 +1444,7 @@ data:
               "id": 21,
               "type": "barchart",
               "title": "Time by zone",
-              "description": "Character-time spent in each zone over the dashboard's range, summed across every character. The subquery samples who-is-where every 30s and multiplies by 30 to get seconds, so the figure follows the time picker and does not depend on the scrape interval. Top 12 zones.",
+              "description": "Character-time spent in each zone. Top 12.",
               "datasource": {
                 "type": "prometheus",
                 "uid": "wow-longterm"
@@ -1514,7 +1521,7 @@ data:
               "id": 23,
               "type": "geomap",
               "title": "Position history — $character",
-              "description": "Every position recorded for the selected character over the dashboard's range, drawn oldest to newest. The two coordinate metrics are separate series, so they are joined on timestamp; the lat query is gated on the lon query so both sides share one sample grid and no half-populated point reaches the map. Only positions on the selected continent are plotted — pick the continent the character was actually on. Trail resolution follows the panel's step, so a wide range draws a coarser path.",
+              "description": "Every recorded position of $character.",
               "datasource": {
                 "type": "prometheus",
                 "uid": "wow-longterm"
@@ -1689,7 +1696,7 @@ data:
           "id": 28,
           "type": "timeseries",
           "title": "Character level over time",
-          "description": "Every character's level across the dashboard range. Offline characters are included, so a line does not go flat just because someone logged out. Level is exported as a metric *value* rather than a label — a label cannot be graphed, and every ding would mint a new series instead of moving the line.",
+          "description": "Each character's level across the range.",
           "datasource": {
             "type": "prometheus",
             "uid": "wow-longterm"
@@ -1749,7 +1756,7 @@ data:
           "id": 31,
           "type": "timeseries",
           "title": "Character XP over time",
-          "description": "Total experience earned, summed across every level a character has completed rather than experience into the current level — the raw column resets to 0 on each ding, which would draw a sawtooth instead of progress. Offline characters are included, so a curve holds its value rather than disappearing. A vertical jump here and a step on the level chart beside it are the same ding.",
+          "description": "Total XP earned, one line per character.",
           "datasource": {
             "type": "prometheus",
             "uid": "wow-longterm"
@@ -1808,7 +1815,7 @@ data:
           "id": 32,
           "type": "timeseries",
           "title": "Money earned — ${coin:text}",
-          "description": "Gold acquired since money tracking began (Sep 2 2026, the first day the exporter recorded balances) — accumulated incrementally by Prometheus (wow.money rule group in the wow namespace) from the rises in each character's purse, with the pre-rule baseline seeded once from the money-held history: first observed balance plus every rise before the rule existed. It rises and never falls, so spending does not show; the accumulator bridges scrape blips and gaps up to about an hour, and only a longer evaluation gap restarts the total. Money gained and spent between two consecutive scrapes still cancels out and stays invisible.",
+          "description": "Gold acquired per character since tracking began.",
           "datasource": {
             "type": "prometheus",
             "uid": "wow-longterm"
@@ -1867,7 +1874,7 @@ data:
           "id": 33,
           "type": "timeseries",
           "title": "Money held — ${coin:text}",
-          "description": "Each character's purse as it actually is, so it falls when they spend. Offline characters keep their last balance rather than dropping out.",
+          "description": "Each character's purse, falling when they spend.",
           "datasource": {
             "type": "prometheus",
             "uid": "wow-longterm"
@@ -2384,7 +2391,7 @@ data:
         {
           "type": "logs",
           "title": "Chat",
-          "description": "Player chat from ChatLogScript: say/emote/yell/whisper/party/raid/bg/guild/officer plus system and custom channels. Lines are selected by the [chat.*] prefix the Appender.Chat flags add; addon comms are not logged.",
+          "description": "Player chat: say, yell, whisper and channels.",
           "id": 17,
           "datasource": {
             "type": "loki",
@@ -2418,7 +2425,7 @@ data:
         {
           "type": "logs",
           "title": "Server logs",
-          "description": "worldserver and authserver console output: boot progress, errors, login failures (authserver 'tried to login with invalid password'), map/lag summaries. Chat lines and the AHBot update-cycle heartbeat are excluded.",
+          "description": "worldserver and authserver console output.",
           "id": 18,
           "datasource": {
             "type": "loki",
@@ -2474,7 +2481,7 @@ data:
             "name": "coin",
             "label": "Coin",
             "type": "custom",
-            "description": "Divisor applied to the money panels. The server stores copper; 100c = 1 silver, 10000c = 1 gold.",
+            "description": "Money divisor: 100c = 1s, 10000c = 1 gold.",
             "show": true,
             "multi": false,
             "includeAll": false,

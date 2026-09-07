@@ -296,22 +296,30 @@ data:
                 "type": "prometheus",
                 "uid": "wow-longterm"
               },
-              "expr": "max(wow_players_online)",
+              "expr": "max by (character_name) (wow_character_online)",
               "refId": "A",
               "range": true,
-              "legendFormat": "characters"
+              "legendFormat": "{{character_name}}"
             }
           ],
           "fieldConfig": {
             "defaults": {
               "unit": "none",
               "min": 0,
+              "color": {
+                "mode": "palette-classic"
+              },
               "custom": {
                 "drawStyle": "line",
-                "lineWidth": 2,
-                "fillOpacity": 15,
+                "lineInterpolation": "stepAfter",
+                "lineWidth": 1,
+                "fillOpacity": 40,
                 "showPoints": "never",
-                "spanNulls": true
+                "spanNulls": false,
+                "stacking": {
+                  "mode": "normal",
+                  "group": "A"
+                }
               }
             },
             "overrides": []
@@ -327,7 +335,7 @@ data:
               "sort": "desc"
             }
           },
-          "description": "Characters logged in across the range.",
+          "description": "One band per character; pile height is the count.",
           "id": 5
         },
         {
@@ -422,7 +430,7 @@ data:
             "x": 0,
             "y": 20
           },
-          "description": "Round-trip time across everyone online, as mean and median. No line appears while nobody is logged in.",
+          "description": "Round-trip latency: mean and median.",
           "datasource": {
             "type": "prometheus",
             "uid": "wow-longterm"
@@ -817,7 +825,7 @@ data:
         {
           "type": "barchart",
           "title": "Time by zone",
-          "description": "Character-time spent in each zone over the dashboard's range, summed across every character. Top 12 zones.",
+          "description": "Character-time spent in each zone. Top 12.",
           "datasource": {
             "type": "prometheus",
             "uid": "wow-longterm"
@@ -1645,7 +1653,7 @@ data:
         {
           "type": "timeseries",
           "title": "Character XP over time",
-          "description": "Total experience earned, summed across every level a character has completed rather than experience into the current level.",
+          "description": "Total XP earned, one line per character.",
           "datasource": {
             "type": "prometheus",
             "uid": "wow-longterm"
@@ -1704,7 +1712,7 @@ data:
         {
           "type": "timeseries",
           "title": "Money held (silver)",
-          "description": "Each character's purse as it actually is, so it falls when they spend. Offline characters keep their last balance rather than dropping out.",
+          "description": "Each character's purse, falling when they spend.",
           "datasource": {
             "type": "prometheus",
             "uid": "wow-longterm"
@@ -1763,7 +1771,7 @@ data:
         {
           "type": "timeseries",
           "title": "Money earned (silver)",
-          "description": "Gold acquired since money tracking began (Sep 2 2026). It rises and never falls, so spending does not show; the total restarts only after a monitoring gap longer than about an hour.",
+          "description": "Gold acquired per character since tracking began.",
           "datasource": {
             "type": "prometheus",
             "uid": "wow-longterm"
