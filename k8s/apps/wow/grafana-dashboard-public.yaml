@@ -310,8 +310,7 @@ data:
                 "mode": "palette-classic"
               },
               "custom": {
-                "drawStyle": "line",
-                "lineInterpolation": "stepAfter",
+                "drawStyle": "bars",
                 "lineWidth": 1,
                 "fillOpacity": 40,
                 "showPoints": "never",

@@ -13,9 +13,10 @@
 #
 # "Online over time" stacks one band per online character instead of plotting
 # the aggregate counts: the stack's top edge is max(wow_players_online), and
-# the hover tooltip names exactly who was on. stepAfter + spanNulls:false keep
-# bands flat and end them at logout. The accounts count stays a stat, and the
-# per-account view is the Account sessions timeline below.
+# the hover tooltip names exactly who was on. Bars + spanNulls:false end each
+# character's bars at logout. The accounts count stays a stat, and the
+# per-account view is the Account sessions timeline below. Character colors
+# come from the continuous-BlPu scheme, a small blue-to-purple hue gradient.
 #
 # The player map stacks four "label halo" marker layers under the real one.
 # Grafana builds the label as an OpenLayers Text with a fill and no stroke and
@@ -330,8 +331,7 @@ data:
                 "mode": "palette-classic"
               },
               "custom": {
-                "drawStyle": "line",
-                "lineInterpolation": "stepAfter",
+                "drawStyle": "bars",
                 "lineWidth": 1,
                 "fillOpacity": 40,
                 "showPoints": "never",
