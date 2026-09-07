@@ -83,7 +83,7 @@ spec:
               until mysqladmin ping -h wow-database.wow.svc.cluster.local -uroot -p"$MYSQL_ROOT_PASSWORD" --silent; do
               echo waiting for mysql; sleep 5; done
         - name: db-import
-          image: forgejo.item.fyi/akmin/ac-wotlk-db-import:20260830@sha256:1294810e1e82ebcee6aa895c0ea63ffc4ac1bac122377d6d87bffc3775666f73
+          image: forgejo.item.fyi/akmin/ac-wotlk-db-import:20260907@sha256:b6d16686874b3a7430b2f4e3b5f6504e09165123c4b78655b851ca4cd9ec4b3e
           env:
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
@@ -222,7 +222,7 @@ spec:
               $DB -N -B -e "SHOW GRANTS FOR 'wow_exporter'@'%'"
       containers:
         - name: worldserver
-          image: forgejo.item.fyi/akmin/ac-wotlk-worldserver:20260830@sha256:f889c1a108576e0f17fbf29dd91fe0f12ce7ad85b90a2445ab64d9e63e9843ce
+          image: forgejo.item.fyi/akmin/ac-wotlk-worldserver:20260907@sha256:4455bb8ef39145177c10e0f8b730943dfe18a2433a94ec4003b70dfb222ecaf8
           # AC's console appender writes with vfprintf and never fflushes
           # (AppenderConsole::_write -> utf8printf -> Util.cpp). Under
           # containerd stdout is a pipe, so glibc block-buffers it at 4KiB
@@ -489,6 +489,17 @@ spec:
               value: "1"
             - name: AC_AUCTION_HOUSE_BOT_BIND__QUEST__ITEM
               value: "0"
+            # queue the dungeon finder with fewer than five
+            - name: AC_SOLO_LFG_ENABLE
+              value: "1"
+            - name: AC_SOLO_LFG_ANNOUNCE
+              value: "1"
+            # FixedXP would force every dungeon kill's XP to FIXED_XPRATE
+            - name: AC_SOLO_LFG_FIXED_XP
+              value: "0"
+            # inert while FIXED_XP is 0. set to what you would receive in a 5-man
+            - name: AC_SOLO_LFG_FIXED_XPRATE
+              value: "0.2"
           ports:
             - name: world
               containerPort: 8085
