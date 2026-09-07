@@ -286,6 +286,11 @@ until the new instance accumulates it, and pre-cutover data remains queryable
 on the `prometheus` datasource until it ages out there. Launch-week history
 (Aug 29 – Sep 4 2026) was imported once by hand as TSDB blocks — exported from
 the main instance, built with `promtool tsdb create-blocks-from`, copied into
-the pod — so the dashboards have data from day one. The wow.money recording
-rules are not backfilled: each instance accumulates its own earned total from
-its own start, and raw series (balances, XP, positions) have no such reset.
+the pod — so the dashboards have data from day one. Raw series (balances, XP,
+positions) have no such reset. The wow.money earned tally was backfilled
+once by hand on the long-term store (Sep 6 2026): the series predating the
+rule was reconstructed from the money-held history — each character's first
+observed balance plus every rise before the rule deployed — so the panel
+reads lifetime earnings from the first day balances were recorded (Sep 2).
+The main instance's own copy keeps its native baseline from the rule's first
+evaluation there.

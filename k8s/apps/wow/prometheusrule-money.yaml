@@ -19,7 +19,10 @@
 #
 # Evaluated by both Prometheuses (main and wow-longterm, via
 # wow.longterm/rules), each keeping an independent total; only the main
-# instance is wired to Alertmanager.
+# instance is wired to Alertmanager. The series' history on wow-longterm
+# predates the rule: it was seeded once by hand (Sep 2026) from the
+# money-held balances, so it reads lifetime earnings, not earnings-since-
+# deployment. A fresh cluster bootstraps its baseline from zero.
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:

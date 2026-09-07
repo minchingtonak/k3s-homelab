@@ -1808,7 +1808,7 @@ data:
           "id": 32,
           "type": "timeseries",
           "title": "Money earned — ${coin:text}",
-          "description": "Gold acquired since the money recording rules were deployed, accumulated incrementally by Prometheus (wow.money rule group in the wow namespace) from the rises in each character's purse — nothing records lifetime earnings, so this is reconstructed from the balance beside it. It rises and never falls, so spending does not show; the accumulator bridges scrape blips and gaps up to about an hour, and only a longer evaluation gap restarts the total. Money gained and spent between two consecutive scrapes still cancels out and stays invisible.",
+          "description": "Gold acquired since money tracking began (Sep 2 2026, the first day the exporter recorded balances) — accumulated incrementally by Prometheus (wow.money rule group in the wow namespace) from the rises in each character's purse, with the pre-rule baseline seeded once from the money-held history: first observed balance plus every rise before the rule existed. It rises and never falls, so spending does not show; the accumulator bridges scrape blips and gaps up to about an hour, and only a longer evaluation gap restarts the total. Money gained and spent between two consecutive scrapes still cancels out and stays invisible.",
           "datasource": {
             "type": "prometheus",
             "uid": "wow-longterm"

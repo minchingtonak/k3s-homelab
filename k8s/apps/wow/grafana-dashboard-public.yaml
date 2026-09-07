@@ -1763,7 +1763,7 @@ data:
         {
           "type": "timeseries",
           "title": "Money earned (silver)",
-          "description": "Gold acquired since the money recording rules were deployed. It rises and never falls, so spending does not show; the total restarts only after a monitoring gap longer than about an hour.",
+          "description": "Gold acquired since money tracking began (Sep 2 2026). It rises and never falls, so spending does not show; the total restarts only after a monitoring gap longer than about an hour.",
           "datasource": {
             "type": "prometheus",
             "uid": "wow-longterm"
