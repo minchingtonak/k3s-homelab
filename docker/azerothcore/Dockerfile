@@ -4,8 +4,8 @@
 #
 # Why this exists: AzerothCore modules are C++ statically linked into the core, so
 # the upstream `acore/ac-wotlk-*` images cannot load one at runtime. The only way
-# to add mod-transmog, mod-autobalance, mod-aoe-loot or mod-ah-bot is to rebuild.
-# See docs/wow-modules.md.
+# to add mod-transmog, mod-autobalance, mod-aoe-loot, mod-ah-bot or mod-solo-lfg
+# is to rebuild. See docs/wow-modules.md.
 #
 # Why *two* images and not just the worldserver: mod-transmog, mod-aoe-loot and
 # mod-ah-bot ship SQL under `data/sql/`, and the update fetcher looks for it at
@@ -40,6 +40,8 @@ ARG MOD_AOE_LOOT_REPO=https://github.com/azerothcore/mod-aoe-loot.git
 ARG MOD_AOE_LOOT_REF=master
 ARG MOD_AH_BOT_REPO=https://github.com/azerothcore/mod-ah-bot.git
 ARG MOD_AH_BOT_REF=master
+ARG MOD_SOLO_LFG_REPO=https://github.com/azerothcore/mod-solo-lfg.git
+ARG MOD_SOLO_LFG_REF=master
 
 ############
 # Skeleton #
@@ -124,6 +126,8 @@ ARG MOD_AOE_LOOT_REPO
 ARG MOD_AOE_LOOT_REF
 ARG MOD_AH_BOT_REPO
 ARG MOD_AH_BOT_REF
+ARG MOD_SOLO_LFG_REPO
+ARG MOD_SOLO_LFG_REF
 
 # Module directory names are load-bearing twice over: cmake derives the compiled
 # module list from them, and the update fetcher builds the SQL path from that
@@ -135,6 +139,7 @@ RUN set -eu; \
       "mod-autobalance|$MOD_AUTOBALANCE_REPO|$MOD_AUTOBALANCE_REF" \
       "mod-aoe-loot|$MOD_AOE_LOOT_REPO|$MOD_AOE_LOOT_REF" \
       "mod-ah-bot|$MOD_AH_BOT_REPO|$MOD_AH_BOT_REF" \
+      "mod-solo-lfg|$MOD_SOLO_LFG_REPO|$MOD_SOLO_LFG_REF" \
     ; do \
       name="${spec%%|*}"; rest="${spec#*|}"; repo="${rest%%|*}"; ref="${rest#*|}"; \
       dir="/azerothcore/modules/$name"; \
@@ -251,7 +256,7 @@ ENTRYPOINT ["/usr/bin/env", "bash", "/azerothcore/entrypoint.sh"]
 
 FROM runtime AS worldserver
 
-LABEL description="AzerothCore World Server (mod-transmog, mod-autobalance)"
+LABEL description="AzerothCore World Server (mod-transmog, mod-autobalance, mod-aoe-loot, mod-ah-bot, mod-solo-lfg)"
 
 ENV ACORE_COMPONENT=worldserver
 # Migrations are db-import's job; two components racing on the same schema is
@@ -273,7 +278,7 @@ CMD ["worldserver"]
 
 FROM runtime AS db-import
 
-LABEL description="AzerothCore Database Import tool (mod-transmog, mod-autobalance)"
+LABEL description="AzerothCore Database Import tool (mod-transmog, mod-autobalance, mod-aoe-loot, mod-ah-bot, mod-solo-lfg)"
 
 ENV ACORE_COMPONENT=dbimport
 

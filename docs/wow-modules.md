@@ -1,8 +1,8 @@
 # WoW realm — building the modded AzerothCore image
 
-Runbook for the custom `worldserver` / `db-import` images that carry **mod-transmog**, **mod-autobalance** and
-**mod-aoe-loot**. The reasoning behind picking them, and the survey of everything that was not picked, is in
-[wow-server-modules.md](wow-server-modules.md).
+Runbook for the custom `worldserver` / `db-import` images that carry **mod-transmog**, **mod-autobalance**,
+**mod-aoe-loot**, **mod-ah-bot** and **mod-solo-lfg**. The reasoning behind picking them, and the survey of
+everything that was not picked, is in [wow-server-modules.md](wow-server-modules.md).
 
 Adding another module is one entry in the clone loop in `docker/azerothcore/Dockerfile` plus a `--build-arg`
 line in the build script. Nothing else in the pipeline is per-module.
@@ -16,7 +16,7 @@ your module to work you need to recompile the source." So adding a module means 
 Two images come out of that build, not one:
 
 - **worldserver** — the module code itself.
-- **db-import** — mod-transmog and mod-aoe-loot ship SQL under `data/sql/`, and the update fetcher looks for it
+- **db-import** — mod-transmog, mod-aoe-loot and mod-ah-bot ship SQL under `data/sql/`, and the update fetcher looks for it
   at `<source>/modules/<module>/data/sql/` (`UpdateFetcher.cpp`). Upstream's db-import image has an empty
   `modules/` directory, so pairing it with a modded worldserver would leave their schema silently unapplied.
   Building both from one tree also keeps the two binaries agreeing on the database version.
@@ -24,7 +24,7 @@ Two images come out of that build, not one:
 `authserver` and `client-data` stay on the upstream `acore/*` images. Neither loads modules, and client-data is
 just a downloader for pre-extracted maps.
 
-mod-autobalance has no SQL at all — it is pure C++ and config.
+mod-autobalance and mod-solo-lfg have no SQL at all — pure C++ and config.
 
 ## Build and push
 
@@ -53,8 +53,8 @@ make wow-image WOW_AC_REF=<sha>                       # pin the core to a commit
 make wow-image WOW_MOD_TRANSMOG_REF=<sha>             # pin a module to a commit
 ```
 
-The per-module refs are `WOW_MOD_TRANSMOG_REF`, `WOW_MOD_AUTOBALANCE_REF` and `WOW_MOD_AOE_LOOT_REF`, all
-defaulting to `master`.
+The per-module refs are `WOW_MOD_TRANSMOG_REF`, `WOW_MOD_AUTOBALANCE_REF`, `WOW_MOD_AOE_LOOT_REF`,
+`WOW_MOD_AH_BOT_REF` and `WOW_MOD_SOLO_LFG_REF`, all defaulting to `master`.
 
 The Dockerfile clones its own sources rather than taking a checkout as build context, so the context is one
 file and every input is pinned in one place.
@@ -130,6 +130,8 @@ Using modules configuration:
 > mod_aoe_loot.conf
 > AutoBalance.conf
 > transmog.conf
+> mod_ahbot.conf
+> SoloLfg.conf
 ```
 
 ```bash
@@ -181,26 +183,32 @@ The reliable check is to compile the real function and diff it against the manif
 # AC_MIN_PETITION_SIGNS
 ```
 
-All 25 variables currently in the manifest were verified this way, and nine of them additionally by booting the
-image against a throwaway database with deliberately invalid values and confirming each reported
-`Bad value defined for name '...'`.
+All variables in the manifest at the time this check was built (25 of them) were verified this way, and nine
+of them additionally by booting the image against a throwaway database with deliberately invalid values and
+confirming each reported `Bad value defined for name '...'`. The mod-solo-lfg additions were verified by
+tracing `IniKeyToEnvVarKey` line by line in current core `Config.cpp` — watch `FixedXPRate`: the uppercase run
+means `SoloLFG.FixedXPRate` mangles to `AC_SOLO_LFG_FIXED_XPRATE`, with no split before `RATE`. An override
+whose value differs from the file default (like `SoloLFG.FixedXP=0`) also logs `Found config value
+'SoloLFG.FixedXP' from environment variable 'AC_SOLO_LFG_FIXED_XP'` at boot, which is a free end-to-end
+confirmation the name was right.
 
 ### What is set, and why
 
 Most of it restates upstream defaults so the knobs are visible in git. The non-defaults:
 
-| Setting                                         | Value | Stock | Why                                                                  |
-| ----------------------------------------------- | ----- | ----- | -------------------------------------------------------------------- |
-| `AC_MIN_PETITION_SIGNS`                         | 0     | 9     | 9 signatures means every other player on a ten-person realm          |
-| `AC_QUESTS_IGNORE_RAID`                         | 1     | 0     | raid groups otherwise stop ordinary quests completing                |
-| `AC_INSTANCE_IGNORE_RAID`                       | 1     | 0     | enter raid instances without forming a raid group                    |
-| `AC_ALLOW_TWO_SIDE_INTERACTION_GROUP`           | 1     | 0     | a small realm cannot afford a faction split                          |
-| `AC_ALLOW_TWO_SIDE_INTERACTION_CHAT`            | 1     | 0     | as above. `Channel`/`Guild`/`Auction`/`Calendar` stay stock          |
-| `AC_MAP_UPDATE_THREADS`                         | 4     | 1     | an idle realm measured ~840m CPU on the single stock thread          |
-| `AC_AUTO_BALANCE_REWARD_SCALING_XP`             | 0     | 1     | scaled-down rewards compound with the party split, see below         |
-| `AC_AUTO_BALANCE_REWARD_SCALING_MONEY`          | 0     | 1     | as above                                                             |
-| `AC_TRANSMOGRIFICATION_ALLOW_LOWER_TIERS`       | 1     | 0     | stock blocks lower-tier appearances, most of the point of the module |
-| `AC_TRANSMOGRIFICATION_ALLOW_MIXED_ARMOR_TYPES` | 1     | 0     | plate wearers can take cloth appearances                             |
+| Setting                                         | Value | Stock | Why                                                                    |
+| ----------------------------------------------- | ----- | ----- | ---------------------------------------------------------------------- |
+| `AC_MIN_PETITION_SIGNS`                         | 0     | 9     | 9 signatures means every other player on a ten-person realm            |
+| `AC_QUESTS_IGNORE_RAID`                         | 1     | 0     | raid groups otherwise stop ordinary quests completing                  |
+| `AC_INSTANCE_IGNORE_RAID`                       | 1     | 0     | enter raid instances without forming a raid group                      |
+| `AC_ALLOW_TWO_SIDE_INTERACTION_GROUP`           | 1     | 0     | a small realm cannot afford a faction split                            |
+| `AC_ALLOW_TWO_SIDE_INTERACTION_CHAT`            | 1     | 0     | as above. `Channel`/`Guild`/`Auction`/`Calendar` stay stock            |
+| `AC_MAP_UPDATE_THREADS`                         | 4     | 1     | an idle realm measured ~840m CPU on the single stock thread            |
+| `AC_AUTO_BALANCE_REWARD_SCALING_XP`             | 0     | 1     | scaled-down rewards compound with the party split, see below           |
+| `AC_AUTO_BALANCE_REWARD_SCALING_MONEY`          | 0     | 1     | as above                                                               |
+| `AC_TRANSMOGRIFICATION_ALLOW_LOWER_TIERS`       | 1     | 0     | stock blocks lower-tier appearances, most of the point of the module   |
+| `AC_TRANSMOGRIFICATION_ALLOW_MIXED_ARMOR_TYPES` | 1     | 0     | plate wearers can take cloth appearances                               |
+| `AC_SOLO_LFG_FIXED_XP`                          | 0     | 1     | the module would force all dungeon XP to a 0.2 party share — see below |
 
 `AC_MAP_UPDATE_THREADS` is paired with a CPU request of 2 (raised from 1) on the same container. Change them
 together — the request is what the scheduler sizes the pod by.
@@ -234,6 +242,35 @@ global — it governs XP and money together — which is why the per-reward togg
 
 All of this is config-only: an env edit and a pod restart, no rebuild. `.reload config` picks changes up live.
 
+### Solo LFG
+
+mod-solo-lfg is the smallest module in the image and the newest addition. It exists so the dungeon finder
+proposes groups with fewer than five players. The whole mechanism is one call: a WorldScript turns on the
+core LFG manager's built-in testing mode at config load (`sLFGMgr->ToggleTesting()`), and in testing mode
+proposals form without the full 1/1/3 role complement. There is no core patch — the patch requirement died
+in Feb 2022, module PR #33 — and no SQL, so db-import has nothing to apply. A companion PlayerScript prints
+the login announce and implements the optional fixed-XP hook.
+
+mod-autobalance is the other half of the arrangement: whatever undersized group queues, the instance
+scales to them. Combined with XP and money being exempt from reward scaling (above), a solo dungeon pays
+exactly what a solo kill pays. That is also why `AC_SOLO_LFG_FIXED_XP=0`: the module's FixedXP option
+("to encourage group play") forces every dungeon kill to `FixedXPRate` — default 0.2, a full-party share
+— which would reintroduce precisely the reward cut the REWARD_SCALING toggles above exist to avoid.
+`AC_SOLO_LFG_FIXED_XPRATE` is restated but inert while the toggle is 0.
+
+Known warts, all in the core's testing mode rather than the module, none fixed upstream:
+
+- re-queueing after porting out of a solo LFG dungeon breaks the queue until worldserver restarts
+  ("Wrong dungeon type 0 for dungeon 0" — issue #39, still active in 2026)
+- porting out can leave the character stuck in a group until restart (#40)
+- dying inside removes the player from LFG and resets the instance (#41)
+- green-or-better loot pops need/greed dialogs even while solo (#48)
+- no Satchel of Helpful Goods for completing a random dungeon (#49)
+
+`AC_SOLO_LFG_ENABLE=0` and a restart cleanly disables the module — the toggle guard turns testing mode
+back off at config load. A full rollback is reverting the two image pins; the module leaves no trace in
+the database.
+
 ## Keeping it current
 
 This is the maintenance cost the modules bought:
@@ -245,6 +282,9 @@ This is the maintenance cost the modules bought:
 - **Watch for drift against `client-data` and `authserver`** when Renovate bumps them. In practice AzerothCore
   migrations are additive and this is quiet, but a worldserver pinned months behind a bumped authserver is
   worth a rebuild.
+- **mod-solo-lfg is a thin toggle over a core feature, and the warts are in the core.** It turns on the LFG
+  manager's testing mode; the re-queue, port-out and death edge cases are open upstream issues — see the
+  Solo LFG section above.
 - The Dockerfile restates upstream's cmake invocation and apt dependency list. If a build fails on a missing
   header or an unknown cmake option, diff `docker/azerothcore/Dockerfile` against upstream
   `apps/docker/Dockerfile` before reaching for anything cleverer.
@@ -256,3 +296,4 @@ This is the maintenance cost the modules bought:
 - [upstream apps/docker/Dockerfile](https://github.com/azerothcore/azerothcore-wotlk/blob/master/apps/docker/Dockerfile)
 - [mod-transmog](https://github.com/azerothcore/mod-transmog)
 - [mod-autobalance](https://github.com/azerothcore/mod-autobalance)
+- [mod-solo-lfg](https://github.com/azerothcore/mod-solo-lfg)

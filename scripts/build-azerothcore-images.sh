@@ -38,6 +38,7 @@ MOD_TRANSMOG_REF="${WOW_MOD_TRANSMOG_REF:-master}"
 MOD_AUTOBALANCE_REF="${WOW_MOD_AUTOBALANCE_REF:-master}"
 MOD_AOE_LOOT_REF="${WOW_MOD_AOE_LOOT_REF:-master}"
 MOD_AH_BOT_REF="${WOW_MOD_AH_BOT_REF:-master}"
+MOD_SOLO_LFG_REF="${WOW_MOD_SOLO_LFG_REF:-master}"
 
 DOCKERFILE="docker/azerothcore/Dockerfile"
 # The Dockerfile clones its own sources, so the context only has to carry the
@@ -58,6 +59,7 @@ echo "           mod-transmog@${MOD_TRANSMOG_REF}"
 echo "           mod-autobalance@${MOD_AUTOBALANCE_REF}"
 echo "           mod-aoe-loot@${MOD_AOE_LOOT_REF}"
 echo "           mod-ah-bot@${MOD_AH_BOT_REF}"
+echo "           mod-solo-lfg@${MOD_SOLO_LFG_REF}"
 echo
 
 for entry in "${TARGETS[@]}"; do
@@ -75,6 +77,7 @@ for entry in "${TARGETS[@]}"; do
     --build-arg "MOD_AUTOBALANCE_REF=${MOD_AUTOBALANCE_REF}" \
     --build-arg "MOD_AOE_LOOT_REF=${MOD_AOE_LOOT_REF}" \
     --build-arg "MOD_AH_BOT_REF=${MOD_AH_BOT_REF}" \
+    --build-arg "MOD_SOLO_LFG_REF=${MOD_SOLO_LFG_REF}" \
     "$CONTEXT"
   echo
 done
