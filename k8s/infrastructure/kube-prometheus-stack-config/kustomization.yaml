@@ -3,5 +3,7 @@ kind: Kustomization
 resources:
   - servicemonitor-traefik.yaml
   - prometheus-storage-alerts.yaml
+  - grafana-dashboard-overview.yaml
+  - alerts-history-rule.yaml
   - prometheus-wow-longterm.yaml
   - prometheus-wow-longterm-service.yaml
