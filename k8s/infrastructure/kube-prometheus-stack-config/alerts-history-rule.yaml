@@ -1,0 +1,13 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: cluster-overview-recording
+  namespace: monitoring
+spec:
+  groups:
+    - name: cluster-overview.rules
+      interval: 30s
+      rules:
+        - record: cluster:firing_alerts
+          expr: |
+            count by (alertname, severity) (ALERTS{alertstate="firing",alertname!~"Watchdog|InfoInhibitor"})

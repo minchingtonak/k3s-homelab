@@ -153,16 +153,6 @@ spec:
                 path: /var/lib/grafana/dashboards/community
       dashboards:
         community:
-          node-exporter-full:
-            gnetId: 1860 # https://grafana.com/grafana/dashboards/1860
-            revision: 45
-            datasource: Prometheus
-          traefik:
-            gnetId: 17346 # https://grafana.com/grafana/dashboards/17346
-            revision: 9
-            datasource:
-              - name: DS_PROMETHEUS
-                value: Prometheus
           loki-kubernetes-logs:
             gnetId: 16976 # https://grafana.com/grafana/dashboards/16976
             revision: 7
