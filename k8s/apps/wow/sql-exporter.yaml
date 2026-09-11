@@ -27,7 +27,7 @@ spec:
   chart:
     spec:
       chart: sql-exporter
-      version: "0.18.8" # https://github.com/burningalchemist/sql_exporter/releases
+      version: "0.18.10" # https://github.com/burningalchemist/sql_exporter/releases
       sourceRef:
         kind: HelmRepository
         name: sql-exporter
