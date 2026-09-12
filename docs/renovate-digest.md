@@ -11,7 +11,7 @@ short list with a recommendation attached to each one.
 ## What you are doing
 
 **Reporting only.** Do not open a pull request, do not push a branch, do not merge anything, do not touch the cluster.
-The output of this job is one Telegram message.
+The output of this job is one Discord message.
 
 The script has already done the deterministic half — enumerating the open pull requests, diffing them against last
 week's, and computing ages. Do not re-run `gh pr list` to check its work.
@@ -30,6 +30,9 @@ The script's output has five sections:
 - **CARRIED OVER, UNCHANGED** — reported before and still open. A count and the numbers, nothing more. Re-describing
   these every week is what makes a digest stop being read.
 - **PROCEDURE** — this file.
+
+A `note:` line above the procedure means the previous run died between staging its state and committing it, so its delta
+was never consumed — this run re-reports it. Say so in the report header when that line is present.
 
 If the new-or-changed section is empty, say so in one line and stop. Do not pad the report by promoting carried-over
 entries to fill space.
@@ -82,9 +85,23 @@ When you are unsure between two buckets, choose the more cautious one and say in
 
 Anything labelled `security` goes first in the report regardless of bucket, and says what the vulnerability is.
 
+## Commit the state
+
+The script staged this run's next state to `*.pending`; it is not committed yet. Your **last action before writing the
+report** is to promote it:
+
+```bash
+bash scripts/renovate-digest.sh --commit
+```
+
+Commit only when the digest is genuinely done — you have reviewed everything you were given, and the report text is
+ready in your head. If you are deferring work, or the run is failing for any reason, **do not commit**: leaving the
+pending file behind makes the next run re-report the delta, which is the safe direction. Do not delete the pending file
+either; the next run overwrites it.
+
 ## Report
 
-Delivery is Telegram, which hard-chunks at 4096 characters. **Keep the whole message under about 3800.** That is a
+Delivery is Discord, which hard-chunks at 4096 characters. **Keep the whole message under about 3800.** That is a
 constraint, not a preference — an overflowing digest arrives split at whatever character the chunker lands on.
 
 **Every pull request you reviewed must appear somewhere in the report**, with its own line and its own reason. At around
