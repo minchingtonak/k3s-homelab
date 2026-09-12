@@ -15,6 +15,8 @@
 # State lives outside the repo. Each run records the pull requests it reported
 # so the next one only has to describe what actually changed; without it, week
 # two re-reports the same twenty pull requests and the digest stops being read.
+# The next state is staged to *.pending and promoted by the agent via --commit
+# only after the report is delivered, so a dead run never consumes the delta.
 # Set RENOVATE_DIGEST_NO_STATE=1 to dry-run without consuming the delta.
 #
 # Reads the repo but never touches its working tree: the clone is shared with
@@ -26,7 +28,21 @@ set -euo pipefail
 REPO_SLUG="${RENOVATE_DIGEST_REPO:-minchingtonak/k3s-homelab}"
 REPO_DIR="${RENOVATE_DIGEST_REPO_DIR:-/workspace/k3s-homelab}"
 STATE_FILE="${RENOVATE_DIGEST_STATE:-${HERMES_HOME:-${HOME}/.hermes}/state/renovate-digest.json}"
+PENDING_FILE="${RENOVATE_DIGEST_PENDING:-${STATE_FILE}.pending}"
 PROCEDURE="${RENOVATE_DIGEST_PROCEDURE:-docs/renovate-digest.md}"
+
+# Promotion mode: the agent calls this after the report is delivered. Kept in
+# this script so staging and promotion share one definition of the state shape.
+# Unknown or missing operand fails the command, not the whole run.
+if [ "${1:-}" = "--commit" ]; then
+  [ -f "${PENDING_FILE}" ] || { printf 'renovate-digest: nothing to commit\n' >&2; exit 1; }
+  jq -e '.prs | type == "object"' "${PENDING_FILE}" >/dev/null 2>&1 \
+    || { printf 'renovate-digest: pending state is not valid\n' >&2; exit 1; }
+  mkdir -p "$(dirname "${STATE_FILE}")"
+  mv "${PENDING_FILE}" "${STATE_FILE}"
+  printf 'renovate-digest: state committed (%s pull requests)\n' "$(jq -r '.prs | length' "${STATE_FILE}")"
+  exit 0
+fi
 
 # Renovate embeds full release notes in the pull request body, which is most of
 # the research done for free — but a few projects dump an entire changelog.
@@ -88,6 +104,14 @@ else
   printf '{"prs":{}}' >"${WORK}/state.json"
 fi
 
+# A pending file here means the previous run staged a state and died before
+# committing it. Report that plainly — it is the one hint the agent gets that
+# last week's digest may not have been delivered — then overwrite it below.
+STALE_PENDING="no"
+if [ -f "${PENDING_FILE}" ]; then
+  STALE_PENDING="yes: staged $(stat -c %y "${PENDING_FILE}" 2>/dev/null | cut -d' ' -f1), never committed"
+fi
+
 # Keyed on title, not on updatedAt. A Renovate pull request keeps its number
 # when a newer upstream version lands and rewrites the title, so a title change
 # is exactly "this is a different upgrade now" — while updatedAt also moves for
@@ -97,6 +121,7 @@ jq -n \
   --slurpfile state "${WORK}/state.json" \
   --arg body_limit "${BODY_LIMIT}" \
   --arg total_budget "${TOTAL_BUDGET}" \
+  --arg stale_pending "${STALE_PENDING}" \
   --rawfile procedure "${WORK}/procedure.md" \
   --arg procedure_path "${PROCEDURE}" \
   --arg repo "${REPO_SLUG}" '
@@ -144,6 +169,8 @@ jq -n \
         (if ($seen | length) == 0
           then "state: first run — every pull request below is new"
           else "state: \($seen | length) tracked from the previous digest" end),
+        (if $stale_pending == "no" then empty
+          else "note: the previous run staged state but never committed it — its digest likely failed; this run re-reports that delta" end),
         "",
         "--- PROCEDURE (\($procedure_path) @ origin/main) ---",
         $procedure,
@@ -201,6 +228,11 @@ if [ "${RENOVATE_DIGEST_NO_STATE:-0}" = "1" ]; then
   exit 0
 fi
 
-mkdir -p "$(dirname "${STATE_FILE}")"
+# Stage, never write: the agent promotes this file via --commit once the
+# report is delivered. A run that dies anywhere before that leaves the
+# committed state untouched, so the next run re-reports the delta instead of
+# silently swallowing it.
+mkdir -p "$(dirname "${PENDING_FILE}")"
 jq '.state' "${WORK}/result.json" >"${WORK}/next-state.json"
-mv "${WORK}/next-state.json" "${STATE_FILE}"
+mv "${WORK}/next-state.json" "${PENDING_FILE}"
+printf '\n[state staged to %s — run scripts/renovate-digest.sh --commit after the report is delivered]\n' "${PENDING_FILE}"
