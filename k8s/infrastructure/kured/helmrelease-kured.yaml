@@ -37,9 +37,6 @@ spec:
       # Poll for the manual trigger every 5 minutes.
       period: 5m
       timeZone: America/New_York
-      notifyUrl: ${NOTIFY_URL}
-      messageTemplateDrain: "OS updates: draining %s"
-      messageTemplateReboot: "OS updates: rebooting %s"
-      messageTemplateUncordon: "OS updates: %s rebooted and uncordoned"
+      notifyUrl: "${NOTIFY_URL}"
     tolerations:
       - operator: Exists
