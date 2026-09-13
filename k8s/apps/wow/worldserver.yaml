@@ -330,6 +330,19 @@ spec:
             # player-position map would show 15-minute-old dots.
             - name: AC_PLAYER_SAVE_INTERVAL
               value: "30000"
+            # ---- corpse decay ----
+            # seconds an unlooted normal-mob corpse stays on the ground.
+            # elite/rare/boss corpses keep their stock 300/300/300/3600 timers.
+            - name: AC_CORPSE_DECAY_NORMAL
+              value: "300"
+            # when a corpse is fully looted, AllLootRemovedFromCorpse cuts
+            # the *remaining* lifetime by this factor: stock 0.5 halves it
+            # and 1.0 would despawn the corpse the instant it is looted —
+            # the factor is how much time to cut, not how much to keep.
+            # 0.0 keeps the full timer, so a looted corpse lingers as long
+            # as an unlooted one.
+            - name: AC_RATE_CORPSE_DECAY_LOOTED
+              value: "0.0"
             # ---- chat logging ----
             # enables ChatLogScript (src/server/scripts/World/chat_log.cpp),
             # which logs say/emote/yell/whisper/party/raid/bg/guild/officer/
