@@ -74,6 +74,12 @@ spec:
               value: "false"
             - name: OIDC_DISABLE_PASSWORD_LOGIN
               value: "false"
+            # Wallos 5.5+ runs OIDC token/userinfo calls through an SSRF guard
+            # that rejects RFC-1918 targets. auth.item.fyi resolves to the LAN
+            # LB IP (192.168.20.x) inside the cluster, so the IdP host must be
+            # allowlisted or the login silently fails with oidc_invalid_config.
+            - name: SSRF_ALLOWLIST
+              value: auth.item.fyi
           ports:
             - name: http
               containerPort: 80
