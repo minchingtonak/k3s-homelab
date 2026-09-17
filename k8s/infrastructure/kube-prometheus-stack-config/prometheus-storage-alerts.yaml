@@ -8,38 +8,31 @@ spec:
     - name: prometheus.storage
       rules:
         - alert: PrometheusStorageFillingUp
-          # Fires when TSDB blocks are using >80% of the configured retentionSize.
-          # prometheus_tsdb_retention_limit_bytes reflects --storage.tsdb.retention.size.
-          expr: |
-            (
-              prometheus_tsdb_storage_blocks_bytes
-              /
-              prometheus_tsdb_retention_limit_bytes
-            ) > 0.8
-          for: 15m
+          expr: (time() - prometheus_tsdb_lowest_timestamp_seconds) / 86400 < 45
+          for: 1h
           labels:
             severity: warning
           annotations:
-            summary: "Prometheus TSDB storage is {{ $value | humanizePercentage }} full"
+            summary: "Prometheus TSDB effective retention down to {{ $value | humanize }} days"
             description: >
-              Prometheus ({{ $labels.job }}) TSDB blocks are at
-              {{ $value | humanizePercentage }} of the configured retentionSize limit.
-              Oldest blocks will start being dropped soon. Consider increasing
-              retentionSize or reducing the retention period.
+              Prometheus ({{ $labels.job }}) is size-capped and evicting its
+              oldest blocks; effective retention has eroded below 45d of the
+              configured 90d. Reduce scrape volume or raise retentionSize and
+              the PVC if the full window is needed.
 
         - alert: PrometheusStorageCritical
-          expr: |
-            (
-              prometheus_tsdb_storage_blocks_bytes
+          expr: >
+            max by (namespace, persistentvolumeclaim) (
+              kubelet_volume_stats_used_bytes{namespace="monitoring",persistentvolumeclaim=~"prometheus-.*-db-.*"}
               /
-              prometheus_tsdb_retention_limit_bytes
-            ) > 0.9
+              kubelet_volume_stats_capacity_bytes{namespace="monitoring",persistentvolumeclaim=~"prometheus-.*-db-.*"}
+            ) > 0.97
           for: 5m
           labels:
             severity: critical
           annotations:
-            summary: "Prometheus TSDB storage is {{ $value | humanizePercentage }} full"
+            summary: "Prometheus data volume {{ $labels.persistentvolumeclaim }} is {{ $value | humanizePercentage }} full"
             description: >
-              Prometheus ({{ $labels.job }}) TSDB blocks are at
-              {{ $value | humanizePercentage }} of the configured retentionSize limit.
-              Active deletion of old data is likely occurring. Investigate immediately.
+              The Prometheus data PVC is nearly full, so the TSDB retentionSize
+              cap no longer protects this volume. Raise the PVC or lower
+              retentionSize.
