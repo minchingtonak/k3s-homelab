@@ -1,0 +1,63 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: debian-host-updates
+  namespace: monitoring
+spec:
+  groups:
+    - name: debian.updates
+      rules:
+        - alert: DebianUpdatesStalled
+          # Fires when packages have been pending for over 24h: unattended-upgrades
+          # runs daily via apt-daily-upgrade.timer, so anything still pending after
+          # a day means the automation failed or is not keeping up.
+          expr: sum by (instance) (apt_upgrades_pending) > 0
+          for: 24h
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ $labels.instance }} has had pending updates for over 24h"
+            description: >-
+              unattended-upgrades should clear pending packages daily. Persistent
+              pending updates on {{ $labels.instance }} mean the daily upgrade
+              failed - check /var/log/unattended-upgrades/ on the host.
+
+        - alert: DebianAptCacheStale
+          # Fires when the apt cache has not refreshed for 2 days; without apt
+          # update the pending-updates metrics go stale too.
+          expr: time() - apt_package_cache_timestamp_seconds > 172800
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ $labels.instance }} apt cache is stale"
+            description: >-
+              No successful apt update on {{ $labels.instance }} for over 48h.
+              Check apt-daily.timer and the apt-info-prom timer.
+
+        - alert: DebianRebootRequired
+          # reboot-required is created by unattended-upgrades (kernel updates) and
+          # reboot-notifier (libc and other base libraries). Reboots are manual by
+          # design: this alert is the reminder to trigger one via kured.
+          expr: node_reboot_required == 1
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ $labels.instance }} needs a reboot"
+            description: >-
+              Pending OS updates on {{ $labels.instance }} require a reboot. When
+              ready, trigger the kured flow from docs/os-updates.md - kured will
+              drain, reboot and uncordon the node safely.
+
+        - alert: HostRebooted
+          # Informational: node_exporter boot time under 10 minutes means the host
+          # just came back. Serves as the after-the-fact record alongside kured's
+          # own drain/reboot/uncordon notifications.
+          expr: time() - node_boot_time_seconds < 600
+          labels:
+            severity: info
+          annotations:
+            summary: "{{ $labels.instance }} rebooted"
+            description: >-
+              {{ $labels.instance }} came up {{ $value | humanizeDuration }} ago.

@@ -1,0 +1,12 @@
+#!/bin/sh
+# Runs the packaged apt_info.py textfile collector and atomically publishes its
+# output for node_exporter. Read by the kube-prometheus-stack node-exporter
+# DaemonSet through the /var/lib/node_exporter/textfile_collector hostPath.
+set -eu
+
+COLLECTOR=/usr/share/prometheus-node-exporter-collectors/apt_info.py
+OUTFILE={{ unattended_upgrades_textfile_dir }}/apt_info.prom
+
+umask 022
+"$COLLECTOR" > "$OUTFILE.tmp"
+mv -f "$OUTFILE.tmp" "$OUTFILE"
