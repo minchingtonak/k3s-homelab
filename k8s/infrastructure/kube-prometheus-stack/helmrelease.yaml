@@ -79,6 +79,7 @@ spec:
       service:
         annotations:
           gatus.home-operations.com/enabled: "false"
+      shadowBundledPlugins: true
       ingress:
         enabled: false # exposed via IngressRoute instead
       initChownData:
