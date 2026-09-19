@@ -1,0 +1,70 @@
+---
+# Weekly Seerr nag: reports media requests that have not been fulfilled
+# (filter=unavailable - pending, processing, or partially available media).
+# Any unfulfilled requests trigger a Pushover notification listing them;
+# an empty week only logs. Errors send a best-effort failure Pushover.
+#
+# The Python source lives in scripts/unfulfilled_requests.py and is baked
+# into the seerr-unfulfilled-requests-script ConfigMap by the
+# configMapGenerator in this kustomization (dagu pattern).
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: seerr-unfulfilled-requests
+  namespace: seerr
+  labels:
+    app.kubernetes.io/name: seerr-unfulfilled-requests
+spec:
+  schedule: "0 9 * * 6"
+  timeZone: America/New_York
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 600
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: seerr-unfulfilled-requests
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: unfulfilled-requests
+              image: python:3.13-alpine@sha256:1a63a53928ce53d2b0baf08092a703f4840ac5dfbd61fd48802dbf48e08c801e
+              command:
+                - python3
+                - -u
+                - /script/unfulfilled_requests.py
+              envFrom:
+                - secretRef:
+                    name: seerr-unfulfilled-requests-secret
+              env:
+                - name: SEERR_URL
+                  value: http://seerr.seerr.svc.cluster.local
+                - name: PYTHONDONTWRITEBYTECODE
+                  value: "1"
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 32Mi
+                limits:
+                  memory: 128Mi
+              securityContext:
+                runAsNonRoot: true
+                runAsUser: 100000
+                runAsGroup: 100000
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop:
+                    - ALL
+              volumeMounts:
+                - name: script
+                  mountPath: /script
+                  readOnly: true
+          volumes:
+            - name: script
+              configMap:
+                name: seerr-unfulfilled-requests-script

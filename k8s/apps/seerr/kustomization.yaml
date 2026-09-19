@@ -3,3 +3,17 @@ kind: Kustomization
 resources:
   - deployment.yaml
   - ingressroute.yaml
+  - unfulfilled-requests.yaml
+  - unfulfilled-requests-secret.sops.yaml
+configMapGenerator:
+  - name: seerr-unfulfilled-requests-script
+    files:
+      - unfulfilled_requests.py=scripts/unfulfilled_requests.py
+# Keep Flux postBuild substitution away from generated ConfigMaps (dagu
+# pattern); the Python script is verbatim file content. Hash suffix
+# disabled: kustomize does not rewrite CronJob jobTemplate volume
+# references to hashed names, and CronJobs mount fresh content per run.
+generatorOptions:
+  disableNameSuffixHash: true
+  annotations:
+    kustomize.toolkit.fluxcd.io/substitute: disabled
