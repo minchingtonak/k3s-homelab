@@ -16,5 +16,23 @@ resources:
   - subsyncarr.yaml
   - profilarr.yaml
   - cleanuparr.yaml
+  - qbit-unlinked-cleanup.yaml
+  - qbit-unlinked-cleanup-secret.sops.yaml
   - apprise-service.yaml
   - ingressroutes.yaml
+configMapGenerator:
+  - name: qbit-unlinked-cleanup-script
+    files:
+      - cleanup.py=scripts/qbit-unlinked-cleanup.py
+# Generated ConfigMaps must not be touched by Flux postBuild substitution
+# (the servarr Kustomization substitutes ${VAR} placeholders) - the Python
+# scripts are verbatim file content. Handwritten ConfigMaps like
+# slskd-config keep their ${SECRET_*} substitution; this only affects
+# generated ones (dagu pattern). The hash suffix is disabled because
+# kustomize does not rewrite CronJob jobTemplate volume references to
+# hashed names (it does for Deployments), and a CronJob mounts fresh
+# content on every run anyway.
+generatorOptions:
+  disableNameSuffixHash: true
+  annotations:
+    kustomize.toolkit.fluxcd.io/substitute: disabled

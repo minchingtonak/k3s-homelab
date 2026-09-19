@@ -1,0 +1,84 @@
+---
+# Weekly automation of the manual "delete everything tagged cleanuparr-unlinked"
+# workflow in the qBittorrent WebUI. Cleanuparr tags torrents that are not
+# linked to any *arr-managed media; this job deletes them (and their files)
+# every Saturday 09:00 America/New_York and sends a Pushover summary after
+# every run - deletions, or a nothing-to-do no-op. Sends a best-effort
+# failure notification on errors.
+#
+# The Python source lives in scripts/qbit-unlinked-cleanup.py and is baked
+# into the qbit-unlinked-cleanup-script ConfigMap by the configMapGenerator
+# in this kustomization (dagu pattern).
+#
+# qBittorrent auth: the cluster pod CIDR (10.42.0.0/16) is in the WebUI
+# auth-subnet whitelist (qBittorrent.conf WebUI\AuthSubnetWhitelist), so this
+# job's requests are authorized without a login. If that whitelist is ever
+# tightened, set QBIT_USERNAME / QBIT_PASSWORD in qbit-unlinked-cleanup-secret
+# and the script falls back to password login automatically.
+#
+# DRY_RUN=true logs the delete request it would send instead of sending it.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: qbit-unlinked-cleanup
+  namespace: servarr
+  labels:
+    app.kubernetes.io/name: qbit-unlinked-cleanup
+spec:
+  schedule: "0 9 * * 6"
+  timeZone: America/New_York
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 600
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: qbit-unlinked-cleanup
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: cleanup
+              image: python:3.13-alpine@sha256:1a63a53928ce53d2b0baf08092a703f4840ac5dfbd61fd48802dbf48e08c801e
+              command:
+                - python3
+                - -u
+                - /script/cleanup.py
+              envFrom:
+                - secretRef:
+                    name: qbit-unlinked-cleanup-secret
+              env:
+                - name: QBIT_URL
+                  value: http://qbittorrent.servarr.svc.cluster.local:8081
+                - name: CLEANUP_TAG
+                  value: cleanuparr-unlinked
+                - name: DELETE_FILES
+                  value: "true"
+                - name: PYTHONDONTWRITEBYTECODE
+                  value: "1"
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 32Mi
+                limits:
+                  memory: 128Mi
+              securityContext:
+                runAsNonRoot: true
+                runAsUser: 100000
+                runAsGroup: 100000
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop:
+                    - ALL
+              volumeMounts:
+                - name: script
+                  mountPath: /script
+                  readOnly: true
+          volumes:
+            - name: script
+              configMap:
+                name: qbit-unlinked-cleanup-script
