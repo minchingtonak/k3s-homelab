@@ -9,6 +9,9 @@ or only partially available), then trims requests that are unfulfilled
   requested-season airDate in the future, or absent from TMDB)
 - TV media where every requested season is already available and only
   unrequested seasons keep the media "partially available"
+- TV seasons where every aired episode is already downloaded in Sonarr
+  and only unaired episodes remain (checked via Sonarr episode data;
+  when Sonarr cannot be consulted the request is kept, not skipped)
 
 If any genuinely unfulfilled requests remain, sends a Pushover
 notification listing them; an empty week only logs a message. Failures
@@ -22,8 +25,11 @@ import urllib.parse
 import urllib.request
 from datetime import date
 
-BASE_URL = os.environ.get(
+SEERR_URL = os.environ.get(
     "SEERR_URL", "http://seerr.seerr.svc.cluster.local"
+).rstrip("/")
+SONARR_URL = os.environ.get(
+    "SONARR_URL", "http://sonarr.servarr.svc.cluster.local:8989"
 ).rstrip("/")
 USER_AGENT = "seerr-unfulfilled-requests/1.0"
 TODAY = date.today().isoformat()
@@ -53,19 +59,30 @@ def log(msg):
     print(msg, flush=True)
 
 
-def api(path):
-    """One Seerr REST API call."""
+def api(base, key, path):
+    """One REST API call with an X-Api-Key header (seerr or sonarr)."""
     headers = {"User-Agent": USER_AGENT, "Accept": "application/json"}
-    key = os.environ.get("SEERR_API_KEY", "")
     if key:
         headers["X-Api-Key"] = key
-    req = urllib.request.Request(BASE_URL + path, headers=headers)
+    req = urllib.request.Request(base + path, headers=headers)
     with urllib.request.urlopen(req, timeout=60) as resp:
         raw = resp.read().decode()
     try:
         return json.loads(raw)
     except json.JSONDecodeError:
         raise RuntimeError(f"non-JSON response from {path}: {raw[:200]!r}")
+
+
+def seerr(path):
+    return api(
+        SEERR_URL, os.environ.get("SEERR_API_KEY", ""), path
+    )
+
+
+def sonarr(path):
+    return api(
+        SONARR_URL, os.environ.get("SONARR_API_KEY", ""), path
+    )
 
 
 def pushover(title, message):
@@ -97,24 +114,51 @@ def pushover(title, message):
 
 
 def media_detail(media_type, tmdb_id, cache):
-    """Fetch (and cache) the media detail for titles and air dates."""
+    """Fetch (and cache) the seerr media detail for titles/air dates."""
     key = (media_type, tmdb_id)
     if key not in cache:
         path = f"/api/v1/{media_type}/{tmdb_id}"
         try:
-            cache[key] = api(path)
+            cache[key] = seerr(path)
         except Exception as exc:  # noqa: BLE001 - degrade gracefully
             log(f"detail lookup failed for {path}: {exc!r}")
             cache[key] = {}
     return cache[key]
 
 
+def sonarr_missing_aired(series_id, season_number):
+    """Count a season's aired-but-not-downloaded episodes in Sonarr.
+
+    Returns (missing, unaired, ok); ok=False when Sonarr could not be
+    consulted (API failure), with zeroed counts.
+    """
+    path = (
+        f"/api/v3/episode?seriesId={series_id}"
+        f"&seasonNumber={season_number}"
+    )
+    try:
+        episodes = sonarr(path)
+    except Exception as exc:  # noqa: BLE001 - degrade gracefully
+        log(f"sonarr lookup failed for series {series_id}"
+            f" season {season_number}: {exc!r}")
+        return 0, 0, False
+    missing = unaired = 0
+    for ep in episodes:
+        air = ep.get("airDate") or "9999-99-99"
+        if air > TODAY:
+            unaired += 1
+        elif ep.get("monitored") and not ep.get("hasFile"):
+            missing += 1
+    return missing, unaired, True
+
+
 def classify(req, cache):
     """Decide whether a request is genuinely unfulfilled.
 
-    Returns (entry_or_None, skip_reason). entry is a display line for
-    requests worth reporting; skip_reason names why a request that the
-    API calls unavailable is nevertheless fine by design.
+    Returns (entry, reason, short): when the request should be
+    reported, entry is its display line (reason and short are None);
+    otherwise entry is None, reason names why it is fine by design,
+    and short is a "Title (S1,S2)"-style name for the hidden list.
     """
     media = req.get("media") or {}
     media_type = media.get("mediaType", "movie")
@@ -124,31 +168,38 @@ def classify(req, cache):
     if not title:
         title = f"{media_type} #{tmdb_id}"
     label = MEDIA_STATUS.get(media.get("status") or 0, "unknown")
+    season_nums = sorted(
+        s.get("seasonNumber") for s in req.get("seasons") or []
+    )
+    short = title
+    if media_type == "tv" and season_nums:
+        nums = ",".join(f"S{n}" for n in season_nums)
+        short = f"{title} ({nums})"
 
     if media_type != "tv":
         if (media.get("status") or 0) == 5:
-            return None, "requested media already available"
+            return None, "requested media already available", short
         release = detail.get("releaseDate") or "9999-99-99"
         if release > TODAY:
-            return None, "not released yet"
-        return f"{title} [{label}]", None
+            return None, "not released yet", short
+        return f"{title} [{label}]", None, None
 
     seasons = req.get("seasons") or []
     if not seasons:
         # whole-series request without season detail: fall back to the
         # media-level status and the show's first air date
         if (media.get("status") or 0) == 5:
-            return None, "requested media already available"
+            return None, "requested media already available", short
         first_air = detail.get("firstAirDate") or "9999-99-99"
         if first_air > TODAY:
-            return None, "not released yet"
-        return f"{title} [{label}]", None
+            return None, "not released yet", short
+        return f"{title} [{label}]", None, None
 
     unavailable = [s for s in seasons if (s.get("status") or 0) != 5]
     if not unavailable:
         # every requested season is fully available; only unrequested
         # seasons keep the media partially available - by design
-        return None, "requested seasons all available"
+        return None, "requested seasons all available", short
 
     air_dates = {
         s.get("seasonNumber"): s.get("airDate")
@@ -160,19 +211,29 @@ def classify(req, cache):
         air = air_dates.get(num) or "9999-99-99"
         (aired if air <= TODAY else unaired).append(num)
     if not aired:
-        return None, "not released yet"
+        return None, "not released yet", short
 
+    # every aired episode already downloaded? (currently-airing shows
+    # waiting on future episodes are unfulfilled by design)
+    series_id = media.get("externalServiceId")
     nums = ",".join(f"S{n}" for n in sorted(aired))
     entry = f"{title} ({nums}) [{label}]"
+    if series_id:
+        checks = [sonarr_missing_aired(series_id, n) for n in aired]
+        if all(ok for _, _, ok in checks):
+            total_missing = sum(m for m, _, _ in checks)
+            if total_missing == 0:
+                return None, "aired episodes all downloaded", short
+            entry += f" - {total_missing} aired episode(s) missing"
     if unaired:
         extra = ",".join(f"S{n}" for n in sorted(unaired))
         entry += f" (+{extra} not yet aired)"
-    return entry, None
+    return entry, None, None
 
 
 def main():
     query = urllib.parse.urlencode({"filter": "unavailable", "take": TAKE})
-    data = api("/api/v1/request?" + query)
+    data = seerr("/api/v1/request?" + query)
     reqs = data.get("results") or []
     page_info = data.get("pageInfo") or {}
     total = page_info.get("results") or len(reqs)
@@ -182,34 +243,37 @@ def main():
         return
 
     cache = {}
-    kept, skipped = [], {}
+    kept, hidden = [], []
     for req in reqs:
-        entry, reason = classify(req, cache)
+        entry, reason, short = classify(req, cache)
         if entry:
             kept.append(entry)
         elif reason:
-            skipped[reason] = skipped.get(reason, 0) + 1
+            hidden.append((short, reason))
 
     log(f"{total} unavailable request(s) -> {len(kept)} to report")
     for entry in kept[:MAX_ITEMS]:
         log(f"  - {entry}")
-    for reason, count in sorted(skipped.items()):
-        log(f"  skipped {count}: {reason}")
+    for short, reason in hidden:
+        log(f"  hidden: {short}: {reason}")
 
     if not kept:
         log("nothing genuinely unfulfilled; not notifying")
         return
 
-    lines = kept[:MAX_ITEMS]
+    lines = [f"- {e}" for e in kept[:MAX_ITEMS]]
     if len(kept) > MAX_ITEMS:
         lines.append(f"... and {len(kept) - MAX_ITEMS} more")
-    if skipped:
-        summary = "; ".join(
-            f"{count} {reason}" for reason, count in sorted(skipped.items())
-        )
-        lines.append(f"({summary} - not counted)")
+    if hidden:
+        lines.append("")
+        lines.append("Not counted:")
+        grouped = {}
+        for short, reason in hidden:
+            grouped[reason] = grouped.get(reason, 0) + 1
+        for reason in sorted(grouped):
+            lines.append(f"- {reason}: {grouped[reason]}")
     message = f"{len(kept)} unfulfilled request(s) in Seerr:\n"
-    message += "\n".join("- " + e for e in lines)
+    message += "\n".join(lines)
     pushover(f"Seerr: {len(kept)} unfulfilled request(s)", message)
 
 

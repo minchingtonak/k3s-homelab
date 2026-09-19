@@ -2,10 +2,12 @@
 # Weekly Seerr nag: reports media requests that have not been fulfilled
 # (filter=unavailable - pending, processing, or partially available media),
 # minus requests that are unfulfilled by design: content not released/
-# aired yet, and TV media where every requested season is available and
-# only unrequested seasons keep the media partially available. Remaining
-# requests trigger a Pushover notification listing them; an empty week
-# only logs. Errors send a best-effort failure Pushover.
+# aired yet, TV media where every requested season is available and only
+# unrequested seasons keep the media partially available, and TV seasons
+# where Sonarr already has every aired episode (currently-airing shows
+# waiting on future episodes). Remaining requests trigger a Pushover
+# notification listing them; an empty week only logs. Errors send a
+# best-effort failure Pushover.
 #
 # The Python source lives in scripts/unfulfilled_requests.py and is baked
 # into the seerr-unfulfilled-requests-script ConfigMap by the
@@ -46,6 +48,8 @@ spec:
               env:
                 - name: SEERR_URL
                   value: http://seerr.seerr.svc.cluster.local
+                - name: SONARR_URL
+                  value: http://sonarr.servarr.svc.cluster.local:8989
                 - name: PYTHONDONTWRITEBYTECODE
                   value: "1"
               resources:
