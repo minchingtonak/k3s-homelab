@@ -1,0 +1,73 @@
+---
+# Weekly automation of the manual Paperless-ngx "Sanity check" admin button.
+# Triggers the checker via the REST API (superuser token), waits for the
+# celery task to finish, then reports the outcome via Pushover. Paperless
+# runs scale-to-zero (KEDA), so requests go through the KEDA HTTP
+# interceptor with a paperless.item.fyi Host header - that path counts for
+# scaling; calling the paperless-ngx service directly would hit zero
+# endpoints. The first request of a run may block a few minutes while the
+# webserver cold-boots.
+#
+# The Python source lives in scripts/sanity_check.py and is baked into the
+# paperless-sanity-check-script ConfigMap by the configMapGenerator in this
+# kustomization (dagu pattern).
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: paperless-sanity-check
+  namespace: paperless-ngx
+  labels:
+    app.kubernetes.io/name: paperless-sanity-check
+spec:
+  schedule: "0 9 * * 6"
+  timeZone: America/New_York
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      # cold boot (KEDA scale-up) + up to MAX_WAIT of polling + slack
+      activeDeadlineSeconds: 1800
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: paperless-sanity-check
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: sanity-check
+              image: python:3.13-alpine@sha256:1a63a53928ce53d2b0baf08092a703f4840ac5dfbd61fd48802dbf48e08c801e
+              command:
+                - python3
+                - -u
+                - /script/sanity_check.py
+              envFrom:
+                - secretRef:
+                    name: paperless-sanity-check-secret
+              env:
+                - name: PYTHONDONTWRITEBYTECODE
+                  value: "1"
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 32Mi
+                limits:
+                  memory: 128Mi
+              securityContext:
+                runAsNonRoot: true
+                runAsUser: 100000
+                runAsGroup: 100000
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop:
+                    - ALL
+              volumeMounts:
+                - name: script
+                  mountPath: /script
+                  readOnly: true
+          volumes:
+            - name: script
+              configMap:
+                name: paperless-sanity-check-script

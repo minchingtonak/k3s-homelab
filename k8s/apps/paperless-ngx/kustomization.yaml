@@ -4,4 +4,18 @@ resources:
   - deployment.yaml
   - ingressroute.yaml
   - paperless-ngx-secret.sops.yaml
+  - sanity-check.yaml
+  - sanity-check-secret.sops.yaml
   - keda.yaml
+configMapGenerator:
+  - name: paperless-sanity-check-script
+    files:
+      - sanity_check.py=scripts/sanity_check.py
+# Keep Flux postBuild substitution away from generated ConfigMaps (dagu
+# pattern); the Python script is verbatim file content. Hash suffix
+# disabled: kustomize does not rewrite CronJob jobTemplate volume
+# references to hashed names, and CronJobs mount fresh content per run.
+generatorOptions:
+  disableNameSuffixHash: true
+  annotations:
+    kustomize.toolkit.fluxcd.io/substitute: disabled
