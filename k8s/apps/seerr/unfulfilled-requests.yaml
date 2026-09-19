@@ -1,8 +1,11 @@
 ---
 # Weekly Seerr nag: reports media requests that have not been fulfilled
-# (filter=unavailable - pending, processing, or partially available media).
-# Any unfulfilled requests trigger a Pushover notification listing them;
-# an empty week only logs. Errors send a best-effort failure Pushover.
+# (filter=unavailable - pending, processing, or partially available media),
+# minus requests that are unfulfilled by design: content not released/
+# aired yet, and TV media where every requested season is available and
+# only unrequested seasons keep the media partially available. Remaining
+# requests trigger a Pushover notification listing them; an empty week
+# only logs. Errors send a best-effort failure Pushover.
 #
 # The Python source lives in scripts/unfulfilled_requests.py and is baked
 # into the seerr-unfulfilled-requests-script ConfigMap by the
