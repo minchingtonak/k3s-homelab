@@ -1,3 +1,4 @@
+# shellcheck disable=SC1089
 AQUA_INSTALL_URL := https://aquaproj.github.io/docs/install
 
 AQUA_YAML := aqua.yaml
@@ -75,6 +76,9 @@ doctor: _annotated ## Check the pinned tools are installed and git hooks are ena
 fmt: ## Format the repo
 	dprint fmt
 
+# Renovate bumps it via the pypi customManager in .renovate/customManagers.json5.
+YAMLLINT_VERSION ?= 1.38.0
+
 .PHONY: check-fmt
 check-fmt: ## Check formatting
 	dprint check
@@ -83,8 +87,12 @@ check-fmt: ## Check formatting
 lint: ## Lint k8s manifests
 	uv run --quiet scripts/lint-k8s.py
 
+.PHONY: lint-yaml
+lint-yaml: ## Lint all YAML files with yamllint (.yamllint config)
+	uv run --quiet --with yamllint==$(YAMLLINT_VERSION) -- yamllint .
+
 .PHONY: check
-check: check-fmt lint ## Run every check CI runs
+check: check-fmt lint-yaml lint ## Run every check CI runs
 
 # Override any of the WOW_IMAGE_* / WOW_*_REF variables the script reads to retag or pin
 # sources, e.g. `make wow-image WOW_IMAGE_PUSH=0` to build without publishing.

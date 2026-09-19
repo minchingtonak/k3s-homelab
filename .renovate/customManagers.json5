@@ -52,5 +52,13 @@
       depNameTemplate: "helm/helm",
       datasourceTemplate: "github-releases",
     },
+    // track the yamllint version pinned for the lint-yaml make target
+    {
+      customType: "regex",
+      managerFilePatterns: ["/^Makefile$/"],
+      matchStrings: ["YAMLLINT_VERSION \\?*=\\s*(?<currentValue>[0-9.]+)"],
+      depNameTemplate: "yamllint",
+      datasourceTemplate: "pypi",
+    },
   ],
 }

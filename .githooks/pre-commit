@@ -63,6 +63,23 @@ if [ "${#k8s_files[@]}" -gt 0 ]; then
     fi
 fi
 
+# yaml lint (mirrors the CI yamllint job; .yamllint supplies config and
+# ignores - including *.sops.yaml). Runs the uv-pinned yamllint (see
+# YAMLLINT_VERSION in the Makefile) on the staged files only.
+mapfile -t yaml_files < <(printf '%s\n' "${staged[@]}" | grep -E '\.ya?ml$' || true)
+
+if [ "${#yaml_files[@]}" -gt 0 ]; then
+    command -v uv >/dev/null 2>&1 ||
+        fail "uv is not on PATH. Install the toolchain (\`aqua i\`); it resolves
+    the pinned yamllint the yaml lint runs with."
+
+    yamllint_version="$(sed -n 's/^YAMLLINT_VERSION ?*= //p' Makefile)"
+    if ! out="$(uv run --quiet --with "yamllint==${yamllint_version}" -- yamllint "${yaml_files[@]}" 2>&1)"; then
+        printf '%s\n' "$out" | head -40 >&2
+        fail "yamllint failed (output above)."
+    fi
+fi
+
 # secret scan over the staged content
 command -v gitleaks >/dev/null 2>&1 ||
     fail "gitleaks is not on PATH, so staged changes cannot be scanned for

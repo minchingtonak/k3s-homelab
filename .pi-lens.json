@@ -1,0 +1,3 @@
+{
+  "ignore": ["**/*.json5", "**/*.sops.yaml", "Makefile"]
+}
