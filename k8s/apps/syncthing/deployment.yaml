@@ -233,7 +233,7 @@ spec:
         runAsGroup: 0
       containers:
         - name: syncthing
-          image: docker.io/syncthing/syncthing:2.1.3@sha256:72714d73c43bf3025143abdf3b35c1bd76470bfea10f3854a4d2019846ef8006
+          image: docker.io/syncthing/syncthing:2.1.5@sha256:84dcf202b0890f795c4c3899d35a5ac7369bb8b72b5c270078c50247da4ddeef
           ports:
             - name: web-ui
               containerPort: 8384
