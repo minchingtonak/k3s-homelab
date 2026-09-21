@@ -243,7 +243,10 @@ data:
             - authorization_code
             - refresh_token
           redirect_uris:
-            - url: https://trek.item.fyi/api/auth/oidc/callback
+            # APP_URL is the pangolin-exposed host (see the trek Deployment);
+            # TREK builds the redirect from APP_URL alone, never the request
+            # host, so the LAN hostname is no longer a valid callback.
+            - url: https://trek.minch.zone/api/auth/oidc/callback
               matching_mode: strict
           authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
           invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
