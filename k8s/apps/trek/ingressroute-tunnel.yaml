@@ -10,15 +10,31 @@
 # what makes the interceptor accept this host at all.
 #
 # No TLS here: pangolin terminates it publicly and newt reaches Traefik
-# in-cluster over plain HTTP. The route is Host-scoped, so the entrypoint
-# still answers nothing for other hosts — the gatus canary on the
-# traefik-tunnel Service asserts exactly that for wow.minch.zone.
+# in-cluster over plain HTTP. Because the listener is plain HTTP and the
+# entrypoint trusts no forwarded headers, Traefik rewrites
+# X-Forwarded-Proto to `http` — and TREK's FORCE_HTTPS then 301s https to
+# the same https URL, i.e. an infinite redirect loop (Firefox: "The page
+# isn't redirecting properly"). The middleware below force-sets the header
+# for this router so TREK sees the https it is already serving under. The
+# route is Host-scoped, so the entrypoint still answers nothing for other
+# hosts — the gatus canary on the traefik-tunnel Service asserts exactly
+# that for wow.minch.zone.
 #
 # The pangolin resource itself lives in the pangolin dashboard, not this
 # repo: an HTTP resource for trek.minch.zone targeting
 # http://traefik-tunnel.traefik-system.svc.cluster.local:8081, with no
 # pangolin-side auth — TREK's public share links must open for anonymous
 # visitors (the app's own auth guards everything else).
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: trek-tunnel-xfp-https
+  namespace: trek
+spec:
+  headers:
+    customRequestHeaders:
+      X-Forwarded-Proto: https
+---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
@@ -30,6 +46,8 @@ spec:
   routes:
     - kind: Rule
       match: Host(`trek.minch.zone`)
+      middlewares:
+        - name: trek-tunnel-xfp-https
       services:
         - name: keda-add-ons-http-interceptor-proxy
           namespace: keda
