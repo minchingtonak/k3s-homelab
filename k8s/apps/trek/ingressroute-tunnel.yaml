@@ -1,0 +1,36 @@
+# TREK's public face through the Pangolin tunnel:
+#
+#   pangolin edge (TLS for *.minch.zone) -> newt -> traefik-tunnel svc :8081
+#   -> this router -> KEDA interceptor -> trek
+#
+# The service target is the interceptor, not trek itself, so the scaling
+# path stays intact (the ScaledObject below keeps one warm replica — see
+# keda.yaml — and raising maxReplicaCount later needs no routing change).
+# Adding trek.minch.zone to the InterceptorRoute host list (keda.yaml) is
+# what makes the interceptor accept this host at all.
+#
+# No TLS here: pangolin terminates it publicly and newt reaches Traefik
+# in-cluster over plain HTTP. The route is Host-scoped, so the entrypoint
+# still answers nothing for other hosts — the gatus canary on the
+# traefik-tunnel Service asserts exactly that for wow.minch.zone.
+#
+# The pangolin resource itself lives in the pangolin dashboard, not this
+# repo: an HTTP resource for trek.minch.zone targeting
+# http://traefik-tunnel.traefik-system.svc.cluster.local:8081, with no
+# pangolin-side auth — TREK's public share links must open for anonymous
+# visitors (the app's own auth guards everything else).
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: trek-tunnel
+  namespace: trek
+spec:
+  entryPoints:
+    - tunnel
+  routes:
+    - kind: Rule
+      match: Host(`trek.minch.zone`)
+      services:
+        - name: keda-add-ons-http-interceptor-proxy
+          namespace: keda
+          port: 8080

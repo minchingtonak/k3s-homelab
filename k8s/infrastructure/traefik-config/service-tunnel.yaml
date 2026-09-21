@@ -1,7 +1,8 @@
-# The in-cluster target for the newt tunnel. Pangolin's resource for
-# wow.minch.zone points here (traefik-tunnel.traefik-system.svc:8081); the
-# newt NetworkPolicy admits the Traefik pods on 8081 only, and the tunnel
-# entrypoint serves nothing but the grafana-public router.
+# The in-cluster target for the newt tunnel. Pangolin's resources for
+# wow.minch.zone and trek.minch.zone point here
+# (traefik-tunnel.traefik-system.svc:8081); the newt NetworkPolicy admits the
+# Traefik pods on 8081 only, and the tunnel entrypoint serves nothing but the
+# routers that bind it explicitly (grafana-public, trek-tunnel).
 #
 # The gatus check is the allowlist canary: sent with the real Host header, any
 # path outside the allowlisted prefixes 404s. A 200 on / would mean the router

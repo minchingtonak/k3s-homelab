@@ -3,5 +3,6 @@ kind: Kustomization
 resources:
   - deployment.yaml
   - ingressroute.yaml
+  - ingressroute-tunnel.yaml
   - trek-secret.sops.yaml
   - keda.yaml

@@ -1,7 +1,8 @@
-# The public face of the realm stats dashboard. This router is the only thing
-# bound to the `tunnel` entrypoint, the only Traefik port the newt NetworkPolicy
-# admits (port 8081, scoped by rule 4 in k8s/apps/newt). Everything else in
-# this repo binds `websecure`, so no other host or router answers on the tunnel.
+# The public face of the realm stats dashboard. This router and trek's
+# trek-tunnel router are the only things bound to the `tunnel` entrypoint, the
+# only Traefik port the newt NetworkPolicy admits (port 8081, scoped by rule 4
+# in k8s/apps/newt). Everything else in this repo binds `websecure`, so no
+# other host or router answers on the tunnel.
 #
 # The route allowlist below is the entire anonymous surface of a Grafana
 # externally shared dashboard, taken from the source rather than guessed

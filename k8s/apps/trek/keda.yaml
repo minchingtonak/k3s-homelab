@@ -10,6 +10,7 @@ spec:
   rules:
     - hosts:
         - trek.item.fyi
+        - trek.minch.zone
   scalingMetric:
     concurrency:
       targetValue: 30
@@ -26,7 +27,7 @@ metadata:
 spec:
   scaleTargetRef:
     name: trek
-  minReplicaCount: 0
+  minReplicaCount: 1
   maxReplicaCount: 1
   cooldownPeriod: 600
   triggers:
