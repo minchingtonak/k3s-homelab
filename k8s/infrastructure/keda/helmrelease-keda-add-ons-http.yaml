@@ -8,7 +8,7 @@ spec:
   chart:
     spec:
       chart: keda-add-ons-http
-      version: "0.15.0" # https://github.com/kedacore/http-add-on/releases
+      version: "0.16.0" # https://github.com/kedacore/http-add-on/releases
       sourceRef:
         kind: HelmRepository
         name: kedacore
