@@ -1,0 +1,9 @@
+# This module compiles only inside the AzerothCore worldserver build
+# (docker/azerothcore/Dockerfile), which supplies the core headers
+# (Define.h, Player.h, ...). A workstation clangd has no AC include
+# paths, so every diagnostic here is a cascade artifact of the first
+# unresolved include — not real. The Docker build is the syntax gate.
+Diagnostics:
+  Suppress: "*"
+CompileFlags:
+  Add: [-ferror-limit=0]

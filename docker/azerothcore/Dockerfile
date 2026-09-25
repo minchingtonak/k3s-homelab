@@ -151,6 +151,14 @@ RUN set -eu; \
       echo "$name $(git -C "$dir" rev-parse HEAD)"; \
     done
 
+# Local modules ride in the build context instead of being cloned. The
+# context is docker/azerothcore, so this COPY pulls in mod-jevstate (the
+# read-only state/nav HTTP module for the out-of-client agent). Anything
+# added here must also land in the worldserver LABEL and db-import stage
+# notes below if it ships SQL.
+COPY mod-jevstate /azerothcore/modules/mod-jevstate
+RUN git config --global --add safe.directory /azerothcore/modules/mod-jevstate
+
 ARG CTYPE="RelWithDebInfo"
 ARG CSCRIPTS="static"
 ARG CMODULES="static"

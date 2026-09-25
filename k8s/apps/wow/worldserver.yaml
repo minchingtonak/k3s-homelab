@@ -83,7 +83,7 @@ spec:
               until mysqladmin ping -h wow-database.wow.svc.cluster.local -uroot -p"$MYSQL_ROOT_PASSWORD" --silent; do
               echo waiting for mysql; sleep 5; done
         - name: db-import
-          image: forgejo.item.fyi/akmin/ac-wotlk-db-import:20260919@sha256:3e22c5dc6165fb703d5653b9e1af9c1f27967eeccdd285002550c88d3bd449c2
+          image: forgejo.item.fyi/akmin/ac-wotlk-db-import:20260925-nav2@sha256:954f26d29fba5c53b25404e6dc5df843efa86156bcf6eb3b6b3661c0c89b5267
           env:
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
@@ -222,7 +222,7 @@ spec:
               $DB -N -B -e "SHOW GRANTS FOR 'wow_exporter'@'%'"
       containers:
         - name: worldserver
-          image: forgejo.item.fyi/akmin/ac-wotlk-worldserver:20260919@sha256:24137c604df6c2deaeff9144b16749d5e819b44913d0dc2ba1b33bbefedbbe8f
+          image: forgejo.item.fyi/akmin/ac-wotlk-worldserver:20260925-nav2@sha256:c25b70d34df6375fc29170cc282d09984485bcc51ab1a27688159365fae8a90b
           # AC's console appender writes with vfprintf and never fflushes
           # (AppenderConsole::_write -> utf8printf -> Util.cpp). Under
           # containerd stdout is a pipe, so glibc block-buffers it at 4KiB

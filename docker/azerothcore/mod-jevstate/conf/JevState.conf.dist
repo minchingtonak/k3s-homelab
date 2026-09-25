@@ -1,0 +1,49 @@
+[worldserver]
+
+###################################################################################################
+# JEVSTATE
+#
+# mod-jevstate serves read-only combat snapshots over a tiny HTTP endpoint so
+# an out-of-client agent can perceive exact server state. Read-only by design:
+# it accepts no commands and mutates nothing.
+###################################################################################################
+
+#    JevState.Enable
+#        Description: Enable the HTTP state endpoint
+#        Default:     1  - (Enabled)
+#                     0  - (Disabled)
+
+JevState.Enable = 1
+
+#    JevState.BindIP
+#        Description: Address to bind the HTTP listener to
+#        Default:     0.0.0.0 - (all interfaces; exposure is governed by the
+#                     k8s Service, which fronts only this port)
+
+JevState.BindIP = "0.0.0.0"
+
+#    JevState.Port
+#        Description: TCP port for the HTTP listener
+#        Default:     7879
+
+JevState.Port = 7879
+
+#    JevState.UpdateMs
+#        Description: How often (milliseconds) the world thread refreshes the
+#                     per-player snapshot cache. The HTTP thread only serves
+#                     this cache, so request rate is decoupled from world cost.
+#        Default:     100
+
+JevState.UpdateMs = 100
+
+#    JevState.MaxAttackers
+#        Description: Cap on units serialized into the attackers list
+#        Default:     8
+
+JevState.MaxAttackers = 8
+
+#    JevState.AttackerRangeYards
+#        Description: Attackers farther than this from the player are skipped
+#        Default:     45
+
+JevState.AttackerRangeYards = 45
