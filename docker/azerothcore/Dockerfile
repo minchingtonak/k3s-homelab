@@ -25,7 +25,7 @@
 # in this one file and the build context empty, at the cost of having to restate
 # upstream's cmake invocation below.
 
-ARG UBUNTU_VERSION=24.04@sha256:33ceb71981b602c1a7443a53469e4dba065f7503eab3078a2d7a57a2ab987517
+ARG UBUNTU_VERSION=24.04@sha256:008173c23f95b170204355c12626cb5a965d779a7e1283b09e9cffbb1bf33ca3
 
 # Source refs. Defaults track master because AzerothCore cuts no releases; pass
 # explicit commit SHAs to make a build reproducible:
