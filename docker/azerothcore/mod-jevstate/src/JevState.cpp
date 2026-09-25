@@ -40,6 +40,14 @@
 // GetPath() -> Movement::PointsArray, GetPathType(), PATHFIND_* in PathType).
 #include "PathGenerator.h"
 
+// Tile pre-warming: mmap tiles load into the navmesh lazily when grids
+// activate, so a path into a cold area returns NOPATH even though the tile
+// exists on disk. MapCollisionData::LoadMMapTile (Maps/MapCollisionData.h)
+// is the same loader grid activation uses; grid coords are
+// floor(32 - world/533.333) per axis, clamped to the 64x64 grid (verified
+// vs master 2026-09-25).
+#include "Map.h"
+
 // Inventory digest: Bag::GetBagSize()/GetItemByPos(uint8) (Entities/Item/
 // Container/Bag.h) and Player::GetBagByPos/GetItemByPos with
 // INVENTORY_SLOT_BAG_0=255, bag slots 19..22, backpack 23..38
@@ -488,6 +496,32 @@ std::string ComputeNavPath(JevNavRequest const& r)
     Player* player = ObjectAccessor::FindPlayerByName(r.name);
     if (!player || !player->IsInWorld())
         return "{\"status\":\"error\",\"error\":\"player offline or not in world\"}";
+
+    // Pre-warm every mmap tile the straight line start->dest touches.
+    // OnUpdate runs on the world thread between map-update dispatches — the
+    // same window grid loading itself uses — so mutating the navmesh here
+    // is no more racy than a grid activating.
+    {
+        float const GRID = 533.33333f;
+        auto tileCoord = [](float v) -> int32_t {
+            float const grid = 533.33333f;
+            int32_t t = static_cast<int32_t>(std::floor(32.0 - v / grid));
+            return t < 0 ? 0 : (t > 63 ? 63 : t);
+        };
+        float const x0 = player->GetPositionX(), y0 = player->GetPositionY();
+        float const dx = r.x - x0, dy = r.y - y0;
+        float const dist = std::sqrt(dx * dx + dy * dy);
+        int32_t steps = static_cast<int32_t>(dist / 400.0f) + 1; // tile=533yd, 400yd sampling covers
+        if (steps > 64)
+            steps = 64;
+        Map* map = player->GetMap();
+        for (int32_t i = 0; i <= steps; ++i)
+        {
+            float const t = float(i) / float(steps);
+            map->GetMapCollisionData().LoadMMapTile(
+                uint32_t(tileCoord(x0 + dx * t)), uint32_t(tileCoord(y0 + dy * t)));
+        }
+    }
 
     auto t0 = std::chrono::steady_clock::now();
     PathGenerator pathGen(player);
