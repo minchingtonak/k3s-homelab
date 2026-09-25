@@ -12,7 +12,7 @@ metadata:
   name: wow-longterm
   namespace: monitoring
 spec:
-  image: quay.io/prometheus/prometheus:v3.14.0-distroless
+  image: quay.io/prometheus/prometheus:v3.15.0-distroless
   replicas: 1
   shards: 1
   serviceAccountName: kube-prometheus-stack-prometheus
