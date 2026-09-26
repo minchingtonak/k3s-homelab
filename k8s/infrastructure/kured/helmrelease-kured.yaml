@@ -1,0 +1,42 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kured
+  namespace: kured
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: kured
+      version: "6.1.0" # https://github.com/kubereboot/charts/releases
+      sourceRef:
+        kind: HelmRepository
+        name: kubereboot
+      interval: 1h
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  values:
+    configuration:
+      # Reboots are human-triggered: kured watches /var/run/kured-reboot, a
+      # file that only exists while a person is requesting a reboot
+      # (docs/os-updates.md). The stock Debian sentinel /var/run/reboot-required
+      # is monitored through Prometheus alerts instead.
+      rebootSentinel: /var/run/kured-reboot
+      useRebootSentinelHostPath: true
+      # One node at a time: Longhorn needs two healthy replicas per volume
+      # while the third node reboots (3 nodes, 3 replicas).
+      concurrency: 1
+      # Never abort a drain that is waiting on Longhorn replica rebuilds.
+      drainTimeout: 0
+      forceReboot: false
+      # Poll for the manual trigger every 5 minutes.
+      period: 5m
+      timeZone: America/New_York
+      notifyUrl: "${NOTIFY_URL}"
+    tolerations:
+      - operator: Exists

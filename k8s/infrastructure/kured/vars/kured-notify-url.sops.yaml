@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: kured-notify-url
+  namespace: flux-system
+type: Opaque
+stringData:
+  NOTIFY_URL: ENC[AES256_GCM,data:j4EiqM0=,iv:sIeM5wGByh31Oujr8HV3KP8AWG3EoGNyrKIxlwgegIw=,tag:Tw1taxlU79+asyEcXW5zpQ==,type:str]
+sops:
+  age:
+    - enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBIMG52bmlDZ0FsNjVLM1hV
+        d1kwc2FlMUl3cU5RWEg5UzdvYmRBSkljM1VFCm9Qb0NPbjRMMkN5NkhDTktyTUdZ
+        bG5oc2dYbGVNYmhjZ0hWSWNzSHZHajQKLS0tIERndDRmWmdla3Y4clVPUGFJdDNy
+        cXpwT3BBVllrRzJRVDJ6NHJVT2RHV3MKz+KLmuMeF09XMZET9c/whfIu2Ya/1iwC
+        5l92HFn7p4oVfF0+gn1/TPiVyo6KC8zAr8UGcjwrqY+ksNvpkMHImw==
+        -----END AGE ENCRYPTED FILE-----
+      recipient: age1whm4tsad6ku4u4sdhnaa54tklt8hd9fzvelwem86pxfs9hzk0pjskru2jj
+    - enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBpZXVPSzJCY0I5ckdUdTE4
+        MWNRYzlKd3FEdW0vYmIvQXVLVkhSMHF0QzJJCmpWM1dqemtzME9QWjBWUFhqS1Vz
+        YnBvcTlTVXFjU09PMC9aVGRvbmtoTXMKLS0tIHE4THJ1UDFGTFNaUnhRUGVvV2FE
+        S0FKYmhCRFVyVHBzNDg0c0lHckpjZkkKfhDY6WfjptwY5/CGY0iAlMCQw+P+qgPs
+        iOboUxDxab1tQ4gcHqBy9FE045Xr016EXoHG2OaFnDGSFHcMH99qyg==
+        -----END AGE ENCRYPTED FILE-----
+      recipient: age1z4st65rqt3su5rzqw2jvps3d9fjpaygvs263qh9c734m26xedfvsdfzvm7
+  encrypted_regex: ^(data|stringData)$
+  lastmodified: "2026-09-13T11:57:15Z"
+  mac: ENC[AES256_GCM,data:AYFo26KgXezLVe/HJXB3uhAC4afLrYcJnw75A42jOj7nOH0t54WXQYWArBzgn0uGIE8cRMoZEBsb7i21S/RWYXGREdmQOutKynewXpRs09HmTMvJbE8d3mVL3O4tNPtMbd1RPwRExlf26kWbajFSfP8DLuJr98uqL2b4yp8e8Ig=,iv:27zZX0RGtWt0PgnqKWJrS+Ap/dtoE/N7cuAWkASTsVQ=,tag:Vzvw4OIiogmxjjemVjKaxg==,type:str]
+  version: 3.13.3

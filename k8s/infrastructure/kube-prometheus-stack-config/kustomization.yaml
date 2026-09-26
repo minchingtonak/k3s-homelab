@@ -8,5 +8,6 @@ resources:
   - grafana-dashboard-edge.yaml
   - grafana-dashboard-storage.yaml
   - alerts-history-rule.yaml
+  - os-updates-alerts.yaml
   - prometheus-wow-longterm.yaml
   - prometheus-wow-longterm-service.yaml
