@@ -85,14 +85,20 @@ def sonarr(path):
     )
 
 
-def pushover(title, message):
+def pushover(title, message, priority=0):
     token = os.environ.get("PUSHOVER_TOKEN", "")
     user = os.environ.get("PUSHOVER_USER_KEY", "")
     if not token or not user:
         log("PUSHOVER_TOKEN / PUSHOVER_USER_KEY not set; skipping")
         return
     data = urllib.parse.urlencode(
-        {"token": token, "user": user, "title": title, "message": message}
+        {
+            "token": token,
+            "user": user,
+            "title": title,
+            "message": message,
+            "priority": priority,
+        }
     ).encode()
     req = urllib.request.Request(
         "https://api.pushover.net/1/messages.json",
@@ -283,7 +289,11 @@ if __name__ == "__main__":
     except Exception as exc:  # noqa: BLE001 - report anything, fail job
         log(f"ERROR: {exc!r}")
         try:
-            pushover("Seerr unfulfilled check FAILED", f"error: {exc!r}")
+            pushover(
+                "Seerr unfulfilled check FAILED",
+                f"error: {exc!r}",
+                priority=1,
+            )
         except Exception as notify_exc:  # noqa: BLE001
             log(f"failed to send failure notification: {notify_exc!r}")
         sys.exit(1)

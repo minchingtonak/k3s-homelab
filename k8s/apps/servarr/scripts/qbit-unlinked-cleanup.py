@@ -97,7 +97,7 @@ def open_session():
     return resp_headers["Set-Cookie"].split(";", 1)[0]
 
 
-def pushover(title, message):
+def pushover(title, message, priority=0):
     token = os.environ.get("PUSHOVER_TOKEN", "")
     user = os.environ.get("PUSHOVER_USER_KEY", "")
     if not token or not user:
@@ -109,6 +109,7 @@ def pushover(title, message):
             "user": user,
             "title": title,
             "message": message,
+            "priority": priority,
         }
     )
     req = urllib.request.Request(
@@ -182,7 +183,11 @@ if __name__ == "__main__":
     except Exception as exc:  # noqa: BLE001 - report anything, fail job
         log(f"ERROR: {exc!r}")
         try:
-            pushover("qBittorrent cleanup FAILED", f"error: {exc!r}")
+            pushover(
+                "qBittorrent cleanup FAILED",
+                f"error: {exc!r}",
+                priority=1,
+            )
         except Exception as notify_exc:  # noqa: BLE001
             log(f"failed to send failure notification: {notify_exc!r}")
         sys.exit(1)
