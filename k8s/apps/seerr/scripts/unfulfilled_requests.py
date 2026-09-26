@@ -17,6 +17,7 @@ If any genuinely unfulfilled requests remain, sends a Pushover
 notification listing them; an empty week only logs a message. Failures
 send a best-effort Pushover and exit 1.
 """
+
 import json
 import os
 import sys
@@ -25,9 +26,9 @@ import urllib.parse
 import urllib.request
 from datetime import date
 
-SEERR_URL = os.environ.get(
-    "SEERR_URL", "http://seerr.seerr.svc.cluster.local"
-).rstrip("/")
+SEERR_URL = os.environ.get("SEERR_URL", "http://seerr.seerr.svc.cluster.local").rstrip(
+    "/"
+)
 SONARR_URL = os.environ.get(
     "SONARR_URL", "http://sonarr.servarr.svc.cluster.local:8989"
 ).rstrip("/")
@@ -74,15 +75,11 @@ def api(base, key, path):
 
 
 def seerr(path):
-    return api(
-        SEERR_URL, os.environ.get("SEERR_API_KEY", ""), path
-    )
+    return api(SEERR_URL, os.environ.get("SEERR_API_KEY", ""), path)
 
 
 def sonarr(path):
-    return api(
-        SONARR_URL, os.environ.get("SONARR_API_KEY", ""), path
-    )
+    return api(SONARR_URL, os.environ.get("SONARR_API_KEY", ""), path)
 
 
 def pushover(title, message, priority=0):
@@ -111,9 +108,7 @@ def pushover(title, message, priority=0):
     try:
         body = json.loads(raw)
     except json.JSONDecodeError:
-        raise RuntimeError(
-            f"non-JSON response from pushover: {raw[:200]!r}"
-        )
+        raise RuntimeError(f"non-JSON response from pushover: {raw[:200]!r}")
     if body.get("status") != 1:
         raise RuntimeError(f"pushover rejected notification: {body}")
     log("pushover notification sent")
@@ -138,15 +133,14 @@ def sonarr_missing_aired(series_id, season_number):
     Returns (missing, unaired, ok); ok=False when Sonarr could not be
     consulted (API failure), with zeroed counts.
     """
-    path = (
-        f"/api/v3/episode?seriesId={series_id}"
-        f"&seasonNumber={season_number}"
-    )
+    path = f"/api/v3/episode?seriesId={series_id}&seasonNumber={season_number}"
     try:
         episodes = sonarr(path)
     except Exception as exc:  # noqa: BLE001 - degrade gracefully
-        log(f"sonarr lookup failed for series {series_id}"
-            f" season {season_number}: {exc!r}")
+        log(
+            f"sonarr lookup failed for series {series_id}"
+            f" season {season_number}: {exc!r}"
+        )
         return 0, 0, False
     missing = unaired = 0
     for ep in episodes:
@@ -174,9 +168,7 @@ def classify(req, cache):
     if not title:
         title = f"{media_type} #{tmdb_id}"
     label = MEDIA_STATUS.get(media.get("status") or 0, "unknown")
-    season_nums = sorted(
-        s.get("seasonNumber") for s in req.get("seasons") or []
-    )
+    season_nums = sorted(s.get("seasonNumber") for s in req.get("seasons") or [])
     short = title
     if media_type == "tv" and season_nums:
         nums = ",".join(f"S{n}" for n in season_nums)
@@ -208,8 +200,7 @@ def classify(req, cache):
         return None, "requested seasons all available", short
 
     air_dates = {
-        s.get("seasonNumber"): s.get("airDate")
-        for s in detail.get("seasons") or []
+        s.get("seasonNumber"): s.get("airDate") for s in detail.get("seasons") or []
     }
     aired, unaired = [], []
     for season in unavailable:
@@ -264,7 +255,17 @@ def main():
         log(f"  hidden: {short}: {reason}")
 
     if not kept:
-        log("nothing genuinely unfulfilled; not notifying")
+        log("nothing genuinely unfulfilled; sending heartbeat")
+        message = "Nothing unfulfilled."
+        if hidden:
+            grouped = {}
+            for short, reason in hidden:
+                grouped[reason] = grouped.get(reason, 0) + 1
+            summary = "; ".join(
+                f"{count} {reason}" for reason, count in sorted(grouped.items())
+            )
+            message += f" Not counted: {summary}."
+        pushover("Seerr: nothing unfulfilled", message)
         return
 
     lines = [f"- {e}" for e in kept[:MAX_ITEMS]]
