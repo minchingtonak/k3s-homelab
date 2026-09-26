@@ -36,7 +36,7 @@ spec:
         fsGroup: 100000
       containers:
         - name: triggarr
-          image: ghcr.io/thejuran/triggarr:v2.9.0@sha256:571e3199966620f96abe3d8695e4b513f202abf0dc751275de05ca0bf164e29b
+          image: ghcr.io/thejuran/triggarr:v2.11.1@sha256:3218b4b71ffdaea6902fcb37c728e4be37d4be91111ac37c3df34670e0ead50c
           # copy read-only secret to writable /config dir, then hand off to the real entrypoint
           command: ["/bin/sh", "-c"]
           args: [
