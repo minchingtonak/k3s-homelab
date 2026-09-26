@@ -36,10 +36,6 @@
 
     { matchPackagePatterns: ["^lavaforge\\.org/"], enabled: false },
     {
-      matchPackageNames: ["ghcr.io/linuxserver/jellyfin"],
-      allowedVersions: "<2021",
-    },
-    {
       matchPackageNames: ["ghcr.io/linuxserver/nzbget"],
       allowedVersions: "<2021",
     },
