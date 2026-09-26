@@ -46,6 +46,11 @@ spec:
       podAntiAffinityPreset: soft
     longhornUI:
       replicas: 2
+    metrics:
+      serviceMonitor:
+        # Prometheus has an empty serviceMonitorSelector, so any
+        # ServiceMonitor is picked up (see kube-prometheus-stack-config)
+        enabled: true
     ingress:
       enabled: false
   install:

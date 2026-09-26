@@ -1,0 +1,109 @@
+---
+# Continuous fast-twitch alerts on Longhorn symptoms. The schedule-aware
+# weekly audit (dagu/backup-verify CronJob) remains authoritative for
+# backup recency vs each volume's recurring-job cadence; the flat
+# LonghornBackupStale threshold here is deliberately generous so weekly
+# schedules never trip it. Metric names per the Longhorn 1.12 docs:
+# https://longhorn.io/docs/1.12.1/monitoring/metrics/
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: prometheus-longhorn-alerts
+  namespace: monitoring
+spec:
+  groups:
+    - name: longhorn.volume
+      rules:
+        - alert: LonghornVolumeFaulted
+          expr: longhorn_volume_robustness{state="faulted"} == 1
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Longhorn volume {{ $labels.volume }} is FAULTED"
+            description: >
+              Volume {{ $labels.volume }} ({{ $labels.pvc_namespace }}/{{
+              $labels.pvc }}) reports robustness=faulted. Data availability
+              is at risk; check Longhorn for replica health and restore if
+              needed.
+
+        - alert: LonghornVolumeDegraded
+          expr: longhorn_volume_robustness{state="degraded"} == 1
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Longhorn volume {{ $labels.volume }} degraded for 30m"
+            description: >
+              Volume {{ $labels.volume }} ({{ $labels.pvc_namespace }}/{{
+              $labels.pvc }}) has fewer healthy replicas than configured
+              and Longhorn has not rebuilt them within 30m. Check node and
+              replica state.
+
+        - alert: LonghornVolumeReadOnly
+          expr: longhorn_volume_file_system_read_only == 1
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Longhorn volume {{ $labels.volume }} filesystem remounted read-only"
+            description: >
+              The workload on {{ $labels.volume }} ({{ $labels.pvc_namespace
+              }}/{{ $labels.pvc }}) hit an I/O error and the filesystem went
+              read-only. The pod usually needs a restart after the
+              underlying issue is fixed.
+
+        - alert: LonghornBackupStale
+          expr: time() - longhorn_volume_last_backup_at > 8 * 86400
+          for: 6h
+          labels:
+            severity: warning
+          annotations:
+            summary: "Longhorn volume {{ $labels.volume }} last backed up {{ $value | humanizeDuration }} ago"
+            description: >
+              Last successful backup of {{ $labels.volume }} ({{
+              $labels.pvc_namespace }}/{{ $labels.pvc }}) is older than 8
+              days (0 means never). The weekly backup-verify job audits
+              exact per-schedule recency; anything tripping this flat rule
+              is grossly stale - check recurring jobs and the backup
+              target.
+
+    - name: longhorn.node
+      rules:
+        - alert: LonghornNodeNotReady
+          expr: longhorn_node_status{condition="ready"} == 0
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Longhorn node {{ $labels.node }} not ready"
+            description: >
+              Longhorn considers node {{ $labels.node }} not ready for 10m.
+              Replicas on it are unavailable; volumes relying on them may
+              be degraded.
+
+        - alert: LonghornDiskUnhealthy
+          expr: longhorn_disk_health == 0
+          for: 10m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Longhorn disk {{ $labels.disk }} on {{ $labels.node }} unhealthy"
+            description: >
+              SMART health for disk {{ $labels.disk }} on node {{ $labels.node
+              }} reports unhealthy. Plan replacement; check details in the
+              Longhorn UI disk health view.
+
+        - alert: LonghornNodeStorageFillingUp
+          expr: >
+            longhorn_node_storage_usage_bytes
+              / longhorn_node_storage_capacity_bytes > 0.85
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: "Longhorn storage on {{ $labels.node }} at {{ $value | humanizePercentage }}"
+            description: >
+              Storage scheduled by Longhorn on node {{ $labels.node }} is
+              above 85% for 1h. Once the reservation watermark is crossed,
+              replica scheduling and rebuilds will fail.

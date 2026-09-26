@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - servicemonitor-traefik.yaml
   - prometheus-storage-alerts.yaml
+  - prometheus-longhorn-alerts.yaml
   - grafana-dashboard-overview.yaml
   - grafana-dashboard-nodes.yaml
   - grafana-dashboard-edge.yaml
