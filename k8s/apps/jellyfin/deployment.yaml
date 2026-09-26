@@ -36,6 +36,14 @@ spec:
             runAsUser: 100000
             runAsGroup: 100000
           env:
+            - name: JELLYFIN_CONFIG_DIR
+              value: /config
+            - name: JELLYFIN_DATA_DIR
+              value: /config/data
+            - name: JELLYFIN_LOG_DIR
+              value: /config/log
+            - name: JELLYFIN_CACHE_DIR
+              value: /cache
             - name: TZ
               value: America/New_York
             - name: JELLYFIN_PublishedServerUrl
