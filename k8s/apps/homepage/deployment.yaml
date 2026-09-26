@@ -134,9 +134,12 @@ data:
           - icon: github.png
             href: https://github.com/minchingtonak/PaC
     - notifs:
-      - pushover:
+      - pushover client:
           - icon: pushover.png
             href: https://client.pushover.net
+      - pushover dashboard:
+          - icon: pushover.png
+            href: https://pushover.net
       - pushover api:
           - icon: pushover.png
             href: https://api.pushover.net
