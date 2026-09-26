@@ -97,38 +97,56 @@ def open_session():
     return resp_headers["Set-Cookie"].split(";", 1)[0]
 
 
+def chunk_message(message, limit=1000):
+    """Split at newline boundaries to stay under Pushover's cap."""
+    chunks = []
+    while message:
+        if len(message) <= limit:
+            chunks.append(message)
+            break
+        cut = message.rfind("\n", 0, limit)
+        if cut < limit // 2:
+            cut = limit
+        chunks.append(message[:cut].rstrip())
+        message = message[cut:].lstrip("\n")
+    return chunks
+
+
 def pushover(title, message, priority=0):
     token = os.environ.get("PUSHOVER_TOKEN", "")
     user = os.environ.get("PUSHOVER_USER_KEY", "")
     if not token or not user:
         log("PUSHOVER_TOKEN / PUSHOVER_USER_KEY not set; skipping")
         return
-    data = urlencode(
-        {
-            "token": token,
-            "user": user,
-            "title": title,
-            "message": message,
-            "priority": priority,
-        }
-    )
-    req = urllib.request.Request(
-        "https://api.pushover.net/1/messages.json",
-        data=data,
-        method="POST",
-        headers={"User-Agent": USER_AGENT},
-    )
-    with urllib.request.urlopen(req, timeout=30) as resp:
-        raw = resp.read().decode()
-    try:
-        body = json.loads(raw)
-    except json.JSONDecodeError:
-        raise RuntimeError(
-            f"non-JSON response from pushover: {raw[:200]!r}"
+    chunks = chunk_message(message)
+    for index, chunk in enumerate(chunks, 1):
+        suffix = "" if len(chunks) == 1 else f" ({index}/{len(chunks)})"
+        data = urlencode(
+            {
+                "token": token,
+                "user": user,
+                "title": title + suffix,
+                "message": chunk,
+                "priority": priority,
+            }
         )
-    if body.get("status") != 1:
-        raise RuntimeError(f"pushover rejected notification: {body}")
-    log("pushover notification sent")
+        req = urllib.request.Request(
+            "https://api.pushover.net/1/messages.json",
+            data=data,
+            method="POST",
+            headers={"User-Agent": USER_AGENT},
+        )
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            raw = resp.read().decode()
+        try:
+            body = json.loads(raw)
+        except json.JSONDecodeError:
+            raise RuntimeError(
+                f"non-JSON response from pushover: {raw[:200]!r}"
+            )
+        if body.get("status") != 1:
+            raise RuntimeError(f"pushover rejected notification: {body}")
+    log(f"pushover notification sent ({len(chunks)} part(s))")
 
 
 def main():
