@@ -1,0 +1,79 @@
+---
+# Weekly Forgejo mirror audit, in two parts:
+# 1. Reconciliation - every repo owned by the GitHub account (forks and
+#    archived included) must exist as a mirror on Forgejo; anything
+#    missing is listed so it can be mirrored.
+# 2. Sync freshness - every Forgejo mirror must have synced within
+#    STALE_HOURS; mirrors that silently stopped syncing are the failure
+#    mode uptime monitoring cannot see.
+# Always pushes a Pushover summary (clean weeks confirm the mirror
+# count); runtime errors push a high-priority failure notice.
+#
+# The Python source lives in scripts/mirror_audit.py and is baked into
+# the forgejo-mirror-audit-script ConfigMap by the configMapGenerator
+# in this kustomization (dagu pattern).
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: forgejo-mirror-audit
+  namespace: forgejo
+  labels:
+    app.kubernetes.io/name: forgejo-mirror-audit
+spec:
+  schedule: "0 9 * * 6"
+  timeZone: America/New_York
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 600
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: forgejo-mirror-audit
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: mirror-audit
+              image: python:3.13-alpine@sha256:1a63a53928ce53d2b0baf08092a703f4840ac5dfbd61fd48802dbf48e08c801e
+              command:
+                - python3
+                - -u
+                - /script/mirror_audit.py
+              envFrom:
+                - secretRef:
+                    name: forgejo-mirror-audit-secret
+              env:
+                - name: FORGEJO_URL
+                  value: http://forgejo.forgejo.svc.cluster.local
+                - name: GITHUB_URL
+                  value: https://api.github.com
+                - name: STALE_HOURS
+                  value: "24"
+                - name: PYTHONDONTWRITEBYTECODE
+                  value: "1"
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 32Mi
+                limits:
+                  memory: 128Mi
+              securityContext:
+                runAsNonRoot: true
+                runAsUser: 100000
+                runAsGroup: 100000
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop:
+                    - ALL
+              volumeMounts:
+                - name: script
+                  mountPath: /script
+                  readOnly: true
+          volumes:
+            - name: script
+              configMap:
+                name: forgejo-mirror-audit-script

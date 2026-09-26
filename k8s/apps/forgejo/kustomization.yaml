@@ -1,6 +1,17 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+namespace: forgejo
 resources:
   - deployment.yaml
   - ingressroute.yaml
   - forgejo-secret.sops.yaml
+  - mirror-audit.yaml
+  - mirror-audit-secret.sops.yaml
+configMapGenerator:
+  - name: forgejo-mirror-audit-script
+    files:
+      - mirror_audit.py=scripts/mirror_audit.py
+generatorOptions:
+  disableNameSuffixHash: true
+  annotations:
+    kustomize.toolkit.fluxcd.io/substitute: disabled
