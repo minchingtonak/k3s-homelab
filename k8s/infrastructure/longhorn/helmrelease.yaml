@@ -32,6 +32,9 @@ spec:
       snapshotDataIntegrityImmediateCheckAfterSnapshotCreation: false
       # Saturday 3am
       snapshotDataIntegrityCronjob: "0 3 * * 6"
+      # Attach detached volumes when recurring jobs fire, so scaled-down
+      # apps still get snapshots + backups (backup-verify monitors this)
+      allowRecurringJobWhileVolumeDetached: true
     persistence:
       defaultClass: true
       defaultClassReplicaCount: 2
