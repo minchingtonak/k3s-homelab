@@ -10,6 +10,8 @@ resources:
   - ingressroute.yaml
   - secret-ssh.sops.yaml
   - secret-pbs-keys.sops.yaml
+  - backup-verify.yaml
+  - backup-verify-secret.sops.yaml
 configMapGenerator:
   - name: dagu-base
     files:
@@ -22,6 +24,15 @@ configMapGenerator:
       - scripts/pbs-backup-common.sh
       - scripts/local-pbs-backup.sh
       - scripts/cloud-pbs-backup.sh
+  # CronJob volume references are not rewritten to hashed ConfigMap
+  # names, so this generator must keep a stable name.
+  - name: backup-verify-script
+    options:
+      disableNameSuffixHash: true
+      annotations:
+        kustomize.toolkit.fluxcd.io/substitute: disabled
+    files:
+      - backup_verify.py=scripts/backup_verify.py
 # Generated ConfigMaps contain bash variable references (${VAR}) that
 # envsubst would clobber. Only configmap-env.yaml (above) is meant to be
 # substituted by Flux postBuild.

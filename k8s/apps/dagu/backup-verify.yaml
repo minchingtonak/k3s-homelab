@@ -1,0 +1,116 @@
+---
+# Weekly backup verification: dagu nightly PBS backup DAG (per-step
+# status, catching the continue_on local-PBS failure hole) plus
+# Longhorn volume-backup recency. Always pushes a Pushover summary;
+# problems are priority 1. The Python source lives in
+# scripts/backup_verify.py, baked into the backup-verify-script
+# ConfigMap by the configMapGenerator in this kustomization.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: backup-verify
+  namespace: dagu
+  labels:
+    app.kubernetes.io/name: backup-verify
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: backup-verify
+  labels:
+    app.kubernetes.io/name: backup-verify
+rules:
+  - apiGroups:
+      - longhorn.io
+    resources:
+      - backups
+      - volumes
+      - recurringjobs
+    verbs:
+      - get
+      - list
+  - apiGroups:
+      - ""
+    resources:
+      - persistentvolumeclaims
+    verbs:
+      - get
+      - list
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: backup-verify
+  labels:
+    app.kubernetes.io/name: backup-verify
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: backup-verify
+subjects:
+  - kind: ServiceAccount
+    name: backup-verify
+    namespace: dagu
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: backup-verify
+  namespace: dagu
+  labels:
+    app.kubernetes.io/name: backup-verify
+spec:
+  schedule: "30 9 * * 6"
+  timeZone: America/New_York
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 600
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: backup-verify
+        spec:
+          serviceAccountName: backup-verify
+          restartPolicy: Never
+          containers:
+            - name: backup-verify
+              image: python:3.13-alpine@sha256:1a63a53928ce53d2b0baf08092a703f4840ac5dfbd61fd48802dbf48e08c801e
+              command:
+                - python3
+                - -u
+                - /script/backup_verify.py
+              envFrom:
+                - secretRef:
+                    name: backup-verify-secret
+              env:
+                - name: DAGU_URL
+                  value: http://dagu.dagu.svc.cluster.local
+                - name: PYTHONDONTWRITEBYTECODE
+                  value: "1"
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 32Mi
+                limits:
+                  memory: 128Mi
+              securityContext:
+                runAsNonRoot: true
+                runAsUser: 100000
+                runAsGroup: 100000
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop:
+                    - ALL
+              volumeMounts:
+                - name: script
+                  mountPath: /script
+                  readOnly: true
+          volumes:
+            - name: script
+              configMap:
+                name: backup-verify-script
