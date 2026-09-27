@@ -32,8 +32,9 @@ export PATH="/deps/node_modules/.bin:$PATH"
 SERVER_VERSION=$(curl -fsS "$WMILL_BASE_URL/api/version" | sed 's/^.*v//')
 npm install --prefix /deps --no-audit --no-fund "windmill-cli@${SERVER_VERSION}"
 
-# Secret volume files are group-readable; ssh insists on an owner-only key.
-install -m 600 /ssh/id_ed25519 "$HOME/id_ed25519"
+# Secret volume files are named after their keys (/ssh/SSH_PRIVATE_KEY) and
+# are group-readable; ssh insists on an owner-only key.
+install -m 600 /ssh/SSH_PRIVATE_KEY "$HOME/id_ed25519"
 export GIT_SSH_COMMAND="ssh -i $HOME/id_ed25519 -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=$HOME/.ssh_known_hosts"
 
 git config --global user.name "windmill-sync"
