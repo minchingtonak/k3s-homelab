@@ -1,0 +1,102 @@
+---
+# Bidirectional Git sync for the Windmill workspace.
+#
+# Why a CronJob: Windmill Community Edition has no built-in automatic
+# deploy-from-git (EE only), and windmill.item.fyi resolves to a private IP,
+# so GitHub-hosted CI cannot reach the instance either. The sync therefore
+# runs inside the cluster, which can reach both Windmill and GitHub.
+#
+# Every 5 minutes (see scripts/windmill_sync.sh for the full logic):
+#   1. wmill sync pull  -> workspace drift is committed to the workspace
+#      repository as "[WM] ..." commits (UI edits flow back to git)
+#   2. wmill sync push  -> merged main is deployed to the workspace (PRs
+#      deploy themselves; git deletions prune the workspace)
+#
+# The workspace content lives in its own repository (SYNC_REPO) so the
+# frequent sync commits do not clutter k3s-homelab's history. The script is
+# baked into the windmill-sync-script ConfigMap by the configMapGenerator in
+# this kustomization (forgejo/dagu pattern). Credentials: a Windmill user
+# token and a GitHub SSH deploy key with write access to SYNC_REPO, both in
+# windmill-sync-secret (SOPS).
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: windmill-sync
+  namespace: windmill
+  labels:
+    app.kubernetes.io/name: windmill-sync
+spec:
+  schedule: "*/5 * * * *"
+  timeZone: America/New_York
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      activeDeadlineSeconds: 240
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: windmill-sync
+        spec:
+          restartPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            fsGroup: 1000
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: sync
+              # Full node image (not -slim): ships git and openssh-client.
+              # The wmill CLI is npm-installed into an emptyDir at runtime.
+              image: docker.io/library/node:22-bookworm@sha256:363e1587494626837fa7f9a23bdb453d13b0ff3c67c705c2805cfc69c2d2fad7
+              imagePullPolicy: IfNotPresent
+              command: ["/bin/bash", "/script/windmill_sync.sh"]
+              env:
+                - name: SYNC_REPO
+                  value: minchingtonak/windmill-homelab
+                - name: WMILL_BASE_URL
+                  value: http://windmill.windmill.svc.cluster.local
+                - name: WMILL_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: windmill-sync-secret
+                      key: WMILL_TOKEN
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 128Mi
+                limits:
+                  memory: 512Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop:
+                    - ALL
+              volumeMounts:
+                - name: script
+                  mountPath: /script
+                  readOnly: true
+                - name: ssh
+                  mountPath: /ssh
+                  readOnly: true
+                - name: work
+                  mountPath: /work
+                - name: deps
+                  mountPath: /deps
+          volumes:
+            - name: script
+              configMap:
+                name: windmill-sync-script
+            - name: ssh
+              secret:
+                secretName: windmill-sync-secret
+                defaultMode: 0o440
+            - name: work
+              emptyDir: {}
+            - name: deps
+              emptyDir: {}

@@ -4,3 +4,13 @@ resources:
   - deployment.yaml
   - ingressroute.yaml
   - windmill-secret.sops.yaml
+  - sync-cronjob.yaml
+  - sync-secret.sops.yaml
+configMapGenerator:
+  - name: windmill-sync-script
+    files:
+      - windmill_sync.sh=scripts/windmill_sync.sh
+generatorOptions:
+  disableNameSuffixHash: true
+  annotations:
+    kustomize.toolkit.fluxcd.io/substitute: disabled
