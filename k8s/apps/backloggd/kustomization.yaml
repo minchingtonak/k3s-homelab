@@ -1,0 +1,22 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+# Namespaces generated resources (configMapGenerator output has no
+# metadata.namespace of its own); handwritten manifests already carry this
+# same namespace, so this is a no-op for them.
+namespace: backloggd
+resources:
+  - namespace.yaml
+  - steam-sync.yaml
+  - steam-sync-secret.sops.yaml
+configMapGenerator:
+  - name: backloggd-steam-sync-script
+    files:
+      - steam_sync.py=scripts/steam_sync.py
+# Keep Flux postBuild substitution away from generated ConfigMaps (dagu
+# pattern); the Python script is verbatim file content. Hash suffix
+# disabled: kustomize does not rewrite CronJob jobTemplate volume
+# references to hashed names, and CronJobs mount fresh content per run.
+generatorOptions:
+  disableNameSuffixHash: true
+  annotations:
+    kustomize.toolkit.fluxcd.io/substitute: disabled

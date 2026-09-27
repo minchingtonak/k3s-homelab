@@ -1,0 +1,99 @@
+---
+# Weekly Steam -> Backloggd tracking nag (seerr unfulfilled-requests
+# pattern). Pulls the Steam library once (GetOwnedGames: playtime +
+# last-played), signs in to Backloggd as the user to page through their
+# library (~a dozen spaced requests/week; no public API, so the job acts
+# only on the user's own data with an honest UA and aborts on 429), and
+# Pushover-nags about games played since BACKFILL_FROM that Backloggd has
+# no entry for. Achievement unlock timestamps approximate started/beat
+# dates for the nagged games. The nag repeats weekly until the game shows
+# up in Backloggd — stateless and self-healing, no PVC.
+#
+# BACKFILL_FROM is the ratchet: recent years are logged first, then move
+# the date back one step per commit to widen the window through history.
+# The Python source lives in scripts/steam_sync.py and is baked into the
+# backloggd-steam-sync-script ConfigMap by the configMapGenerator in this
+# kustomization (dagu pattern).
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: backloggd-steam-sync
+  namespace: backloggd
+  labels:
+    app.kubernetes.io/name: backloggd-steam-sync
+spec:
+  schedule: "0 9 * * 7"
+  timeZone: America/New_York
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 600
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: backloggd-steam-sync
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: steam-sync
+              image: python:3.13-alpine@sha256:1a63a53928ce53d2b0baf08092a703f4840ac5dfbd61fd48802dbf48e08c801e
+              command:
+                - python3
+                - -u
+                - /script/steam_sync.py
+              envFrom:
+                - secretRef:
+                    name: backloggd-steam-sync-secret
+              env:
+                - name: STEAM_API_URL
+                  value: https://api.steampowered.com
+                - name: BACKLOGGD_URL
+                  value: https://backloggd.com
+                # Ratchet: move this back in later commits to backfill
+                # progressively further into Steam history.
+                - name: BACKFILL_FROM
+                  value: "2025-01-01"
+                # Games with less playtime than this are ignored (skips
+                # accidentally-launched things); 30 min matches how little
+                # a "real" session lasts at minimum.
+                - name: MIN_PLAYTIME_MINUTES
+                  value: "30"
+                - name: MAX_REPORT
+                  value: "25"
+                - name: ACHIEVEMENT_FETCH_LIMIT
+                  value: "60"
+                # Politeness floors for a small one-person site: serialized
+                # requests spaced >= 5s, hard page cap, honor Retry-Once then
+                # abort on 429.
+                - name: BACKLOGGD_MIN_INTERVAL
+                  value: "5"
+                - name: BACKLOGGD_MAX_PAGES
+                  value: "50"
+                - name: PYTHONDONTWRITEBYTECODE
+                  value: "1"
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 32Mi
+                limits:
+                  memory: 128Mi
+              securityContext:
+                runAsNonRoot: true
+                runAsUser: 100000
+                runAsGroup: 100000
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop:
+                    - ALL
+              volumeMounts:
+                - name: script
+                  mountPath: /script
+                  readOnly: true
+          volumes:
+            - name: script
+              configMap:
+                name: backloggd-steam-sync-script
