@@ -25,6 +25,7 @@ import json
 import os
 import ssl
 import sys
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -235,6 +236,8 @@ def pushover(title, message, priority=0):
         return
     chunks = chunk_message(message)
     for index, chunk in enumerate(chunks, 1):
+        if index > 1:
+            time.sleep(1)  # gaps keep multi-part notifications in order
         suffix = "" if len(chunks) == 1 else f" ({index}/{len(chunks)})"
         data = urllib.parse.urlencode(
             {
