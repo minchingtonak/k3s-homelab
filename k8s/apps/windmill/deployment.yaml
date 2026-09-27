@@ -125,9 +125,6 @@ spec:
           env:
             - name: MODE
               value: server
-            # Job duration limit in seconds
-            - name: TIMEOUT
-              value: "1800"
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
@@ -196,8 +193,6 @@ spec:
               value: worker
             - name: WORKER_GROUP
               value: default
-            - name: TIMEOUT
-              value: "1800"
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
@@ -245,8 +240,6 @@ spec:
               value: worker
             - name: WORKER_GROUP
               value: native
-            - name: TIMEOUT
-              value: "1800"
             - name: NUM_WORKERS
               value: "2"
             - name: SLEEP_QUEUE
@@ -292,8 +285,6 @@ spec:
               value: worker
             - name: WORKER_GROUP
               value: reports
-            - name: TIMEOUT
-              value: "1800"
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
