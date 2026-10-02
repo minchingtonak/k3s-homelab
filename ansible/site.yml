@@ -14,6 +14,7 @@
     - ssh_hardening
     - sysctl_tuning
     - kernel_tuning
+    - unattended_upgrades
 
 - name: Install k3s control-plane servers (HA join)
   hosts: k3s_servers

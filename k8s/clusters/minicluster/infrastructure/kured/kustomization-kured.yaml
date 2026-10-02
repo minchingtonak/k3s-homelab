@@ -1,0 +1,21 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: kured
+  namespace: flux-system
+spec:
+  interval: 1h
+  retryInterval: 1m
+  dependsOn:
+    - name: kured-vars
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: k8s/infrastructure/kured
+  prune: true
+  wait: true
+  timeout: 5m
+  postBuild:
+    substituteFrom:
+      - kind: Secret
+        name: kured-notify-url

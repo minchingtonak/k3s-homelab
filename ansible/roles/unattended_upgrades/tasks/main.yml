@@ -1,0 +1,63 @@
+---
+- name: Install unattended-upgrades, reboot-notifier and apt metrics packages
+  ansible.builtin.apt:
+    name: "{{ unattended_upgrades_packages + unattended_upgrades_extra_packages }}"
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Install apt periodic download/upgrade config
+  ansible.builtin.copy:
+    src: 20auto-upgrades
+    dest: /etc/apt/apt.conf.d/20auto-upgrades
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Install unattended-upgrades origin and reboot policy
+  ansible.builtin.copy:
+    src: 52unattended-upgrades-local
+    dest: /etc/apt/apt.conf.d/52unattended-upgrades-local
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Create the node_exporter textfile collector directory
+  ansible.builtin.file:
+    path: "{{ unattended_upgrades_textfile_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Install the apt metrics helper script
+  ansible.builtin.template:
+    src: apt-info-prom.sh.j2
+    dest: /usr/local/bin/apt-info-prom
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Install the apt metrics systemd service
+  ansible.builtin.copy:
+    src: apt-info-prom.service
+    dest: /etc/systemd/system/apt-info-prom.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart apt-info-prom timer
+
+- name: Install the apt metrics systemd timer
+  ansible.builtin.copy:
+    src: apt-info-prom.timer
+    dest: /etc/systemd/system/apt-info-prom.timer
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart apt-info-prom timer
+
+- name: Enable and start the apt metrics timer
+  ansible.builtin.systemd:
+    name: apt-info-prom.timer
+    enabled: true
+    state: started

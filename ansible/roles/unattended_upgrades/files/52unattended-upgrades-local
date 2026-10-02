@@ -1,0 +1,11 @@
+// Managed by ansible/roles/unattended_upgrades.
+// Appends trixie-updates to the stock origins (security + point releases)
+// from 50unattended-upgrades; apt list directives in a later file extend
+// rather than replace, so no #clear is needed.
+Unattended-Upgrade::Origins-Pattern {
+  "origin=Debian,codename=${distro_codename}-updates,label=Debian";
+};
+
+Unattended-Upgrade::Automatic-Reboot "false";
+Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";
+Unattended-Upgrade::Remove-New-Unused-Dependencies "true";

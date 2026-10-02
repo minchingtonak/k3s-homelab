@@ -1,0 +1,7 @@
+[Unit]
+Description=Publish apt update metrics for node_exporter
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/apt-info-prom

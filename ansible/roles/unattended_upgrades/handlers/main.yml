@@ -1,0 +1,7 @@
+---
+# Restart the metrics timer when its unit files change.
+- name: Restart apt-info-prom timer
+  ansible.builtin.systemd:
+    name: apt-info-prom.timer
+    state: restarted
+    daemon_reload: true

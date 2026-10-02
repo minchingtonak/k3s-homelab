@@ -1,0 +1,12 @@
+[Unit]
+Description=Refresh apt metrics for node_exporter every 30 minutes
+
+[Timer]
+OnBootSec=10min
+OnUnitActiveSec=30min
+AccuracySec=5min
+RandomizedDelaySec=5min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

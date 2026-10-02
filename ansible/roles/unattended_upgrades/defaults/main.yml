@@ -1,0 +1,18 @@
+---
+# Origins appended on top of the stock security + point-release set shipped in
+# 50unattended-upgrades: this adds ${distro_codename}-updates (bugfix traffic
+# between point releases). Automatic reboots are deliberately off cluster-wide;
+# k3s node reboots are human-triggered through kured (docs/os-updates.md).
+unattended_upgrades_packages:
+  - unattended-upgrades
+unattended_upgrades_auto_reboot: false
+unattended_upgrades_remove_unused_kernels: true
+unattended_upgrades_extra_packages:
+  - reboot-notifier
+  - prometheus-node-exporter-collectors
+  - python3-apt
+  - python3-prometheus-client
+
+# Textfile-collector output read by the kube-prometheus-stack node-exporter
+# DaemonSet (mounted at /textfilecollector).
+unattended_upgrades_textfile_dir: /var/lib/node_exporter/textfile_collector
