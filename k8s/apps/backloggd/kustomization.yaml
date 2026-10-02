@@ -12,6 +12,11 @@ configMapGenerator:
   - name: backloggd-steam-sync-script
     files:
       - steam_sync.py=scripts/steam_sync.py
+  # Static appid -> purchase-date lookup (user-provided, updated by hand).
+  # Dates are not secrets; a plain ConfigMap keeps the job stateless.
+  - name: backloggd-purchase-dates
+    files:
+      - purchase_dates.txt
 # Keep Flux postBuild substitution away from generated ConfigMaps (dagu
 # pattern); the Python script is verbatim file content. Hash suffix
 # disabled: kustomize does not rewrite CronJob jobTemplate volume

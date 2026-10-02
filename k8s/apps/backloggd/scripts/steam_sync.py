@@ -17,20 +17,27 @@ combines the three into the weekly "log your games" reminder:
    immediate abort on any 429 (a weekly run costs about a dozen requests).
    Auth is a standard Rails/Devise form login that self-renews each run.
 3. ``ISteamUserStats/GetPlayerAchievements`` — for candidates Backloggd does
-   not know yet, achievement unlock times approximate the started/finished
-   dates Steam does not record.
+   not know yet, the first achievement unlock approximates the start date
+   Steam does not record; last play remains the authoritative end date.
+   An optional user-provided purchase-date table (purchase_dates.txt, a
+   plain ConfigMap — purchase dates are not exposed by any public API)
+   shows as "bought <date>" on every candidate and stands in for the start
+   only when no achievement signal exists.
 
 Matching a Steam name to the Backloggd library is normalized (case,
 diacritics, punctuation, trademark glyphs) then exact, then fuzzy at 0.90 —
 the threshold is deliberately high because a false "already tracked" silently
 hides a nag, while a false nag merely costs a glance. Fuzzy matches are
-logged. Untracked candidates nag every week until they appear in Backloggd:
-the list is self-healing and the job is stateless.
+logged. Untracked candidates nag every week until they appear in Backloggd,
+and tracked candidates nag while they sit on the playing shelf — the entry
+exists but awaits a completion (or retired/shelved) date. The list is
+self-healing and the job is stateless.
 
 BACKFILL_FROM is the ratchet: edit it in the manifest (a plain env var, so
 the change is a reviewable git commit) to widen the window back through
-history once recent years are logged. Dates in the report are UTC day
-granularity (Steam only gives unix seconds).
+history once recent years are logged. Dates in the report use REPORT_TZ day
+granularity — Steam only gives unix seconds, and the timezone matters when
+an evening unlock lands on the next UTC day.
 """
 
 import contextlib
@@ -44,6 +51,7 @@ import unicodedata
 import urllib.error
 import urllib.parse
 import urllib.request
+import zoneinfo
 from datetime import datetime, timezone
 from difflib import SequenceMatcher
 from html.parser import HTMLParser
@@ -102,6 +110,8 @@ BACKLOGGD_MIN_INTERVAL = env_float("BACKLOGGD_MIN_INTERVAL", 5.0)
 BACKLOGGD_MAX_PAGES = env_int("BACKLOGGD_MAX_PAGES", 50)
 
 BACKFILL_FROM = env_str("BACKFILL_FROM", "2025-01-01")
+REPORT_TZ = env_str("REPORT_TZ", "UTC")
+PURCHASE_DATES_FILE = env_str("PURCHASE_DATES_FILE", "/data/purchase_dates.txt")
 try:
     CUTOFF_EPOCH = int(
         datetime.strptime(BACKFILL_FROM, "%Y-%m-%d")
@@ -116,6 +126,21 @@ except ValueError:
 MIN_PLAYTIME_MINUTES = env_int("MIN_PLAYTIME_MINUTES", 30)
 MAX_REPORT = env_int("MAX_REPORT", 25)
 ACHIEVEMENT_FETCH_LIMIT = env_int("ACHIEVEMENT_FETCH_LIMIT", 60)
+# Apps with no Backloggd database entry (open betas, benchmark tools) can
+# never be tracked and would nag forever.
+IGNORE_APPIDS = {
+    int(token)
+    for token in env_str("IGNORE_APPIDS", "").replace(",", " ").split()
+    if token.isdigit()
+}
+
+# Canonical form for small number words: IGDB titles differ from Steam here
+# ("Resident Evil Zero" vs "Resident Evil 0").
+_NUMERALS = {
+    "zero": "0", "one": "1", "two": "2", "three": "3", "four": "4",
+    "five": "5", "six": "6", "seven": "7", "eight": "8", "nine": "9",
+    "ten": "10",
+}
 
 PUSHOVER_API_URL = "https://api.pushover.net/1/messages.json"
 
@@ -127,9 +152,28 @@ def https_url(url):
     return url
 
 
+def load_purchase_dates():
+    """Read the optional appid -> purchase-date table (user-provided;
+    produced from Steam's Export Steam Data or saved history pages)."""
+    dates = {}
+    try:
+        with open(PURCHASE_DATES_FILE, encoding="utf-8") as handle:
+            for line in handle:
+                parts = line.split("#", 1)[0].split()
+                if len(parts) == 2 and parts[0].isdigit():
+                    dates[int(parts[0])] = parts[1]
+    except FileNotFoundError:
+        pass
+    return dates
+
+
 def fmt_date(epoch):
-    """Epoch seconds -> UTC YYYY-MM-DD."""
-    return datetime.fromtimestamp(epoch, tz=timezone.utc).strftime("%Y-%m-%d")
+    """Epoch seconds -> report-timezone YYYY-MM-DD (UTC if zone unknown)."""
+    try:
+        tz = zoneinfo.ZoneInfo(REPORT_TZ)
+    except zoneinfo.ZoneInfoNotFoundError:
+        tz = timezone.utc
+    return datetime.fromtimestamp(epoch, tz=tz).strftime("%Y-%m-%d")
 
 
 # --------------------------------------------------------------------------
@@ -409,52 +453,83 @@ class LibraryPageParser(HTMLParser):
             self._cur = None
 
 
+SHELVES = ("playing", "played", "backlog", "wishlist")
+
+
 def fetch_backloggd_library():
-    """Normalized titles + slugs for every game on any shelf. Own data only."""
+    """Normalized titles + slugs for every game on any shelf, plus the
+    normalized names currently on the playing shelf (the "complete this
+    entry when beaten" nag list). Own data only.
+
+    The default /u/<user>/games/ view hides games that sit ONLY on the
+    playing shelf, so each shelf is queried explicitly and the results are
+    unioned by game id (a game can be on several shelves at once).
+    """
     titles = set()
     slugs = set()
+    playing = set()
     seen_ids = set()
-    signature = None
-    exhausted = False
     username = urllib.parse.quote(BACKLOGGD_USERNAME, safe="")
-    for page in range(1, BACKLOGGD_MAX_PAGES + 1):
-        path = f"/u/{username}/games/" + (f"?page={page}" if page > 1 else "")
-        _, body = backloggd_request(path)
-        parser = LibraryPageParser()
-        parser.feed(body)
-        parser.close()
-        if not parser.entries:
-            exhausted = True
-            break
-        page_signature = tuple(sorted(e["id"] for e in parser.entries))
-        if page_signature == signature:
-            exhausted = True
-            break  # out-of-range pages re-serve the last page indefinitely
-        signature = page_signature
-        fresh = [e for e in parser.entries if e["id"] not in seen_ids]
-        if not fresh:
-            exhausted = True
-            break
-        for entry in fresh:
-            seen_ids.add(entry["id"])
-            if entry["title"]:
-                titles.add(normalize_title(entry["title"]))
-            if entry["slug"]:
-                slugs.add(normalize_title(entry["slug"]))
-        log(f"backloggd page {page}: {len(fresh)} games ({len(seen_ids)} total)")
-    if not exhausted:
-        log(f"WARNING: hit the {BACKLOGGD_MAX_PAGES}-page cap; library may be truncated")
-    return titles, slugs
+    for shelf in SHELVES:
+        signature = None
+        exhausted = False
+        shelf_count = 0
+        for page in range(1, BACKLOGGD_MAX_PAGES + 1):
+            path = f"/u/{username}/games/added/type:{shelf}/" + (
+                f"?page={page}" if page > 1 else ""
+            )
+            _, body = backloggd_request(path)
+            parser = LibraryPageParser()
+            parser.feed(body)
+            parser.close()
+            if not parser.entries:
+                exhausted = True
+                break
+            page_signature = tuple(sorted(e["id"] for e in parser.entries))
+            if page_signature == signature:
+                exhausted = True
+                break  # out-of-range pages re-serve the last page indefinitely
+            signature = page_signature
+            for entry in parser.entries:
+                if entry["id"] in seen_ids:
+                    continue
+                seen_ids.add(entry["id"])
+                shelf_count += 1
+                if entry["title"]:
+                    title = normalize_title(entry["title"])
+                    titles.add(title)
+                    if shelf == "playing":
+                        playing.add(title)
+                if entry["slug"]:
+                    # Trailing "--N" is Backloggd's same-name disambiguator
+                    # (resident-evil-4--1), not part of the title.
+                    slug = re.sub(r"--\d+$", "", entry["slug"])
+                    slugs.add(normalize_title(slug))
+                    if shelf == "playing":
+                        playing.add(normalize_title(slug))
+        if not exhausted:
+            log(f"WARNING: hit the {BACKLOGGD_MAX_PAGES}-page cap on {shelf}")
+        log(
+            f"backloggd {shelf} shelf: {shelf_count} games "
+            f"({len(seen_ids)} tracked total)"
+        )
+    return titles, slugs, playing
 
 
 def normalize_title(value):
-    """Normalize a title for matching: case, diacritics, punctuation, glyphs."""
+    """Canonical form for matching: case, diacritics, punctuation, trademark
+    glyphs, a trailing "(YYYY)" disambiguation year (Steam renames old games
+    when remakes ship: "Modern Warfare 2 (2009)"), and zero-ten number words
+    to digits (IGDB's "Resident Evil Zero" vs Steam's "Resident Evil 0").
+    """
     # Trademark glyphs must go before NFKD: compatibility decomposition turns
     # "\u2122" into the letters "tm", which would fuse into the title.
     value = value.replace("™", "").replace("®", "").replace("©", "")
+    value = re.sub(r"\s*\(\s*(?:19|20)\d{2}\s*\)\s*$", "", value)
     value = unicodedata.normalize("NFKD", value)
     value = "".join(c for c in value if not unicodedata.combining(c))
-    return re.sub(r"[^a-z0-9]+", " ", value.lower()).strip()
+    value = re.sub(r"[^a-z0-9]+", " ", value.lower()).strip()
+    return " ".join(_NUMERALS.get(token, token) for token in value.split())
 
 
 def _digit_tokens(normalized):
@@ -546,13 +621,25 @@ def describe(game):
     """One report line per game."""
     hours = game["playtime_forever"] / 60
     name = game["name"]
-    ach = game.get("_ach")
+    last_played = game.get("rtime_last_played", 0)
     line = f"• {name} — {hours:.1f} h total"
-    if ach and ach["first"] and ach["last"]:
-        line += f"; played {fmt_date(ach['first'])} → {fmt_date(ach['last'])}"
-        line += f" ({ach['ratio']:.0%} achievements)"
+    purchase = game.get("_purchase")
+    if purchase:
+        line += f"; bought {purchase}"
+    ach = game.get("_ach")
+    if ach and ach["first"]:
+        # First unlock approximates the start date; last play is the
+        # authoritative end. The last unlock hints at when the run was
+        # effectively over — achievements stop while play continues in
+        # ongoing games (live-service titles especially).
+        line += f"; played {fmt_date(ach['first'])} → {fmt_date(last_played)}"
+        if ach["last"] and fmt_date(ach["last"]) != fmt_date(last_played):
+            line += f", last achievement {fmt_date(ach['last'])}"
+        line += f" ({ach['ratio']:.0%})"
     else:
-        line += f"; last played {fmt_date(game['rtime_last_played'])}"
+        line += f"; last played {fmt_date(last_played)}"
+        if ach:
+            line += " (0%)"  # schema exists, nothing unlocked
     return line
 
 
@@ -564,6 +651,7 @@ def main():
         for g in games
         if g.get("rtime_last_played", 0) >= CUTOFF_EPOCH
         and g.get("playtime_forever", 0) >= MIN_PLAYTIME_MINUTES
+        and g["appid"] not in IGNORE_APPIDS
     ]
     brief = [
         g
@@ -577,48 +665,89 @@ def main():
     )
 
     backloggd_login()
-    titles, slugs = fetch_backloggd_library()
-    log(f"backloggd: {len(titles)} tracked titles on any shelf")
+    titles, slugs, playing = fetch_backloggd_library()
+    log(f"backloggd: {len(titles)} tracked titles, {len(playing)} playing names")
 
     untracked = []
+    in_progress = []
     for game in sorted(candidates, key=lambda g: g.get("rtime_last_played", 0), reverse=True):
-        status = match_status(game["name"], titles, slugs)
-        if status:
-            if not status.startswith("exact"):
-                log(f"  fuzzy-matched as tracked: {game['name']!r} ({status})")
+        normalized = normalize_title(game["name"])
+        exact = normalized in titles or normalized in slugs
+        status = "exact" if exact else match_status(game["name"], titles, slugs)
+        if not status:
+            untracked.append(game)
             continue
-        untracked.append(game)
+        if not status.startswith("exact"):
+            log(f"  fuzzy-matched as tracked: {game['name']!r} ({status})")
+        # Tracked: nag about it only while it sits on the playing shelf —
+        # the entry exists but awaits a completion (or retired/shelved)
+        # date. Fuzzy matches skip the playing check (exact names only).
+        if exact and normalized in playing:
+            in_progress.append(game)
 
-    if not untracked:
+    if not untracked and not in_progress:
         log("all caught up; sending heartbeat")
         pushover(
             "Backloggd: all caught up",
             f"All {len(candidates)} Steam game(s) with activity since "
-            f"{BACKFILL_FROM} are already tracked in Backloggd.",
+            f"{BACKFILL_FROM} are logged in Backloggd, none still marked "
+            "playing.",
         )
         return
 
-    for game in untracked[:ACHIEVEMENT_FETCH_LIMIT]:
+    # Enrich in-progress entries first: their completion percentages are
+    # the most actionable signal, then the untracked tail within budget.
+    for game in (in_progress + untracked)[:ACHIEVEMENT_FETCH_LIMIT]:
         game["_ach"] = achievement_window(game["appid"])
         time.sleep(STEAM_MIN_INTERVAL)
 
-    lines = [
-        f"{len(untracked)} Steam game(s) played since {BACKFILL_FROM} "
-        f"missing from Backloggd:",
-        "",
-    ]
-    lines += [describe(game) for game in untracked[:MAX_REPORT]]
-    if len(untracked) > MAX_REPORT:
-        lines.append(f"... and {len(untracked) - MAX_REPORT} more (raise MAX_REPORT)")
-    if len(untracked) > ACHIEVEMENT_FETCH_LIMIT:
-        lines.append(
-            f"(date ranges shown for the {ACHIEVEMENT_FETCH_LIMIT} most recent; "
+    # Purchase dates ride along on every candidate that has one; they show
+    # as "bought <date>" and stand in for the start only when no
+    # achievement signal exists.
+    purchases = load_purchase_dates()
+    filled = 0
+    for game in untracked + in_progress:
+        purchased = purchases.get(game["appid"])
+        if purchased:
+            game["_purchase"] = purchased
+            filled += 1
+    if filled:
+        log(f"purchase dates attached to {filled} game(s)")
+
+    sections = []
+    if untracked:
+        lines = [
+            f"{len(untracked)} Steam game(s) played since {BACKFILL_FROM} "
+            f"missing from Backloggd:",
+            "",
+        ]
+        lines += [describe(game) for game in untracked[:MAX_REPORT]]
+        if len(untracked) > MAX_REPORT:
+            lines.append(f"... and {len(untracked) - MAX_REPORT} more (raise MAX_REPORT)")
+        sections.append("\n".join(lines))
+    if in_progress:
+        lines = [
+            "Still marked playing — complete the entry when beaten:",
+            "",
+        ]
+        lines += [describe(game) for game in in_progress[:MAX_REPORT]]
+        if len(in_progress) > MAX_REPORT:
+            lines.append(f"... and {len(in_progress) - MAX_REPORT} more")
+        sections.append("\n".join(lines))
+    if len(untracked) + len(in_progress) > ACHIEVEMENT_FETCH_LIMIT:
+        sections.append(
+            f"(date hints shown for the {ACHIEVEMENT_FETCH_LIMIT} most relevant; "
             "the rest are last-played only)"
         )
-    message = "\n".join(lines)
+    message = "\n\n".join(sections)
     for game in untracked:
         log(f"  untracked: {describe(game)}")
-    pushover(f"Backloggd: {len(untracked)} Steam game(s) to log", message)
+    for game in in_progress:
+        log(f"  playing: {describe(game)}")
+    title = f"Backloggd: {len(untracked)} game(s) to log"
+    if in_progress:
+        title += f", {len(in_progress)} in progress"
+    pushover(title, message)
 
 
 if __name__ == "__main__":

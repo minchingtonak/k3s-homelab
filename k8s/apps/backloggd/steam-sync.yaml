@@ -22,7 +22,7 @@ metadata:
   labels:
     app.kubernetes.io/name: backloggd-steam-sync
 spec:
-  schedule: "0 9 * * 7"
+  schedule: "0 9 * * 0"
   timeZone: America/New_York
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3
@@ -52,6 +52,10 @@ spec:
                   value: https://api.steampowered.com
                 - name: BACKLOGGD_URL
                   value: https://backloggd.com
+                # Render report dates in this timezone, matching what the
+                # Steam client shows for achievement unlock dates.
+                - name: REPORT_TZ
+                  value: America/New_York
                 # Ratchet: move this back in later commits to backfill
                 # progressively further into Steam history.
                 - name: BACKFILL_FROM
@@ -61,6 +65,10 @@ spec:
                 # a "real" session lasts at minimum.
                 - name: MIN_PLAYTIME_MINUTES
                   value: "30"
+                # Apps with no Backloggd database entry (open betas,
+                # benchmark tools) can never be tracked — skip them.
+                - name: IGNORE_APPIDS
+                  value: "3081410,223850"
                 - name: MAX_REPORT
                   value: "25"
                 - name: ACHIEVEMENT_FETCH_LIMIT
@@ -93,7 +101,13 @@ spec:
                 - name: script
                   mountPath: /script
                   readOnly: true
+                - name: purchase-dates
+                  mountPath: /data
+                  readOnly: true
           volumes:
             - name: script
               configMap:
                 name: backloggd-steam-sync-script
+            - name: purchase-dates
+              configMap:
+                name: backloggd-purchase-dates
