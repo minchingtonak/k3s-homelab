@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: librarian-music
+spec:
+  capacity:
+    storage: 500Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  claimRef:
+    name: librarian-music
+    namespace: librarian
+  nfs:
+    server: 192.168.20.89
+    path: /void/media/music-backup-2
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: librarian-music
+  namespace: librarian
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ""
+  volumeName: librarian-music
+  resources:
+    requests:
+      storage: 500Gi

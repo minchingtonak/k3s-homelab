@@ -1,0 +1,22 @@
+[project]
+name = "librarian"
+version = "0.1.0"
+description = "Periodic per-album metadata pipeline (ReplayGain, BPM, key) for the music library"
+requires-python = ">=3.11"
+dependencies = [
+  "mutagen>=1.47",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.pyright]
+include = ["librarian", "tests"]
+venvPath = "."
+venv = ".venv"

@@ -1,0 +1,78 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: librarian
+  namespace: librarian
+  labels:
+    app.kubernetes.io/name: librarian
+spec:
+  schedule: "25 */2 * * *"
+  timeZone: America/New_York
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 5
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      # 14h: must exceed the 12h scan window plus the ~35-70min walk with
+      # margin, or the kubelet kills the pod before the wrapper can notify.
+      activeDeadlineSeconds: 50400
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: librarian
+        spec:
+          restartPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 100000
+            runAsGroup: 100000
+            fsGroup: 100000
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: librarian
+              image: forgejo.item.fyi/akmin/librarian@sha256:985f6d7cb45e0b7a20364822966df0a06cd53be6cc18c24da892176678454a6f
+              env:
+                - name: LIBRARIAN_HEADLAMP_URL
+                  value: https://headlamp.item.fyi
+                - name: POD_NAME
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.name
+                - name: POD_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.namespace
+                - name: PUSHOVER_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: librarian-secret
+                      key: PUSHOVER_TOKEN
+                - name: PUSHOVER_USER_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: librarian-secret
+                      key: PUSHOVER_USER_KEY
+              resources:
+                requests:
+                  memory: 256Mi
+                limits:
+                  memory: 8Gi
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop:
+                    - ALL
+              volumeMounts:
+                - name: music
+                  mountPath: /data/music
+                - name: tmp
+                  mountPath: /tmp
+          volumes:
+            - name: music
+              persistentVolumeClaim:
+                claimName: librarian-music
+            - name: tmp
+              emptyDir: {}

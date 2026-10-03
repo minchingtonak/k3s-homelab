@@ -1,0 +1,23 @@
+#!/usr/bin/env python3
+"""librarian — music library metadata pipeline (ReplayGain 2.0, BPM, key).
+
+Usage: bin/librarian [options] [library-root]   (or: python3 -m librarian)
+
+The library root defaults to $LIBRARIAN_LIBRARY_DIR or /data/music. All other
+configuration is environment-driven; see librarian/config.py.
+"""
+
+import sys
+from pathlib import Path
+
+# Repo checkout: bin/librarian -> parent dir holds the librarian package.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+try:
+    from librarian.cli import main
+except ImportError:
+    # Installed layout (docker/librarian/Dockerfile): package at /opt/librarian.
+    sys.path.insert(0, "/opt/librarian")
+    from librarian.cli import main
+
+if __name__ == "__main__":
+    sys.exit(main())

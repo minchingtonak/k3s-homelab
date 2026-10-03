@@ -1,0 +1,8 @@
+# Build-context hygiene: ship only what the image needs.
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+tests/
+pyrightconfig.json
