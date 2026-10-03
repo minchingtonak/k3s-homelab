@@ -29,7 +29,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: redis
-          image: docker.io/library/redis:8-alpine@sha256:9c3ecc609a8087c0f11c494fefaf37a8f7bf9a967631d4a0da8967a9810be354
+          image: docker.io/library/redis:8-alpine@sha256:2d3814be5e9b06a30a0be54770b7e12052e7e79ec85271aefd34875c1f393b23
           ports:
             - name: redis
               containerPort: 6379
