@@ -49,7 +49,7 @@ spec:
     spec:
       containers:
         - name: trek
-          image: mauriceboe/trek:4.2.1@sha256:777f4d647e973fe7d87fecd957e854b86d57e8d977fd041763e0ca19b3c2e2c0
+          image: mauriceboe/trek:4.3.3@sha256:1ef1ccf41af8ae409e0435518facb5789b6adc99681ef26d1869508355455749
           env:
             - name: NODE_ENV
               value: production
