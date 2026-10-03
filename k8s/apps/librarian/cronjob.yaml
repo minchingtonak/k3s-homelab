@@ -58,7 +58,7 @@ spec:
                 requests:
                   memory: 256Mi
                 limits:
-                  memory: 8Gi
+                  memory: 12Gi
               securityContext:
                 allowPrivilegeEscalation: false
                 readOnlyRootFilesystem: true
