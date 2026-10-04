@@ -134,12 +134,19 @@ IGNORE_APPIDS = {
     if token.isdigit()
 }
 
-# Canonical form for small number words: IGDB titles differ from Steam here
-# ("Resident Evil Zero" vs "Resident Evil 0").
+# Canonical form for small number words and multi-letter roman numerals:
+# IGDB and Steam disagree here ("Resident Evil Zero" vs "Resident Evil 0",
+# "Baldur's Gate III" vs "Baldur's Gate 3"). Single-letter I/V/X are
+# deliberately excluded — mapping them would collide real titles
+# ("Mega Man X" vs "Mega Man 10").
 _NUMERALS = {
     "zero": "0", "one": "1", "two": "2", "three": "3", "four": "4",
     "five": "5", "six": "6", "seven": "7", "eight": "8", "nine": "9",
     "ten": "10",
+    "ii": "2", "iii": "3", "iv": "4", "vi": "6", "vii": "7",
+    "viii": "8", "ix": "9", "xi": "11", "xii": "12", "xiii": "13",
+    "xiv": "14", "xv": "15", "xvi": "16", "xvii": "17", "xviii": "18",
+    "xix": "19", "xx": "20",
 }
 
 PUSHOVER_API_URL = "https://api.pushover.net/1/messages.json"
@@ -519,8 +526,9 @@ def fetch_backloggd_library():
 def normalize_title(value):
     """Canonical form for matching: case, diacritics, punctuation, trademark
     glyphs, a trailing "(YYYY)" disambiguation year (Steam renames old games
-    when remakes ship: "Modern Warfare 2 (2009)"), and zero-ten number words
-    to digits (IGDB's "Resident Evil Zero" vs Steam's "Resident Evil 0").
+    when remakes ship: "Modern Warfare 2 (2009)"), number words to digits
+    (IGDB's "Resident Evil Zero" vs Steam's "Resident Evil 0"), and
+    multi-letter roman numerals ("Baldur's Gate III" vs "Baldur's Gate 3").
     """
     # Trademark glyphs must go before NFKD: compatibility decomposition turns
     # "\u2122" into the letters "tm", which would fuse into the title.
@@ -703,14 +711,21 @@ def main():
 
     # Purchase dates ride along on every candidate that has one; they show
     # as "bought <date>" and stand in for the start only when no
-    # achievement signal exists.
+    # achievement signal exists. A purchase dated AFTER the first
+    # achievement unlock is a sibling product's row (DLC/sequel bundle) that
+    # the generator prefix-matched — the generator cannot see play dates,
+    # but this report can, so contradiction means drop it.
     purchases = load_purchase_dates()
     filled = 0
     for game in untracked + in_progress:
         purchased = purchases.get(game["appid"])
-        if purchased:
-            game["_purchase"] = purchased
-            filled += 1
+        if not purchased:
+            continue
+        first_play = (game.get("_ach") or {}).get("first")
+        if first_play and purchased > fmt_date(first_play):
+            continue
+        game["_purchase"] = purchased
+        filled += 1
     if filled:
         log(f"purchase dates attached to {filled} game(s)")
 

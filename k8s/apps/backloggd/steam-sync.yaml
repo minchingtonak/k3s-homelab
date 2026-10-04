@@ -52,30 +52,18 @@ spec:
                   value: https://api.steampowered.com
                 - name: BACKLOGGD_URL
                   value: https://backloggd.com
-                # Render report dates in this timezone, matching what the
-                # Steam client shows for achievement unlock dates.
                 - name: REPORT_TZ
                   value: America/New_York
-                # Ratchet: move this back in later commits to backfill
-                # progressively further into Steam history.
                 - name: BACKFILL_FROM
-                  value: "2025-01-01"
-                # Games with less playtime than this are ignored (skips
-                # accidentally-launched things); 30 min matches how little
-                # a "real" session lasts at minimum.
+                  value: "2026-01-01"
                 - name: MIN_PLAYTIME_MINUTES
                   value: "30"
-                # Apps with no Backloggd database entry (open betas,
-                # benchmark tools) can never be tracked — skip them.
                 - name: IGNORE_APPIDS
-                  value: "3081410,223850"
+                  value: "3081410,223850,1938090,212910,271590,275670,870780,203160,10190,388080,211420,1151640,431960,35420"
                 - name: MAX_REPORT
                   value: "25"
                 - name: ACHIEVEMENT_FETCH_LIMIT
                   value: "60"
-                # Politeness floors for a small one-person site: serialized
-                # requests spaced >= 5s, hard page cap, honor Retry-Once then
-                # abort on 429.
                 - name: BACKLOGGD_MIN_INTERVAL
                   value: "5"
                 - name: BACKLOGGD_MAX_PAGES

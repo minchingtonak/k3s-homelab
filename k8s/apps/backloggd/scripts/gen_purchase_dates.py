@@ -50,13 +50,29 @@ MONTHS = {m: i for i, m in enumerate(
 
 USED_TYPES = ("Purchase",)  # Gift Purchase/Refund/Market excluded deliberately
 
+# Token canonicalization shared with steam_sync.py (kept in sync
+# deliberately): number words and multi-letter roman numerals to digits.
+# Single-letter I/V/X stay untouched — mapping them would collide real
+# titles ("Mega Man X" vs "Mega Man 10").
+_NUMERALS = {
+    "zero": "0", "one": "1", "two": "2", "three": "3", "four": "4",
+    "five": "5", "six": "6", "seven": "7", "eight": "8", "nine": "9",
+    "ten": "10",
+    "ii": "2", "iii": "3", "iv": "4", "vi": "6", "vii": "7",
+    "viii": "8", "ix": "9", "xi": "11", "xii": "12", "xiii": "13",
+    "xiv": "14", "xv": "15", "xvi": "16", "xvii": "17", "xviii": "18",
+    "xix": "19", "xx": "20",
+}
+
 
 def normalize_title(value):
     """Same normalization as steam_sync.py (kept in sync deliberately)."""
     value = value.replace("™", "").replace("®", "").replace("©", "")
+    value = re.sub(r"\s*\(\s*(?:19|20)\d{2}\s*\)\s*$", "", value)
     value = unicodedata.normalize("NFKD", value)
     value = "".join(c for c in value if not unicodedata.combining(c))
-    return re.sub(r"[^a-z0-9]+", " ", value.lower()).strip()
+    value = re.sub(r"[^a-z0-9]+", " ", value.lower()).strip()
+    return " ".join(_NUMERALS.get(token, token) for token in value.split())
 
 
 def owned_games():
