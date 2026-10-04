@@ -41,6 +41,8 @@ T_KEYSKIP = "KEYSKIP"
 
 MP4_FREEFORM_MEAN = "com.apple.iTunes"
 
+MAXIMUM_AUDIO_DURATION_SECONDS = 3600
+
 
 class TagWriteError(Exception):
     """A tag write failed; the step's work stays incomplete and retries next run."""
@@ -57,6 +59,7 @@ class TagSnapshot:
 
     path: Path
     readable: bool = True
+    skipped: str | None = None
     values: dict[str, str | None] = field(default_factory=dict)
     # audio facts used for stats
     duration: float | None = None
@@ -167,6 +170,10 @@ def read_snapshot(path: Path) -> TagSnapshot:
     snap.album = get_logical("ALBUM")
     snap.track_gain = _parse_gain(get_logical("REPLAYGAIN_TRACK_GAIN"))
     snap.track_peak = _parse_peak(get_logical("REPLAYGAIN_TRACK_PEAK"))
+
+    if snap.duration and snap.duration > MAXIMUM_AUDIO_DURATION_SECONDS:
+        snap.skipped = "length greater than 1hr"
+
     return snap
 
 

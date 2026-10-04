@@ -20,6 +20,7 @@ import sys
 import time
 from dataclasses import dataclass, replace
 from pathlib import Path
+from time import sleep
 
 from .analyze import ToolError, resolve_all_tools
 from .config import Config
@@ -29,7 +30,6 @@ from .notify import (
     format_progress_message,
     format_stats_message,
     format_skipped_notice,
-    truncate,
 )
 from .stats import LibraryStats, snapshot_to_stats
 from .steps import StepContext, StepResult, default_steps
@@ -104,6 +104,7 @@ def aggregate(results: list[StepResult]) -> dict[str, StepResult]:
         cur.skip_tagged.extend(res.skip_tagged)
         cur.skip_tag_seen += res.skip_tag_seen
         cur.unreadable += res.unreadable
+        cur.skipped_other.extend(res.skipped_other)
         cur.write_failures.extend(res.write_failures)
         cur.binary_failures.extend(res.binary_failures)
         cur.albums_scanned += res.albums_scanned
@@ -245,6 +246,7 @@ def _run(config: Config, notifier: Notifier, abort: AbortFlag, started: float) -
     heartbeat = AbortableHeartbeat(
         abort, interval=config.heartbeat_interval, label="walk"
     )
+    log.info("walk: beginning library walk")
     walk = walk_library(config.library_dir, heartbeat=heartbeat, abort_check=abort.check)
     log.info(
         "walk: %d albums / %d files in %s",
@@ -262,6 +264,7 @@ def _run(config: Config, notifier: Notifier, abort: AbortFlag, started: float) -
     )
 
     deadline = time.monotonic() + config.scan_timeout
+    log.info("pipeline: beginning pipeline run")
     results, window_expired = run_pipeline(walk.albums, ctx, deadline)
 
     # Steps refreshed snapshots in place, so recompute library facts after work.
@@ -270,6 +273,7 @@ def _run(config: Config, notifier: Notifier, abort: AbortFlag, started: float) -
         albums=walk.albums,
         files_total=walk.files_total,
         unreadable=walk.unreadable,
+        skipped=walk.skipped,
         non_audio_seen=walk.non_audio_seen,
         elapsed=walk.elapsed,
     )
@@ -282,6 +286,7 @@ def _run(config: Config, notifier: Notifier, abort: AbortFlag, started: float) -
     skipped = format_skipped_notice(
         sorted({str(p) for r in step_results for p in r.skip_tagged}),
         sorted({str(p) for r in step_results for p in r.write_failures}),
+        sorted({str(p) for r in step_results for p in r.skipped_other})
     )
 
     outcome = decide_outcome(
@@ -307,9 +312,10 @@ def _run(config: Config, notifier: Notifier, abort: AbortFlag, started: float) -
     elif outcome.notification == "stats":
         summaries = [step_summary(name, r) for name, r in results.items()]
         message = format_stats_message(stats, summaries, elapsed, notifier.logs_link())
-        notifier.push("Librarian: run complete", truncate(message))
+        notifier.push("Librarian: run complete", message)
         if skipped:
-            notifier.push("Librarian: skipped files", truncate(skipped))
+            sleep(0.5)
+            notifier.push("Librarian: skipped files", skipped)
 
     log.info(
         "done in %.1fs: work_done=%s window_expired=%s exit=%d",

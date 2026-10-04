@@ -42,6 +42,7 @@ class WalkResult:
     albums: list[Album]
     files_total: int
     unreadable: list[Path]
+    skipped: list[Path]
     non_audio_seen: int = 0
     elapsed: float = 0.0
 
@@ -85,6 +86,7 @@ def walk_library(
     started = time.monotonic()
     albums_by_dir: dict[Path, Album] = {}
     unreadable: list[Path] = []
+    skipped: list[Path] = []
     non_audio = 0
     files_total = 0
 
@@ -115,16 +117,21 @@ def walk_library(
             snap = read_snapshot(path)
             if not snap.readable:
                 unreadable.append(path)
-                log.warning("unreadable tags, skipping file: %s", path)
+                log.warning("unreadable tags, skipping file (will still attempt rsgain): %s", path)
+            if snap.skipped:
+                skipped.append(path)
+                log.warning("%s, skipping file: %s", snap.skipped, path)
+
             album.files.append(snap)
 
     albums = [albums_by_dir[d] for d in sorted(albums_by_dir)]
     elapsed = time.monotonic() - started
     log.info(
-        "walk complete: %d albums, %d audio files, %d unreadable, %d non-audio files, %.1fs",
+        "walk complete: %d albums, %d audio files, %d unreadable, %d skipped, %d non-audio files, %.1fs",
         len(albums),
         files_total,
         len(unreadable),
+        len(skipped),
         non_audio,
         elapsed,
     )
@@ -133,6 +140,7 @@ def walk_library(
         albums=albums,
         files_total=files_total,
         unreadable=unreadable,
+        skipped=skipped,
         non_audio_seen=non_audio,
         elapsed=elapsed,
     )

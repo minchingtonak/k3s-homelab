@@ -58,6 +58,7 @@ class StepResult:
     skip_tagged: list[Path] = field(default_factory=list)  # got a skip tag this run
     skip_tag_seen: int = 0  # skipped: skip tag already present
     unreadable: int = 0  # skipped: tags unreadable (per-file steps only)
+    skipped_other: list[Path] = field(default_factory=list) # skipped for another reason (too long, etc)
     write_failures: list[Path] = field(default_factory=list)
     binary_failures: list[Path] = field(default_factory=list)  # non-zero exits
     albums_scanned: int = 0
@@ -138,11 +139,15 @@ class ReplayGainStep(Step):
         return [
             snap
             for snap in album.files
-            if not snap.readable or snap.get(T_RGTOOL) != fp
+            if snap.skipped is None and (not snap.readable or snap.get(T_RGTOOL) != fp)
         ]
 
     def run_album(self, album: Album, ctx: StepContext) -> StepResult:
         result = StepResult(name=self.name)
+        result.skipped_other.extend(
+            list(map(lambda f: f.path, filter(lambda f: f.skipped is not None, album.files)))
+        )
+
         candidates = self.needs_scan(album, ctx)
         if not candidates:
             result.already_done = len(album.files)
@@ -216,6 +221,9 @@ class _PerFileStep(Step):
         for snap in album.files:
             if not snap.readable:
                 result.unreadable += 1
+                continue
+            if snap.skipped is not None:
+                result.skipped_other.append(snap.path)
                 continue
             if snap.get(self.output_tag):
                 result.already_done += 1

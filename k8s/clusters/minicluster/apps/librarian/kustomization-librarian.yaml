@@ -4,7 +4,6 @@ metadata:
   name: librarian
   namespace: flux-system
 spec:
-  suspend: true
   interval: 1h
   retryInterval: 1m
   sourceRef:
