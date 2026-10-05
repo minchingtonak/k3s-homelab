@@ -14,7 +14,7 @@ cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
 REGISTRY="${LIBRARIAN_IMAGE_REGISTRY:-forgejo.item.fyi}"
 OWNER="${LIBRARIAN_IMAGE_OWNER:-akmin}"
-TAG="${LIBRARIAN_IMAGE_TAG:-$(date -u +%Y%m%d)}"
+TAG="${LIBRARIAN_IMAGE_TAG:-$(date -u +%Y%m%d-%H%M%S)}"
 PUSH="${LIBRARIAN_IMAGE_PUSH:-1}"
 
 DOCKERFILE="docker/librarian/Dockerfile"
@@ -28,8 +28,7 @@ if [ "${PUSH}" = "1" ]; then
     docker push "${IMAGE}"
     echo
     echo "Digest for the manifest (pin with this):"
-    docker inspect --format '{{index .RepoDigests 0}}' "${IMAGE}" \
-        | sed 's/.*@/librarian@/' || true
+    docker inspect --format '{{index .RepoDigests 0}}' "${IMAGE}"
     docker images --digests | grep "akmin/librarian" | head -2 || true
 else
     echo "LIBRARIAN_IMAGE_PUSH=0 — kept local: ${IMAGE}"

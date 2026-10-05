@@ -141,12 +141,14 @@ def run_pipeline(
     """
     results: list[StepResult] = []
     window_expired = False
-    for album in albums:
+    for idx, album in enumerate(albums):
         if clock() >= deadline:
             window_expired = True
             log.warning("scan window expired before album %s", album.path.name)
             break
         ctx.check_abort()
+
+        log.info("processing album [%s/%s]", idx + 1, len(albums))
         for step in ctx.steps:
             try:
                 res = step.run_album(album, ctx)

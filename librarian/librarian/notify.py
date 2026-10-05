@@ -183,8 +183,7 @@ def format_skipped_notice(
 def format_progress_message(processed: int, elapsed_s: float) -> str:
     return (
         f"Scan window ended after {format_duration(elapsed_s)}: "
-        f"{processed} files processed this run; next run continues from the "
-        f"top (tags are the state)."
+        f"{processed} files processed this run; next run continues from the top"
     )
 
 

@@ -32,7 +32,7 @@ spec:
               type: RuntimeDefault
           containers:
             - name: librarian
-              image: forgejo.item.fyi/akmin/librarian:20261005@sha256:15ede45383e8eaf743b98d9e6981fb9e16a5e05001aa0e3068d4d638e895ebe0
+              image: forgejo.item.fyi/akmin/librarian:20261005-213937@sha256:54ff2d70a2f659691a6db24deeb145c370f49ac9df17cdcf9ed36a0bf890b9af
               env:
                 - name: LIBRARIAN_HEADLAMP_URL
                   value: https://headlamp.item.fyi
