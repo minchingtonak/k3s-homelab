@@ -32,7 +32,7 @@ spec:
               type: RuntimeDefault
           containers:
             - name: librarian
-              image: forgejo.item.fyi/akmin/librarian@sha256:985f6d7cb45e0b7a20364822966df0a06cd53be6cc18c24da892176678454a6f
+              image: forgejo.item.fyi/akmin/librarian:20261005@sha256:15ede45383e8eaf743b98d9e6981fb9e16a5e05001aa0e3068d4d638e895ebe0
               env:
                 - name: LIBRARIAN_HEADLAMP_URL
                   value: https://headlamp.item.fyi
@@ -58,7 +58,7 @@ spec:
                 requests:
                   memory: 256Mi
                 limits:
-                  memory: 4Gi
+                  memory: 8Gi
               securityContext:
                 allowPrivilegeEscalation: false
                 readOnlyRootFilesystem: true
