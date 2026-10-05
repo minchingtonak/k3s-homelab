@@ -3,9 +3,11 @@
 notify via Pushover. Also notifies when nothing is tagged (weekly
 heartbeat), and best-effort notifies on failure.
 """
+
 import json
 import os
 import sys
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -44,9 +46,7 @@ def human_size(n):
 
 def urlencode(form):
     # quote_via=quote keeps '|' readable; qBittorrent accepts both forms.
-    return urllib.parse.urlencode(
-        form, quote_via=urllib.parse.quote
-    ).encode()
+    return urllib.parse.urlencode(form, quote_via=urllib.parse.quote).encode()
 
 
 def qbit(method, path, form=None, cookie=None):
@@ -63,6 +63,7 @@ def qbit(method, path, form=None, cookie=None):
     )
     with urllib.request.urlopen(req, timeout=60) as resp:
         return resp.read().decode(), resp.headers
+
 
 def open_session():
     """Return a session cookie, or None when already authorized.
@@ -120,6 +121,8 @@ def pushover(title, message, priority=0):
         return
     chunks = chunk_message(message)
     for index, chunk in enumerate(chunks, 1):
+        if index > 1:
+            time.sleep(1)  # gaps keep multi-part notifications in order
         suffix = "" if len(chunks) == 1 else f" ({index}/{len(chunks)})"
         data = urlencode(
             {
@@ -141,9 +144,7 @@ def pushover(title, message, priority=0):
         try:
             body = json.loads(raw)
         except json.JSONDecodeError:
-            raise RuntimeError(
-                f"non-JSON response from pushover: {raw[:200]!r}"
-            )
+            raise RuntimeError(f"non-JSON response from pushover: {raw[:200]!r}")
         if body.get("status") != 1:
             raise RuntimeError(f"pushover rejected notification: {body}")
     log(f"pushover notification sent ({len(chunks)} part(s))")
@@ -157,15 +158,12 @@ def main():
     try:
         torrents = json.loads(body)
     except json.JSONDecodeError:
-        raise RuntimeError(
-            f"non-JSON torrent list from qBittorrent: {body[:200]!r}"
-        )
+        raise RuntimeError(f"non-JSON torrent list from qBittorrent: {body[:200]!r}")
     if not torrents:
         log(f"no torrents tagged {CLEANUP_TAG!r}; nothing to do")
         pushover(
             "qBittorrent cleanup: nothing to do",
-            f"No torrents tagged {CLEANUP_TAG!r};"
-            " nothing to clean up this week.",
+            f"No torrents tagged {CLEANUP_TAG!r}; nothing to clean up this week.",
         )
         return
 
@@ -179,15 +177,16 @@ def main():
     form = {"hashes": hashes, "deleteFiles": str(DELETE_FILES).lower()}
     if DRY_RUN:
         preview = hashes if len(hashes) <= 64 else hashes[:61] + "..."
-        log(f"dry run: would POST /api/v2/torrents/delete hashes="
-            f"{preview} deleteFiles={form['deleteFiles']}")
+        log(
+            f"dry run: would POST /api/v2/torrents/delete hashes="
+            f"{preview} deleteFiles={form['deleteFiles']}"
+        )
         return
     qbit("POST", "/api/v2/torrents/delete", form=form, cookie=cookie)
     log("delete request accepted by qBittorrent")
 
     names = [t["name"] for t in torrents]
-    lines = [f"Deleted {len(names)} unlinked torrent(s)"
-             f", {human_size(total)} freed:"]
+    lines = [f"Deleted {len(names)} unlinked torrent(s), {human_size(total)} freed:"]
     lines.extend("- " + n for n in names[:MAX_NAMES])
     if len(names) > MAX_NAMES:
         lines.append(f"... and {len(names) - MAX_NAMES} more")

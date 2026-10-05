@@ -2,6 +2,7 @@
 """Trigger the Paperless-ngx sanity check via the REST API, wait for
 it to finish, and report the outcome via Pushover.
 """
+
 import json
 import os
 import sys
@@ -12,8 +13,7 @@ import urllib.request
 
 BASE_URL = os.environ.get(
     "PAPERLESS_BASE_URL",
-    "http://keda-add-ons-http-interceptor-proxy.keda.svc"
-    ".cluster.local:8080",
+    "http://keda-add-ons-http-interceptor-proxy.keda.svc.cluster.local:8080",
 )
 HOST = os.environ.get("PAPERLESS_HOST", "paperless.item.fyi")
 TASK_TYPE = os.environ.get("SANITY_TASK_TYPE", "sanity_check")
@@ -60,9 +60,7 @@ def api(method, path, json_body=None):
         return json.loads(raw)
     except json.JSONDecodeError:
         # e.g. the interceptor returning an HTML error page
-        raise RuntimeError(
-            f"non-JSON response from {HOST}{path}: {raw[:200]!r}"
-        )
+        raise RuntimeError(f"non-JSON response from {HOST}{path}: {raw[:200]!r}")
 
 
 def chunk_message(message, limit=1000):
@@ -88,6 +86,8 @@ def pushover(title, message, priority=0):
         return
     chunks = chunk_message(message)
     for index, chunk in enumerate(chunks, 1):
+        if index > 1:
+            time.sleep(1)  # gaps keep multi-part notifications in order
         suffix = "" if len(chunks) == 1 else f" ({index}/{len(chunks)})"
         data = urllib.parse.urlencode(
             {
@@ -108,9 +108,7 @@ def pushover(title, message, priority=0):
         try:
             body = json.loads(raw)
         except json.JSONDecodeError:
-            raise RuntimeError(
-                f"non-JSON response from pushover: {raw[:200]!r}"
-            )
+            raise RuntimeError(f"non-JSON response from pushover: {raw[:200]!r}")
         if body.get("status") != 1:
             raise RuntimeError(f"pushover rejected notification: {body}")
     log(f"pushover notification sent ({len(chunks)} part(s))")
@@ -137,9 +135,7 @@ def run_sanity_check():
         log(f"status: {status}")
         if status in ("success", "failure", "revoked"):
             return task
-    raise TimeoutError(
-        f"sanity check did not finish within {MAX_WAIT}s"
-    )
+    raise TimeoutError(f"sanity check did not finish within {MAX_WAIT}s")
 
 
 def main():

@@ -50,7 +50,9 @@ def env_int(name, default):
     try:
         return int(value)
     except ValueError:
-        raise RuntimeError(f"invalid {name}={value!r}, expected an integer")
+        raise RuntimeError(
+            f"invalid {name}={value!r}, expected an integer"
+        ) from None
 
 
 MAX_ITEMS = env_int("MAX_ITEMS", 15)
@@ -72,7 +74,9 @@ def api(base, key, path):
     try:
         return json.loads(raw)
     except json.JSONDecodeError:
-        raise RuntimeError(f"non-JSON response from {path}: {raw[:200]!r}")
+        raise RuntimeError(
+            f"non-JSON response from {path}: {raw[:200]!r}"
+        ) from None
 
 
 def seerr(path):
@@ -129,7 +133,9 @@ def pushover(title, message, priority=0):
         try:
             body = json.loads(raw)
         except json.JSONDecodeError:
-            raise RuntimeError(f"non-JSON response from pushover: {raw[:200]!r}")
+            raise RuntimeError(
+                f"non-JSON response from pushover: {raw[:200]!r}"
+            ) from None
         if body.get("status") != 1:
             raise RuntimeError(f"pushover rejected notification: {body}")
     log(f"pushover notification sent ({len(chunks)} part(s))")
@@ -280,7 +286,7 @@ def main():
         message = "Nothing unfulfilled."
         if hidden:
             grouped = {}
-            for short, reason in hidden:
+            for _, reason in hidden:
                 grouped[reason] = grouped.get(reason, 0) + 1
             summary = "; ".join(
                 f"{count} {reason}" for reason, count in sorted(grouped.items())
@@ -296,7 +302,7 @@ def main():
         lines.append("")
         lines.append("Not counted:")
         grouped = {}
-        for short, reason in hidden:
+        for _, reason in hidden:
             grouped[reason] = grouped.get(reason, 0) + 1
         for reason in sorted(grouped):
             lines.append(f"- {reason}: {grouped[reason]}")
