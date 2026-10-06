@@ -52,7 +52,7 @@ spec:
             - name: sync
               # Full node image (not -slim): ships git and openssh-client.
               # The wmill CLI is npm-installed into an emptyDir at runtime.
-              image: docker.io/library/node:22-bookworm@sha256:363e1587494626837fa7f9a23bdb453d13b0ff3c67c705c2805cfc69c2d2fad7
+              image: docker.io/library/node:24.20.0-bookworm@sha256:be23f54a88d34e8824c741b19b91064094f92c1c97b194144bfc8b50d67258e2
               imagePullPolicy: IfNotPresent
               command: ["/bin/bash", "/script/windmill_sync.sh"]
               env:
