@@ -148,7 +148,13 @@ def run_pipeline(
             break
         ctx.check_abort()
 
-        log.info("processing album [%s/%s]", idx + 1, len(albums))
+        log.info(
+            "processing album [%s/%s] (%s, %s files)",
+            idx + 1,
+            len(albums),
+            album.path,
+            len(album.files)
+        )
         for step in ctx.steps:
             try:
                 res = step.run_album(album, ctx)
