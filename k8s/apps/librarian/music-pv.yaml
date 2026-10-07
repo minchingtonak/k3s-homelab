@@ -14,7 +14,7 @@ spec:
     namespace: librarian
   nfs:
     server: 192.168.20.89
-    path: /void/media/music-backup-2
+    path: /void/media/music
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
