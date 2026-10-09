@@ -69,7 +69,7 @@ spec:
               mountPath: /azerothcore/env/dist/data
               subPath: data
         - name: wait-for-db
-          image: docker.io/library/mysql:8.4@sha256:b3b90af2a6552ae30c266fdb7d5dd55f3afb72404bb78d37fe8a23eb857fd3fb
+          image: docker.io/library/mysql:8.4@sha256:6ea90827b1100f8f2ae306a539f86d2c264a26ed435a2a9f75551dd5c3aeb242
           env:
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
@@ -133,7 +133,7 @@ spec:
         # change here converges the conf on the volume without manual
         # intervention.
         - name: chatlog-config
-          image: docker.io/library/mysql:8.4@sha256:b3b90af2a6552ae30c266fdb7d5dd55f3afb72404bb78d37fe8a23eb857fd3fb
+          image: docker.io/library/mysql:8.4@sha256:6ea90827b1100f8f2ae306a539f86d2c264a26ed435a2a9f75551dd5c3aeb242
           command:
             - sh
             - -c
@@ -158,7 +158,7 @@ spec:
         # and `localAddress` to those inside it. Both are deliberately set to the same
         # hostname with a /32 mask, which sends every client through the tunnel
         - name: realmlist
-          image: docker.io/library/mysql:8.4@sha256:b3b90af2a6552ae30c266fdb7d5dd55f3afb72404bb78d37fe8a23eb857fd3fb
+          image: docker.io/library/mysql:8.4@sha256:6ea90827b1100f8f2ae306a539f86d2c264a26ed435a2a9f75551dd5c3aeb242
           env:
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
@@ -195,7 +195,7 @@ spec:
         # missing this logs and moves on rather than blocking the realm from
         # starting over a metrics concern.
         - name: exporter-grants
-          image: docker.io/library/mysql:8.4@sha256:b3b90af2a6552ae30c266fdb7d5dd55f3afb72404bb78d37fe8a23eb857fd3fb
+          image: docker.io/library/mysql:8.4@sha256:6ea90827b1100f8f2ae306a539f86d2c264a26ed435a2a9f75551dd5c3aeb242
           env:
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
