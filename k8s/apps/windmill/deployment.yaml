@@ -121,7 +121,7 @@ spec:
       containers:
         - name: windmill-server
           # https://github.com/windmill-labs/windmill/releases/tag/v1.682.0
-          image: ghcr.io/windmill-labs/windmill:1.818.0@sha256:d51fae4a3c217b11d9419d07f650599a19aacd5b80ce8939d1b72b3208b9a064
+          image: ghcr.io/windmill-labs/windmill:1.830.0@sha256:46016168ebe27f0916c4de5c5b174667ee01675169da999f10bc62cfd18fa1cd
           env:
             - name: MODE
               value: server
@@ -187,7 +187,7 @@ spec:
     spec:
       containers:
         - name: windmill-worker
-          image: ghcr.io/windmill-labs/windmill:1.818.0@sha256:d51fae4a3c217b11d9419d07f650599a19aacd5b80ce8939d1b72b3208b9a064
+          image: ghcr.io/windmill-labs/windmill:1.830.0@sha256:46016168ebe27f0916c4de5c5b174667ee01675169da999f10bc62cfd18fa1cd
           env:
             - name: MODE
               value: worker
@@ -234,7 +234,7 @@ spec:
     spec:
       containers:
         - name: windmill-worker-native
-          image: ghcr.io/windmill-labs/windmill:1.818.0@sha256:d51fae4a3c217b11d9419d07f650599a19aacd5b80ce8939d1b72b3208b9a064
+          image: ghcr.io/windmill-labs/windmill:1.830.0@sha256:46016168ebe27f0916c4de5c5b174667ee01675169da999f10bc62cfd18fa1cd
           env:
             - name: MODE
               value: worker
@@ -279,7 +279,7 @@ spec:
     spec:
       containers:
         - name: windmill-worker-reports
-          image: ghcr.io/windmill-labs/windmill-full:1.818.0@sha256:700ada373d481cf918a9330a5815cd87b46ceca0db947bd67cdf0e478c792b77
+          image: ghcr.io/windmill-labs/windmill-full:1.830.0@sha256:f6b82bc48830a993585f98f8d965aff5dbcf0ebe3ec13dacd4ee7d275363973c
           env:
             - name: MODE
               value: worker
