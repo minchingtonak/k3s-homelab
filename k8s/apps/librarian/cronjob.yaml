@@ -6,7 +6,7 @@ metadata:
   labels:
     app.kubernetes.io/name: librarian
 spec:
-  schedule: "25 */2 * * *"
+  schedule: "0 5 * * 6"
   timeZone: America/New_York
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 5
