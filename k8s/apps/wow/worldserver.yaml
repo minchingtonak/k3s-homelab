@@ -60,7 +60,7 @@ spec:
       initContainers:
         - name: client-data
           # same image & behaviour as the upstream ac-client-data container
-          image: acore/ac-wotlk-client-data:master@sha256:08df9f3c88177924f7ef48d803395fd1daee9671eeb2f5f328f1ae759b96e5f7
+          image: acore/ac-wotlk-client-data:master@sha256:1746ac377e61c571a4e4c6e43d7040e4ab07a6e40796d0f8c42ede4a1c7111e8
           env:
             - name: DATAPATH
               value: /azerothcore/env/dist/data
