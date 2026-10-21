@@ -18,6 +18,19 @@
 # this kustomization (forgejo/dagu pattern). Credentials: a Windmill user
 # token and a GitHub SSH deploy key with write access to SYNC_REPO, both in
 # windmill-sync-secret (SOPS).
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: windmill-sync-cache
+  namespace: windmill
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 512Mi
+---
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -33,8 +46,8 @@ spec:
   failedJobsHistoryLimit: 3
   jobTemplate:
     spec:
-      backoffLimit: 1
-      activeDeadlineSeconds: 240
+      backoffLimit: 3
+      activeDeadlineSeconds: 1200
       template:
         metadata:
           labels:
@@ -88,7 +101,12 @@ spec:
                   mountPath: /work
                 - name: deps
                   mountPath: /deps
+                - name: cache
+                  mountPath: /cache
           volumes:
+            - name: cache
+              persistentVolumeClaim:
+                claimName: windmill-sync-cache
             - name: script
               configMap:
                 name: windmill-sync-script

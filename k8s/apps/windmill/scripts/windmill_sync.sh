@@ -35,8 +35,31 @@ export PATH="/deps/node_modules/.bin:$PATH"
 # CLI version is derived from the server's own /api/version so the pin can
 # never drift when Renovate bumps the windmill-server image; an unreachable
 # server fails the job before any sync.
-SERVER_VERSION=$(curl -fsS "$WMILL_BASE_URL/api/version" | sed 's/^.*v//')
-npm install --prefix /deps --no-audit --no-fund "windmill-cli@${SERVER_VERSION}"
+#
+# npm is the one external service contacted on every run, so the install is
+# hardened against transient outages: npm retries internally with a short
+# backoff, the loop below retries the whole install, and the cache lives on
+# the windmill-sync-cache PVC so --prefer-offline installs an unchanged
+# version without any registry traffic. If all of it still fails, the
+# CronJob's backoffLimit retries the pod before the run is reported.
+export npm_config_cache=/cache/npm
+export npm_config_fetch_retries=2
+export npm_config_fetch_retry_mintimeout=5000
+export npm_config_fetch_retry_maxtimeout=15000
+export npm_config_fetch_timeout=45000
+
+SERVER_VERSION=$(curl -fsS --retry 3 --retry-delay 5 --retry-connrefused "$WMILL_BASE_URL/api/version" | sed 's/^.*v//')
+for attempt in 1 2 3; do
+  if npm install --prefix /deps --no-audit --no-fund --prefer-offline "windmill-cli@${SERVER_VERSION}"; then
+    break
+  fi
+  if [ "$attempt" = 3 ]; then
+    echo "ERROR: npm install windmill-cli@${SERVER_VERSION} failed after ${attempt} attempts." >&2
+    exit 1
+  fi
+  echo "==> npm install failed (attempt ${attempt}), retrying in $((attempt * 15))s" >&2
+  sleep $((attempt * 15))
+done
 
 # Secret volume files are named after their keys (/ssh/SSH_PRIVATE_KEY) and
 # are group-readable; ssh insists on an owner-only key.
