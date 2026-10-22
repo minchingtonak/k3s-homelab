@@ -78,7 +78,7 @@ spec:
           restartPolicy: Never
           containers:
             - name: backup-verify
-              image: python:3.13-alpine@sha256:1a63a53928ce53d2b0baf08092a703f4840ac5dfbd61fd48802dbf48e08c801e
+              image: python:3.13-alpine@sha256:2d9aefe2fef018a7eb2c13064c89c71929800fd2e5dccdbf52ea5da5bb8d929a
               command:
                 - python3
                 - -u
