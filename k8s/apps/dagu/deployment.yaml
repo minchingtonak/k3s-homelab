@@ -46,6 +46,8 @@ spec:
               value: /dagu/base.yaml
             - name: DAGU_AUTH_MODE
               value: none
+            - name: DAGU_ALLOWED_HOSTS
+              value: "dagu.item.fyi"
             - name: HOME
               value: /dagu
           ports:
