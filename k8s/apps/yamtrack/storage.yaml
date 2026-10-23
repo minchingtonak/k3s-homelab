@@ -3,6 +3,9 @@ kind: PersistentVolumeClaim
 metadata:
   name: yamtrack-db
   namespace: yamtrack
+  labels:
+    recurring-job.longhorn.io/source: "enabled"
+    recurring-job-group.longhorn.io/cold: "enabled"
 spec:
   accessModes:
     - ReadWriteOnce

@@ -15,6 +15,9 @@ kind: PersistentVolumeClaim
 metadata:
   name: romm-resources
   namespace: romm
+  labels:
+    recurring-job.longhorn.io/source: "enabled"
+    recurring-job-group.longhorn.io/cold: "enabled"
 spec:
   accessModes:
     - ReadWriteOnce
@@ -27,6 +30,9 @@ kind: PersistentVolumeClaim
 metadata:
   name: romm-redis
   namespace: romm
+  labels:
+    recurring-job.longhorn.io/source: "enabled"
+    recurring-job-group.longhorn.io/cold: "enabled"
 spec:
   accessModes:
     - ReadWriteOnce
@@ -39,6 +45,9 @@ kind: PersistentVolumeClaim
 metadata:
   name: romm-config
   namespace: romm
+  labels:
+    recurring-job.longhorn.io/source: "enabled"
+    recurring-job-group.longhorn.io/cold: "enabled"
 spec:
   accessModes:
     - ReadWriteOnce
@@ -51,6 +60,9 @@ kind: PersistentVolumeClaim
 metadata:
   name: romm-assets
   namespace: romm
+  labels:
+    recurring-job.longhorn.io/source: "enabled"
+    recurring-job-group.longhorn.io/cold: "enabled"
 spec:
   accessModes:
     - ReadWriteOnce

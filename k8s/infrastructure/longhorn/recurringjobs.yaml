@@ -6,6 +6,32 @@
 # a Kubernetes CronJob and none of them set .spec.timeZone, so they inherit the
 # kube-controller-manager's local zone — which on k3s is the server node's, and
 # that node is on Eastern.
+#
+# The `cold` group is for volumes of scale-to-zero (KEDA) apps. They are
+# detached most of the time, and a recurring-job run against a detached volume
+# (allow-recurring-job-while-volume-detached) briefly attaches it and emits
+# transient warning events for every snapshot create/prune while the engine is
+# stopped. `cold` therefore opts out of `snapshot-hourly` — a snapshot of a
+# frozen volume is a zero-delta duplicate — while the backup jobs below still
+# cover it.
+#
+# Group membership lives on the Longhorn volume as `recurring-job-group.*`
+# labels. The declarative source of truth is the app's PVC manifest: when a
+# PVC carries `recurring-job.longhorn.io/source: enabled`, Longhorn mirrors
+# its recurring-job labels onto the volume and enforces that exact set (so
+# ad-hoc `kubectl label volume` changes get reverted — edit the PVC instead).
+# Without the source label Longhorn ignores PVC labels entirely:
+#   labels:
+#     recurring-job.longhorn.io/source: "enabled"
+#     recurring-job-group.longhorn.io/cold: "enabled"
+# The cold PVCs owned by manifests in k8s/apps already carry these;
+# kube-prometheus-stack-grafana is chart-managed and gets them via a
+# postRenderers patch in the kube-prometheus-stack HelmRelease. The kubectl
+# route is the fallback for a claim with no manifest at all:
+#   kubectl -n longhorn-system label volumes.longhorn.io <vol-name> \
+#     recurring-job-group.longhorn.io/cold=enabled \
+#     recurring-job-group.longhorn.io/default-
+# To return a volume to hourly snapshots, swap both labels (and its PVC).
 ---
 apiVersion: longhorn.io/v1beta2
 kind: RecurringJob
@@ -17,6 +43,7 @@ spec:
   task: backup
   groups:
     - default
+    - cold
   retain: 14
   concurrency: 2
 ---
@@ -30,6 +57,7 @@ spec:
   task: backup
   groups:
     - default
+    - cold
   retain: 8
   concurrency: 2
 ---
@@ -43,6 +71,7 @@ spec:
   task: backup
   groups:
     - default
+    - cold
   retain: 12
   concurrency: 2
 ---
@@ -55,7 +84,7 @@ spec:
   cron: "0 * * * *"
   task: snapshot
   groups:
-    - default
+    - default # `cold` volumes are deliberately excluded (see above)
   retain: 24
   concurrency: 3
 ---

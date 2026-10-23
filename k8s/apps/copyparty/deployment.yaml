@@ -35,6 +35,9 @@ kind: PersistentVolumeClaim
 metadata:
   name: copyparty-cfg
   namespace: copyparty
+  labels:
+    recurring-job.longhorn.io/source: "enabled"
+    recurring-job-group.longhorn.io/cold: "enabled"
 spec:
   accessModes:
     - ReadWriteOnce

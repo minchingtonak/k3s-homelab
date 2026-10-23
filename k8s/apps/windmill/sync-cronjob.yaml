@@ -24,6 +24,9 @@ kind: PersistentVolumeClaim
 metadata:
   name: windmill-sync-cache
   namespace: windmill
+  labels:
+    recurring-job.longhorn.io/source: "enabled"
+    recurring-job-group.longhorn.io/cold: "enabled"
 spec:
   accessModes:
     - ReadWriteOnce
