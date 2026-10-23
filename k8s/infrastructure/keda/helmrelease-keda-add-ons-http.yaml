@@ -30,6 +30,6 @@ spec:
       replicas:
         min: 2
         max: 3
-      requestTimeout: 120s
+      requestTimeout: 300s
       responseHeaderTimeout: 60s
-      readinessTimeout: 60s
+      readinessTimeout: 180s

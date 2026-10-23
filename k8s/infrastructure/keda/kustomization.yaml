@@ -5,3 +5,11 @@ resources:
   - helmrepository.yaml
   - helmrelease-keda.yaml
   - helmrelease-keda-add-ons-http.yaml
+  - mutatingadmissionpolicy.yaml
+configMapGenerator:
+  - name: cold-start-placeholder
+    namespace: keda
+    files:
+      - placeholder.html=cold-start-placeholder.html
+generatorOptions:
+  disableNameSuffixHash: true

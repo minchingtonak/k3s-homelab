@@ -3,11 +3,9 @@
 #   pangolin edge (TLS for *.minch.zone) -> newt -> traefik-tunnel svc :8081
 #   -> this router -> KEDA interceptor -> trek
 #
-# The service target is the interceptor, not trek itself, so the scaling
-# path stays intact (the ScaledObject below keeps one warm replica — see
-# keda.yaml — and raising maxReplicaCount later needs no routing change).
-# Adding trek.minch.zone to the InterceptorRoute host list (keda.yaml) is
-# what makes the interceptor accept this host at all.
+# The service target is the interceptor, not trek itself; the
+# InterceptorRoute in keda.yaml is its routing table and is what makes the
+# interceptor accept trek.minch.zone at all.
 #
 # No TLS here: pangolin terminates it publicly and newt reaches Traefik
 # in-cluster over plain HTTP. Because the listener is plain HTTP and the

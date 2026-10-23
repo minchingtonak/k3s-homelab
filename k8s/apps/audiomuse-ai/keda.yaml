@@ -10,13 +10,6 @@ spec:
   rules:
     - hosts:
         - audiomuse.item.fyi
-  scalingMetric:
-    concurrency:
-      targetValue: 30
-  timeouts:
-    request: 120s
-    responseHeader: 60s
-    readiness: 90s
 ---
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
@@ -27,12 +20,10 @@ spec:
   scaleTargetRef:
     name: audiomuse-flask
   minReplicaCount: 0
-  maxReplicaCount: 1
   cooldownPeriod: 1800
   triggers:
     - type: external-push
       metadata:
-        scalerAddress: keda-add-ons-http-external-scaler.keda:9090
         interceptorRoute: audiomuse
 ---
 apiVersion: keda.sh/v1alpha1
@@ -55,8 +46,6 @@ spec:
   scaleTargetRef:
     name: audiomuse-worker
   minReplicaCount: 0
-  maxReplicaCount: 1
-  cooldownPeriod: 600
   triggers:
     - type: postgresql
       metadata:

@@ -10,14 +10,9 @@ spec:
   rules:
     - hosts:
         - convertx.item.fyi
-  scalingMetric:
-    concurrency:
-      targetValue: 10
   timeouts:
     # Conversions can take a while on large files.
-    request: 180s
     responseHeader: 120s
-    readiness: 60s
 ---
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
@@ -28,10 +23,7 @@ spec:
   scaleTargetRef:
     name: convertx
   minReplicaCount: 0
-  maxReplicaCount: 1
-  cooldownPeriod: 600
   triggers:
     - type: external-push
       metadata:
-        scalerAddress: keda-add-ons-http-external-scaler.keda:9090
         interceptorRoute: convertx

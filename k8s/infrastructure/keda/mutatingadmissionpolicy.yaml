@@ -1,0 +1,137 @@
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingAdmissionPolicy
+metadata:
+  name: interceptorroute-cold-start-placeholder
+spec:
+  # The placeholder page comes from the cold-start-placeholder ConfigMap
+  paramKind:
+    apiVersion: v1
+    kind: ConfigMap
+  failurePolicy: Fail
+  reinvocationPolicy: IfNeeded
+  matchConstraints:
+    resourceRules:
+      - apiGroups: ["http.keda.sh"]
+        apiVersions: ["v1beta1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["interceptorroutes"]
+  matchConditions:
+    # Let an individual route define its own cold-start behavior.
+    - name: no-explicit-cold-start
+      expression: "!has(object.spec) || !has(object.spec.coldStart)"
+  mutations:
+    - patchType: ApplyConfiguration
+      applyConfiguration:
+        expression: >
+          Object{
+            spec: Object.spec{
+              coldStart: Object.spec.coldStart{
+                placeholder: Object.spec.coldStart.placeholder{
+                  response: Object.spec.coldStart.placeholder.response{
+                    statusCode: 503,
+                    headers: {
+                      "Content-Type": "text/html; charset=utf-8",
+                      "Refresh": "5",
+                      "Retry-After": "5"
+                    },
+                    body: params.data["placeholder.html"]
+                  }
+                }
+              }
+            }
+          }
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingAdmissionPolicyBinding
+metadata:
+  name: interceptorroute-cold-start-placeholder
+spec:
+  policyName: interceptorroute-cold-start-placeholder
+  paramRef:
+    name: cold-start-placeholder
+    namespace: keda
+    parameterNotFoundAction: Deny
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingAdmissionPolicy
+metadata:
+  name: scaledobject-cluster-defaults
+spec:
+  failurePolicy: Fail
+  reinvocationPolicy: IfNeeded
+  matchConstraints:
+    resourceRules:
+      - apiGroups: ["keda.sh"]
+        apiVersions: ["v1alpha1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["scaledobjects"]
+  mutations:
+    - patchType: JSONPatch
+      jsonPatch:
+        expression: >
+          has(object.spec.maxReplicaCount) ? [] :
+          [JSONPatch{op: "add", path: "/spec/maxReplicaCount", value: 1}]
+    - patchType: JSONPatch
+      jsonPatch:
+        expression: >
+          has(object.spec.cooldownPeriod) ? [] :
+          [JSONPatch{op: "add", path: "/spec/cooldownPeriod", value: 600}]
+    - patchType: JSONPatch
+      jsonPatch:
+        expression: >
+          has(object.spec.triggers) && size(object.spec.triggers) == 1 &&
+          object.spec.triggers[0].type == "external-push" &&
+          has(object.spec.triggers[0].metadata) &&
+          "interceptorRoute" in object.spec.triggers[0].metadata &&
+          !("scalerAddress" in object.spec.triggers[0].metadata)
+          ? [JSONPatch{op: "add", path: "/spec/triggers/0/metadata/scalerAddress",
+              value: "keda-add-ons-http-external-scaler.keda:9090"}]
+          : []
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingAdmissionPolicyBinding
+metadata:
+  name: scaledobject-cluster-defaults
+spec:
+  policyName: scaledobject-cluster-defaults
+---
+# scalingMetric is required by the CRD but inert while replicas are pinned
+# 0-or-1 (any targetValue wakes the app on the first request).
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingAdmissionPolicy
+metadata:
+  name: interceptorroute-scaling-defaults
+spec:
+  failurePolicy: Fail
+  reinvocationPolicy: IfNeeded
+  matchConstraints:
+    resourceRules:
+      - apiGroups: ["http.keda.sh"]
+        apiVersions: ["v1beta1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["interceptorroutes"]
+  matchConditions:
+    # Let an individual route set its own scaling metric.
+    - name: no-explicit-scaling-metric
+      expression: "!has(object.spec) || !has(object.spec.scalingMetric)"
+  mutations:
+    - patchType: ApplyConfiguration
+      applyConfiguration:
+        expression: >
+          Object{
+            spec: Object.spec{
+              scalingMetric: Object.spec.scalingMetric{
+                concurrency: Object.spec.scalingMetric.concurrency{
+                  targetValue: 30
+                }
+              }
+            }
+          }
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingAdmissionPolicyBinding
+metadata:
+  name: interceptorroute-scaling-defaults
+spec:
+  policyName: interceptorroute-scaling-defaults

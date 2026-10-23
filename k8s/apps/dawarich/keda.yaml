@@ -10,13 +10,6 @@ spec:
   rules:
     - hosts:
         - dawarich.item.fyi
-  scalingMetric:
-    concurrency:
-      targetValue: 50
-  timeouts:
-    request: 120s
-    responseHeader: 60s
-    readiness: 90s
 ---
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
@@ -27,12 +20,9 @@ spec:
   scaleTargetRef:
     name: dawarich-app
   minReplicaCount: 0
-  maxReplicaCount: 1
-  cooldownPeriod: 600
   triggers:
     - type: external-push
       metadata:
-        scalerAddress: keda-add-ons-http-external-scaler.keda:9090
         interceptorRoute: dawarich
 ---
 apiVersion: keda.sh/v1alpha1
@@ -44,8 +34,6 @@ spec:
   scaleTargetRef:
     name: dawarich-sidekiq
   minReplicaCount: 0
-  maxReplicaCount: 1
-  cooldownPeriod: 600
   triggers:
     - type: redis
       metadata:
