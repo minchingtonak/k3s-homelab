@@ -10,14 +10,17 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from librarian.cli import Outcome, decide_outcome
 from librarian.config import Config
 from librarian.notify import (
+    MAX_MESSAGE_CHARS,
+    MAX_TITLE_CHARS,
     Notifier,
+    Push,
     build_payload,
+    chunk_pushes,
     format_duration,
     format_progress_message,
     format_skipped_notice,
     format_stats_message,
     headlamp_logs_url,
-    truncate,
 )
 from librarian.stats import LibraryStats, snapshot_to_stats
 from librarian.tags import TagSnapshot
@@ -101,26 +104,49 @@ class TestMessages:
         assert "Pod logs: http://h" in msg
 
     def test_skipped_notice(self):
-        notice = format_skipped_notice(["/m/a.ogg"], ["/m/b.ogg"])
+        notice = format_skipped_notice(["/m/a.ogg"], ["/m/b.ogg"], ["/m/c.ogg"])
         assert notice is not None
         assert "un-analyzable: /m/a.ogg" in notice
         assert "write failed: /m/b.ogg" in notice
+        assert "skipped: /m/c.ogg" in notice
 
     def test_skipped_notice_empty(self):
-        assert format_skipped_notice([], []) is None
+        assert format_skipped_notice([], [], []) is None
 
     def test_skipped_notice_cap(self):
-        notice = format_skipped_notice([f"/m/f{i}.mp3" for i in range(60)], [])
+        notice = format_skipped_notice(
+            [f"/m/f{i}.mp3" for i in range(60)], [], [f"/m/s{i}.mp3" for i in range(20)]
+        )
         assert notice is not None
-        assert "and 20 more" in notice
+        assert "and 30 more" in notice
 
     def test_progress(self):
         msg = format_progress_message(50, 43200)
         assert "50 files processed" in msg
         assert "12h 0m" in msg
 
-    def test_truncate(self):
-        assert len(truncate("x" * 9000)) < 4000
+class TestChunkPushes:
+    def test_short_message_unchanged(self):
+        pushes = chunk_pushes("title", "short", 0)
+        assert pushes == [Push(title="title", message="short", priority=0)]
+
+    def test_long_message_is_chunked(self):
+        message = "x" * (MAX_MESSAGE_CHARS * 2 + 100)
+        pushes = chunk_pushes("title", message, 1)
+        assert len(pushes) == 3
+        assert [p.title for p in pushes] == ["title[1/3]", "title[2/3]", "title[3/3]"]
+        assert all(len(p.message) <= MAX_MESSAGE_CHARS for p in pushes)
+        assert "".join(p.message for p in pushes) == message
+        assert all(p.priority == 1 for p in pushes)
+
+    def test_chunk_titles_never_exceed_max(self):
+        title = "t" * (MAX_TITLE_CHARS - 2)
+        message = "x" * (MAX_MESSAGE_CHARS * 2 + 100)
+        pushes = chunk_pushes(title, message, 0)
+        assert len(pushes) == 3
+        for idx, p in enumerate(pushes):
+            assert len(p.title) <= MAX_TITLE_CHARS
+            assert p.title.endswith(f"[{idx + 1}/3]")
 
 
 class TestDuration:
@@ -152,6 +178,11 @@ class TestNotifier:
         n.push("t", "m")
         assert len(n.sent) == 1
         assert n.sent[0].priority == 0
+
+    def test_long_message_recorded_as_chunks(self):
+        n = Notifier(config=Config.from_env({}))
+        n.push("t", "x" * (MAX_MESSAGE_CHARS * 2 + 100))
+        assert len(n.sent) == 3
 
     def test_payload(self):
         n = configured_notifier()
