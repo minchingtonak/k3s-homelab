@@ -35,6 +35,9 @@ spec:
       # Attach detached volumes when recurring jobs fire, so scaled-down
       # apps still get snapshots + backups (backup-verify monitors this)
       allowRecurringJobWhileVolumeDetached: true
+      # Automatically upgrade volume engines to the default engine image
+      # after a Longhorn upgrade, 3 per node at a time.
+      concurrentAutomaticEngineUpgradePerNodeLimit: 3
     persistence:
       defaultClass: true
       defaultClassReplicaCount: 2
