@@ -96,8 +96,10 @@ metadata:
 spec:
   policyName: scaledobject-cluster-defaults
 ---
-# scalingMetric is required by the CRD but inert while replicas are pinned
-# 0-or-1 (any targetValue wakes the app on the first request).
+# scalingMetric is required by the CRD. concurrency alone cannot wake an app:
+# placeholder-served cold-start requests complete instantly and never register
+# as in-flight, so requestRate — which counts served requests over a 1m
+# sliding window — is what triggers scale-from-zero.
 apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingAdmissionPolicy
 metadata:
@@ -124,6 +126,9 @@ spec:
               scalingMetric: Object.spec.scalingMetric{
                 concurrency: Object.spec.scalingMetric.concurrency{
                   targetValue: 30
+                },
+                requestRate: Object.spec.scalingMetric.requestRate{
+                  targetValue: 1
                 }
               }
             }
