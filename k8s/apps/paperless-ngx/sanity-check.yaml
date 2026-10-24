@@ -5,8 +5,9 @@
 # runs scale-to-zero (KEDA), so requests go through the KEDA HTTP
 # interceptor with a paperless.item.fyi Host header - that path counts for
 # scaling; calling the paperless-ngx service directly would hit zero
-# endpoints. The first request of a run may block a few minutes while the
-# webserver cold-boots.
+# endpoints. On a cold start the interceptor answers with a placeholder
+# 503 instead of holding the request, so the script retries until the
+# webserver is up (see COLD_START_MAX_WAIT).
 #
 # The Python source lives in scripts/sanity_check.py and is baked into the
 # paperless-sanity-check-script ConfigMap by the configMapGenerator in this

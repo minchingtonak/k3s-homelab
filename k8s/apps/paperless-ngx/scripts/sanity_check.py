@@ -30,10 +30,21 @@ def env_int(name, default):
 
 POLL_INTERVAL = env_int("POLL_INTERVAL", 15)
 MAX_WAIT = env_int("MAX_WAIT", 1200)
+COLD_START_MAX_WAIT = env_int("COLD_START_MAX_WAIT", 180)
+RETRYABLE_HTTP = (502, 503, 504)
 
 
 def log(msg):
     print(msg, flush=True)
+
+
+def retry_delay(attempt, headers):
+    """Seconds to wait before a retry: honour Retry-After, else back off."""
+    retry_after = (headers or {}).get("Retry-After", "")
+    try:
+        return min(float(retry_after), 60.0)
+    except ValueError:
+        return min(5 * 2 ** (attempt - 1), 30)
 
 
 def api(method, path, json_body=None):
@@ -53,14 +64,40 @@ def api(method, path, json_body=None):
     req = urllib.request.Request(
         BASE_URL + path, data=data, method=method, headers=headers
     )
-    # generous timeout: the first request may wait out a cold boot
-    with urllib.request.urlopen(req, timeout=300) as resp:
-        raw = resp.read().decode()
+
+    deadline = time.monotonic() + COLD_START_MAX_WAIT
+    attempt = 0
+    while True:
+        attempt += 1
+        try:
+            with urllib.request.urlopen(req, timeout=300) as resp:
+                raw = resp.read().decode()
+            break
+        except urllib.error.HTTPError as exc:
+            if exc.code not in RETRYABLE_HTTP:
+                raise
+            delay = retry_delay(attempt, exc.headers)
+            if time.monotonic() + delay > deadline:
+                raise
+            log(
+                f"HTTP {exc.code} on {method} {path}; "
+                f"retrying in {delay:.0f}s (cold start?)"
+            )
+        except OSError as exc:
+            # connection refused/reset while endpoints flap during scale-up
+            delay = retry_delay(attempt, None)
+            if time.monotonic() + delay > deadline:
+                raise
+            log(
+                f"{exc!r} on {method} {path}; "
+                f"retrying in {delay:.0f}s (cold start?)"
+            )
+        time.sleep(delay)
     try:
         return json.loads(raw)
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as exc:
         # e.g. the interceptor returning an HTML error page
-        raise RuntimeError(f"non-JSON response from {HOST}{path}: {raw[:200]!r}")
+        raise RuntimeError(f"non-JSON response from {HOST}{path}: {raw[:200]!r}") from exc
 
 
 def chunk_message(message, limit=1000):
@@ -107,8 +144,8 @@ def pushover(title, message, priority=0):
             raw = resp.read().decode()
         try:
             body = json.loads(raw)
-        except json.JSONDecodeError:
-            raise RuntimeError(f"non-JSON response from pushover: {raw[:200]!r}")
+        except json.JSONDecodeError as exc:
+            raise RuntimeError(f"non-JSON response from pushover: {raw[:200]!r}") from exc
         if body.get("status") != 1:
             raise RuntimeError(f"pushover rejected notification: {body}")
     log(f"pushover notification sent ({len(chunks)} part(s))")
