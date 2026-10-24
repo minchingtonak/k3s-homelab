@@ -42,6 +42,13 @@ export PATH="/deps/node_modules/.bin:$PATH"
 # the windmill-sync-cache PVC so --prefer-offline installs an unchanged
 # version without any registry traffic. If all of it still fails, the
 # CronJob's backoffLimit retries the pod before the run is reported.
+#
+# --prefer-offline never revalidates the cached packument, so a windmill-cli
+# version published after the cache went stale resolves as ETARGET until the
+# metadata is refreshed (observed 2026-10-24 after the 1.848.1 bump). The
+# first attempt keeps the offline fast path; retries switch to
+# --prefer-online, which refetches the packument and warms the cache for
+# subsequent runs.
 export npm_config_cache=/cache/npm
 export npm_config_fetch_retries=2
 export npm_config_fetch_retry_mintimeout=5000
@@ -50,7 +57,12 @@ export npm_config_fetch_timeout=45000
 
 SERVER_VERSION=$(curl -fsS --retry 3 --retry-delay 5 --retry-connrefused "$WMILL_BASE_URL/api/version" | sed 's/^.*v//')
 for attempt in 1 2 3; do
-  if npm install --prefix /deps --no-audit --no-fund --prefer-offline "windmill-cli@${SERVER_VERSION}"; then
+  if [ "$attempt" = 1 ]; then
+    cache_flag=--prefer-offline
+  else
+    cache_flag=--prefer-online
+  fi
+  if npm install --prefix /deps --no-audit --no-fund "$cache_flag" "windmill-cli@${SERVER_VERSION}"; then
     break
   fi
   if [ "$attempt" = 3 ]; then
