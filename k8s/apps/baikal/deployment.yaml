@@ -49,7 +49,7 @@ spec:
     spec:
       containers:
         - name: baikal
-          image: ckulka/baikal:0.10.1-nginx@sha256:434bdd162247cc6aa6f878c9b4dce6216e39e79526b980453b13812d5f8ebf4b
+          image: ghcr.io/aalmenar/baikal:0.13.0-nginx@sha256:329ade88f83e2017e37715b4f649f51ddee0c0425d6940b8c2542ce04a0873dd
           ports:
             - name: http
               containerPort: 80
