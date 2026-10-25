@@ -59,7 +59,8 @@ metadata:
   name: backup-weekly
   namespace: longhorn-system
 spec:
-  cron: "0 7 * * 0" # 07:00 Sunday
+  # stagger from daily job to avoid s3 lock-contention failures
+  cron: "0 9 * * 0" # 09:00 Sunday
   task: backup
   groups:
     - default
@@ -73,7 +74,8 @@ metadata:
   name: backup-monthly
   namespace: longhorn-system
 spec:
-  cron: "0 8 1 * *" # 08:00 on the 1st
+  # stagger from daily, weekly jobs to avoid s3 lock-contention failures
+  cron: "0 11 1 * *" # 11:00 on the 1st
   task: backup
   groups:
     - default
