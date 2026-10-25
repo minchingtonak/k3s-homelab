@@ -18,6 +18,8 @@ metadata:
   namespace: servarr
   labels:
     app.kubernetes.io/name: profilarr
+  annotations:
+    secret.reloader.stakater.com/reload: profilarr-oidc
 spec:
   replicas: 1
   strategy:
@@ -41,9 +43,16 @@ spec:
             - name: TZ
               value: America/New_York
             - name: AUTH
-              value: off
-            # profilarr 2.x rejects requests whose Origin doesn't match this
-            # when behind a reverse proxy (scheme + host + port)
+              value: "on"
+            - name: OIDC_CLIENT_ID
+              value: profilarr
+            - name: OIDC_DISCOVERY_URL
+              value: https://auth.item.fyi/application/o/profilarr/.well-known/openid-configuration
+            - name: OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: profilarr-oidc
+                  key: OIDC_CLIENT_SECRET
             - name: ORIGIN
               value: https://profilarr.item.fyi
           ports:

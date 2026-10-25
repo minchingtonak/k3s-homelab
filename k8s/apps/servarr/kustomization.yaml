@@ -19,6 +19,7 @@ resources:
   - bazarr.yaml
   - subsyncarr.yaml
   - profilarr.yaml
+  - profilarr-oidc.sops.yaml
   - cleanuparr.yaml
   - qbit-unlinked-cleanup.yaml
   - qbit-unlinked-cleanup-secret.sops.yaml
