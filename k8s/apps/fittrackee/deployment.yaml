@@ -156,6 +156,11 @@ spec:
                 secretKeyRef:
                   name: fittrackee
                   key: APP_SECRET_KEY
+            - name: JWT_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: fittrackee
+                  key: JWT_SECRET_KEY
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
