@@ -362,9 +362,6 @@ spec:
   routes:
     - kind: Rule
       match: Host(`profilarr.item.fyi`)
-      middlewares:
-        - name: authentik
-          namespace: authentik
       services:
         - name: profilarr
           port: 6868
