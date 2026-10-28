@@ -29,9 +29,12 @@ configMapGenerator:
   - name: qbit-unlinked-cleanup-script
     files:
       - cleanup.py=scripts/qbit-unlinked-cleanup.py
+  - name: preserve-added-date-script
+    files:
+      - preserve-added-date.sh=scripts/preserve-added-date.sh
 # Generated ConfigMaps must not be touched by Flux postBuild substitution
-# (the servarr Kustomization substitutes ${VAR} placeholders) - the Python
-# scripts are verbatim file content. Handwritten ConfigMaps like
+# (the servarr Kustomization substitutes ${VAR} placeholders) - the bundled
+# scripts are verbatim file content (and the bash script is full of ${...}). Handwritten ConfigMaps like
 # slskd-config keep their ${SECRET_*} substitution; this only affects
 # generated ones (dagu pattern). The hash suffix is disabled because
 # kustomize does not rewrite CronJob jobTemplate volume references to
