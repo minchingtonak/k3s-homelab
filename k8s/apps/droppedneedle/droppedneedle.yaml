@@ -1,0 +1,140 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: droppedneedle-config
+  namespace: servarr
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
+# Cover-art disk cache + internal database + upgrade backups
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: droppedneedle-cache
+  namespace: servarr
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: droppedneedle-plugins
+  namespace: servarr
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: droppedneedle
+  namespace: servarr
+  labels:
+    app.kubernetes.io/name: droppedneedle
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: droppedneedle
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: droppedneedle
+    spec:
+      securityContext:
+        fsGroup: 100000
+      containers:
+        - name: droppedneedle
+          image: droppedneedle/droppedneedle:v2.15.0@sha256:6d58d829cc5aa29e5de95933ba1ce46f249ccf7ef3ed437c643231b771d711c5
+          env:
+            - name: PUID
+              value: "100000"
+            - name: PGID
+              value: "100000"
+            - name: UMASK
+              value: "002"
+            - name: TZ
+              value: America/New_York
+            - name: PORT
+              value: "8688"
+            - name: SLSKD_DOWNLOADS_PATH
+              value: /data/downloads/slskd/complete
+          ports:
+            - name: http
+              containerPort: 8688
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8688
+            periodSeconds: 10
+            failureThreshold: 60
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8688
+            periodSeconds: 30
+            failureThreshold: 3
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8688
+            periodSeconds: 10
+          volumeMounts:
+            - name: config
+              mountPath: /app/config
+            - name: cache
+              mountPath: /app/cache
+            - name: plugins
+              mountPath: /app/plugins
+            - name: music
+              mountPath: /data/music
+            - name: downloads
+              mountPath: /data/downloads
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: droppedneedle-config
+        - name: cache
+          persistentVolumeClaim:
+            claimName: droppedneedle-cache
+        - name: plugins
+          persistentVolumeClaim:
+            claimName: droppedneedle-plugins
+        - name: music
+          persistentVolumeClaim:
+            claimName: servarr-music
+        - name: downloads
+          persistentVolumeClaim:
+            claimName: servarr-downloads
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: droppedneedle
+  namespace: servarr
+  annotations:
+    gatus.home-operations.com/endpoint: |
+      alerts:
+        - type: pushover
+spec:
+  selector:
+    app.kubernetes.io/name: droppedneedle
+  ports:
+    - port: 8688
+      targetPort: 8688
+      name: http

@@ -1,0 +1,34 @@
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: droppedneedle
+  namespace: servarr
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "DroppedNeedle"
+    gethomepage.dev/description: "Music requests and discovery"
+    gethomepage.dev/group: "servarr"
+    gethomepage.dev/icon: "droppedneedle.png"
+    gethomepage.dev/href: "https://droppedneedle.item.fyi"
+    gethomepage.dev/siteMonitor: "http://droppedneedle.servarr.svc.cluster.local:8688"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=droppedneedle"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    # /api keeps its own bearer-token auth (like the *arrs' API keys).
+    - kind: Rule
+      match: Host(`droppedneedle.item.fyi`) && PathPrefix(`/api`)
+      services:
+        - name: droppedneedle
+          port: 8688
+    - kind: Rule
+      match: Host(`droppedneedle.item.fyi`)
+      middlewares:
+        - name: authentik
+          namespace: authentik
+      services:
+        - name: droppedneedle
+          port: 8688
+  tls: {}
