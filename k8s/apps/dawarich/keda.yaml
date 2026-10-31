@@ -24,17 +24,6 @@ spec:
     - type: external-push
       metadata:
         interceptorRoute: dawarich
----
-apiVersion: keda.sh/v1alpha1
-kind: ScaledObject
-metadata:
-  name: dawarich-sidekiq
-  namespace: dawarich
-spec:
-  scaleTargetRef:
-    name: dawarich-sidekiq
-  minReplicaCount: 0
-  triggers:
     - type: redis
       metadata:
         address: dawarich-redis.dawarich.svc.cluster.local:6379
