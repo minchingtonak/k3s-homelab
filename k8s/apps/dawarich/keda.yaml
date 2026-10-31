@@ -147,6 +147,18 @@ spec:
     - type: redis
       metadata:
         address: dawarich-redis.dawarich.svc.cluster.local:6379
+        listName: queue:achievements
+        databaseIndex: "1"
+        listLength: "1"
+    - type: redis
+      metadata:
+        address: dawarich-redis.dawarich.svc.cluster.local:6379
+        listName: queue:route_videos
+        databaseIndex: "1"
+        listLength: "1"
+    - type: redis
+      metadata:
+        address: dawarich-redis.dawarich.svc.cluster.local:6379
         listName: queue:low_priority
         databaseIndex: "1"
         listLength: "1"

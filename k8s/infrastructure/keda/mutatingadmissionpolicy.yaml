@@ -80,7 +80,7 @@ spec:
     - patchType: JSONPatch
       jsonPatch:
         expression: >
-          has(object.spec.triggers) && size(object.spec.triggers) == 1 &&
+          has(object.spec.triggers) && size(object.spec.triggers) >= 1 &&
           object.spec.triggers[0].type == "external-push" &&
           has(object.spec.triggers[0].metadata) &&
           "interceptorRoute" in object.spec.triggers[0].metadata &&
