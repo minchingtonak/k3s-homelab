@@ -83,7 +83,7 @@ spec:
               until mysqladmin ping -h wow-database.wow.svc.cluster.local -uroot -p"$MYSQL_ROOT_PASSWORD" --silent; do
               echo waiting for mysql; sleep 5; done
         - name: db-import
-          image: forgejo.item.fyi/akmin/ac-wotlk-db-import:20261022@sha256:b5a27ba6ababe12c4ccecedfa597a54cb521951ffd3ea5b7ed458778395d5df5
+          image: forgejo.item.fyi/akmin/ac-wotlk-db-import:20261031@sha256:11e30c08530671238931822b174e8add6f001e2ab7e645b015f7b659e9eb955c
           env:
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
@@ -222,7 +222,7 @@ spec:
               $DB -N -B -e "SHOW GRANTS FOR 'wow_exporter'@'%'"
       containers:
         - name: worldserver
-          image: forgejo.item.fyi/akmin/ac-wotlk-worldserver:20261022@sha256:955664e1e24b6c64ec18ce6d8ef9de6d2af363fd18526e86251a8f3e86662aa6
+          image: forgejo.item.fyi/akmin/ac-wotlk-worldserver:20261031@sha256:219b6fcaa0a0023c48e9ba2460435f24155bfa107296a5348db64a1b98f88c94
           # AC's console appender writes with vfprintf and never fflushes
           # (AppenderConsole::_write -> utf8printf -> Util.cpp). Under
           # containerd stdout is a pipe, so glibc block-buffers it at 4KiB
@@ -505,10 +505,6 @@ spec:
             # queue the dungeon finder with fewer than five
             - name: AC_SOLO_LFG_ENABLE
               value: "1"
-            # mod-jevstate — read-only combat state endpoint (HTTP) for the
-            # desktop-side agent loop.
-            - name: AC_JEVSTATE_ENABLE
-              value: "1"
             - name: AC_SOLO_LFG_ANNOUNCE
               value: "1"
             # FixedXP would force every dungeon kill's XP to FIXED_XPRATE
@@ -523,11 +519,6 @@ spec:
               protocol: TCP
             - name: soap
               containerPort: 7878
-              protocol: TCP
-            # mod-jevstate: read-only combat state HTTP endpoint for the
-            # desktop-side Jev agent (wow-agent/combat).
-            - name: jevstate
-              containerPort: 7879
               protocol: TCP
           volumeMounts:
             - name: data
@@ -567,8 +558,4 @@ spec:
     - name: soap
       port: 7878
       targetPort: 7878
-      protocol: TCP
-    - name: jevstate
-      port: 7879
-      targetPort: 7879
       protocol: TCP
