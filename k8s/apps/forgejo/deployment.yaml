@@ -133,7 +133,7 @@ spec:
         fsGroup: 1000
       initContainers:
         - name: configure-oauth
-          image: codeberg.org/forgejo/forgejo:16.0.7@sha256:c0fddfc04075e4198cc8e075fe6a1182984a5a7d5951c3a3c39b7fba2f10fbce
+          image: codeberg.org/forgejo/forgejo:17.0.1@sha256:fcd19ff4ebc85fb098a67e8e1d0d5a84d07dd6e8a23edcfdfd5b71a6178953be
           command: ["/bin/bash", "-c"]
           args:
             - |
@@ -212,7 +212,7 @@ spec:
               mountPath: /data
       containers:
         - name: forgejo
-          image: codeberg.org/forgejo/forgejo:16.0.7@sha256:c0fddfc04075e4198cc8e075fe6a1182984a5a7d5951c3a3c39b7fba2f10fbce
+          image: codeberg.org/forgejo/forgejo:17.0.1@sha256:fcd19ff4ebc85fb098a67e8e1d0d5a84d07dd6e8a23edcfdfd5b71a6178953be
           env:
             - name: USER_UID
               value: "1000"
