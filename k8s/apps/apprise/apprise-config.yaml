@@ -7,6 +7,9 @@ data:
   flux.yml: |
     urls:
       - "pover://${SECRET_PUSHOVER_USER_KEY}@${SECRET_PUSHOVER_FLUX_TOKEN}?priority=high"
+  droppedneedle.yml: |
+    urls:
+      - "pover://${SECRET_PUSHOVER_USER_KEY}@${SECRET_PUSHOVER_DROPPEDNEEDLE_TOKEN}?priority=normal"
   servarr.yml: |
     tag:
       - servarr

@@ -3,3 +3,10 @@ kind: Kustomization
 resources:
   - droppedneedle.yaml
   - ingressroute.yaml
+configMapGenerator:
+  - name: droppedneedle-plugin-apprise-notifier
+    files:
+      - plugin.py=scripts/apprise-notifier/plugin.py
+      - plugin.toml=scripts/apprise-notifier/plugin.toml
+generatorOptions:
+  disableNameSuffixHash: true

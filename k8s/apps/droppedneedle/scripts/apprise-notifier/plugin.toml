@@ -1,0 +1,22 @@
+[plugin]
+name = "apprise-notifier"
+display_name = "Apprise Notifier"
+version = "1.0.0"
+api_version = 1
+entrypoint = "plugin:AppriseNotifier"
+capabilities = ["subscriber"]
+description = "Forwards DroppedNeedle events (failed grabs, imports, fulfilled requests) to an Apprise API endpoint, which fans out to ntfy/Pushover/Discord/etc."
+author = "k3s-homelab"
+
+[[capability]]
+id = "subscriber"
+
+[[settings]]
+key = "apprise_url"
+label = "Apprise notify URL"
+help = "POST target. Blank uses http://apprise.notification.svc.cluster.local:8000/notify/droppedneedle"
+
+[[settings]]
+key = "events"
+label = "Event kinds"
+help = "Comma-separated subset of download_started, download_completed, download_failed, request_created, request_fulfilled, import_finished, playback_started, scrobble, plugin_notice. Blank = download_failed, import_finished, request_fulfilled."

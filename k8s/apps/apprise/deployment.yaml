@@ -58,6 +58,9 @@ spec:
               mountPath: /config/flux.yml
               subPath: flux.yml
             - name: apprise-config
+              mountPath: /config/droppedneedle.yml
+              subPath: droppedneedle.yml
+            - name: apprise-config
               mountPath: /config/servarr.yml
               subPath: servarr.yml
             - name: attach

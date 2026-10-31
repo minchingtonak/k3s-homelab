@@ -54,6 +54,8 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: droppedneedle
+      annotations:
+        configmap.reloader.stakater.com/reload: droppedneedle-plugin-apprise-notifier
     spec:
       securityContext:
         fsGroup: 100000
@@ -101,6 +103,8 @@ spec:
               mountPath: /app/cache
             - name: plugins
               mountPath: /app/plugins
+            - name: plugin-apprise-notifier
+              mountPath: /app/plugins/apprise-notifier
             - name: music
               mountPath: /data/music
             - name: downloads
@@ -115,6 +119,9 @@ spec:
         - name: plugins
           persistentVolumeClaim:
             claimName: droppedneedle-plugins
+        - name: plugin-apprise-notifier
+          configMap:
+            name: droppedneedle-plugin-apprise-notifier
         - name: music
           persistentVolumeClaim:
             claimName: servarr-music

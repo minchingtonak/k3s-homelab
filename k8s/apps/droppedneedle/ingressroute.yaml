@@ -9,7 +9,7 @@ metadata:
     gethomepage.dev/name: "DroppedNeedle"
     gethomepage.dev/description: "Music requests and discovery"
     gethomepage.dev/group: "servarr"
-    gethomepage.dev/icon: "droppedneedle.png"
+    gethomepage.dev/icon: "https://raw.githubusercontent.com/DroppedNeedle/DroppedNeedle/cf7278a11454c2c5e7417e486b027dd98dfc9049/Images/logo_icon.png"
     gethomepage.dev/href: "https://droppedneedle.item.fyi"
     gethomepage.dev/siteMonitor: "http://droppedneedle.servarr.svc.cluster.local:8688"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=droppedneedle"
