@@ -36,6 +36,38 @@ spec:
     requests:
       storage: 1Gi
 ---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: droppedneedle-recycle
+spec:
+  capacity:
+    storage: 500Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  claimRef:
+    name: droppedneedle-recycle
+    namespace: servarr
+  nfs:
+    server: 192.168.20.89
+    path: /void/media/dn-recycle
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: droppedneedle-recycle
+  namespace: servarr
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ""
+  volumeName: droppedneedle-recycle
+  resources:
+    requests:
+      storage: 500Gi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -109,6 +141,8 @@ spec:
               mountPath: /data/music
             - name: downloads
               mountPath: /data/downloads
+            - name: recycle
+              mountPath: /data/recycle
       volumes:
         - name: config
           persistentVolumeClaim:
@@ -128,6 +162,9 @@ spec:
         - name: downloads
           persistentVolumeClaim:
             claimName: servarr-downloads
+        - name: recycle
+          persistentVolumeClaim:
+            claimName: droppedneedle-recycle
 ---
 apiVersion: v1
 kind: Service
