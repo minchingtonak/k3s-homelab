@@ -59,8 +59,13 @@ metadata:
   name: backup-weekly
   namespace: longhorn-system
 spec:
-  # stagger from daily job to avoid s3 lock-contention failures
-  cron: "0 9 * * 0" # 09:00 Sunday
+  # Stagger from the other backup jobs to avoid s3 lock-contention failures.
+  # Retention deletes on big volumes hold the volume's backupstore deletion
+  # lock for 4h+ (lidarr-config), so a create must dodge every job's deletion
+  # tail: daily's runs to ~13:00 (late ~14:40 with re-sweeps), monthly's on the
+  # 1st to ~20:00 worst case. 21:30 Sunday clears both, and this job's own
+  # deletion tail (worst ~05:00) clears Monday's 06:00 daily create.
+  cron: "30 21 * * 0" # 21:30 Sunday
   task: backup
   groups:
     - default
