@@ -278,6 +278,13 @@ spec:
             - receiver: "null"
               matchers:
                 - alertname = InfoInhibitor
+            # Silence alerts due to failed longhorn backup jobs
+            # See custom alert 'longhorn.backup-job' in Prometheus stack config
+            - receiver: "null"
+              matchers:
+                - alertname = KubeJobFailed
+                - namespace = longhorn-system
+                - job_name =~ "backup-.*"
         receivers:
           - name: "null"
           - name: pushover

@@ -54,7 +54,7 @@ spec:
               underlying issue is fixed.
 
         - alert: LonghornBackupStale
-          expr: time() - longhorn_volume_last_backup_at > 8 * 86400
+          expr: time() - longhorn_volume_last_backup_at{pvc!~"windmill-sync-cache|immich-ml-cache"} > 8 * 86400
           for: 6h
           labels:
             severity: warning
@@ -66,7 +66,55 @@ spec:
               days (0 means never). The weekly backup-verify job audits
               exact per-schedule recency; anything tripping this flat rule
               is grossly stale - check recurring jobs and the backup
-              target.
+              target. Volumes deliberately excluded from recurring jobs
+              (reconstructible caches, see their PVC labels) are filtered
+              out of this rule and LonghornDailyBackupGap; add new
+              exclusions here when excluding another volume.
+
+    - name: longhorn.backup-job
+      rules:
+        - alert: LonghornWeeklyBackupJobStale
+          expr: >
+            max(max_over_time(kube_job_status_succeeded{namespace="longhorn-system", job_name=~"backup-weekly-.*"}[8d])) < 1
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: "No successful backup-weekly job in 8 days"
+            description: >
+              The weekly Longhorn backup job has not completed successfully
+              for 8 days. One flake failure is tolerated by design; two
+              consecutive misses page. Weekly restore points may be missing
+              - check the job history and the Longhorn recurring job logs.
+
+        - alert: LonghornMonthlyBackupJobStale
+          expr: >
+            max(max_over_time(kube_job_status_succeeded{namespace="longhorn-system", job_name=~"backup-monthly-.*"}[32d])) < 1
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: "No successful backup-monthly job in 32 days"
+            description: >
+              The monthly Longhorn backup job has not completed
+              successfully for 32 days. Monthly restore points may be
+              missing - check the job history and the Longhorn recurring
+              job logs.
+
+        - alert: LonghornDailyBackupGap
+          expr: >
+            time() - longhorn_volume_last_backup_at{pvc!~"windmill-sync-cache|immich-ml-cache|prometheus-.*"} > 30 * 3600
+          for: 2h
+          labels:
+            severity: warning
+          annotations:
+            summary: "Volume {{ $labels.volume }} unbacked for > 30h"
+            description: >
+              Last successful backup of {{ $labels.volume }} ({{
+              $labels.pvc_namespace }}/{{ $labels.pvc }}) is older than 30
+              hours, so the daily backup is not covering it. This is the
+              flake-proof daily-gap signal (unlike job status, the volume
+              metric only advances on real backups).
 
     - name: longhorn.node
       rules:

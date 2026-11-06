@@ -51,6 +51,8 @@ spec:
     - default
     - cold
   retain: 14
+  retentionPolicy: age-based
+  retainAge: 336h # 14 days
   concurrency: 2
 ---
 apiVersion: longhorn.io/v1beta2
@@ -71,6 +73,8 @@ spec:
     - default
     - cold
   retain: 8
+  retentionPolicy: age-based
+  retainAge: 1344h # 8 weeks
   concurrency: 2
 ---
 apiVersion: longhorn.io/v1beta2
@@ -87,6 +91,8 @@ spec:
     - default
     - cold
   retain: 12
+  retentionPolicy: age-based
+  retainAge: 8760h # 12 months
   concurrency: 2
 ---
 apiVersion: longhorn.io/v1beta2

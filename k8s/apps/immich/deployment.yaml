@@ -44,6 +44,10 @@ kind: PersistentVolumeClaim
 metadata:
   name: immich-ml-cache
   namespace: immich
+  labels:
+    recurring-job.longhorn.io/source: "enabled"
+    recurring-job-group.longhorn.io/cold: "disabled"
+    recurring-job-group.longhorn.io/default: "disabled"
 spec:
   accessModes:
     - ReadWriteOnce
