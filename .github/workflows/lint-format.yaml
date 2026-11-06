@@ -29,7 +29,7 @@ jobs:
       - name: Install aqua
         uses: aquaproj/aqua-installer@611554c6f0137ba41c8dd15aca8bee82504ea461 # v4.1.1
         with:
-          aqua_version: v2.64.0 # renovate: depName=aquaproj/aqua
+          aqua_version: v2.65.2 # renovate: depName=aquaproj/aqua
 
       - name: Run lint-k8s
         run: make lint
@@ -46,7 +46,7 @@ jobs:
       - name: Install aqua
         uses: aquaproj/aqua-installer@611554c6f0137ba41c8dd15aca8bee82504ea461 # v4.1.1
         with:
-          aqua_version: v2.64.0 # renovate: depName=aquaproj/aqua
+          aqua_version: v2.65.2 # renovate: depName=aquaproj/aqua
 
       - name: Run yamllint
         run: make lint-yaml
@@ -63,7 +63,7 @@ jobs:
       - name: Install aqua
         uses: aquaproj/aqua-installer@611554c6f0137ba41c8dd15aca8bee82504ea461 # v4.1.1
         with:
-          aqua_version: v2.64.0 # renovate: depName=aquaproj/aqua
+          aqua_version: v2.65.2 # renovate: depName=aquaproj/aqua
 
       - name: Run dprint check
         run: make check-fmt
