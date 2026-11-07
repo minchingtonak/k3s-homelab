@@ -210,7 +210,7 @@ spec:
       containers:
         - name: redis
           # https://github.com/paperless-ngx/paperless-ngx/blob/dev/docker/compose/docker-compose.postgres-tika.yml
-          image: docker.io/library/redis:8.10.1@sha256:298e5b3bc566bade82f46ad5511777a4a07a294097ce16ada2f6a42be5239df5
+          image: docker.io/library/redis:8.10.2@sha256:97ec88159e6d7cfb5ddef9015386087d58a912de80112f06ebdfa78fa5989901
           command: ["redis-server"]
           ports:
             - name: redis
