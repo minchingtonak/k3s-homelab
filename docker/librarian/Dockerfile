@@ -14,7 +14,7 @@
 # Build context is librarian/ (see scripts/build-librarian-image.sh); the
 # base pin matches docker/azerothcore so the cluster patches one ubuntu.
 
-ARG UBUNTU_VERSION=24.04@sha256:534baea6a22c03a63003dbc8dbe78fe34bc0d7e595d9a9dc9834884ff530eb55
+ARG UBUNTU_VERSION=24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852
 
 # --- stage 1: keyfinder-cli builder ----------------------------------------
 # Built from source because nobody packages it: libKeyFinder + the CLI wrapper,
