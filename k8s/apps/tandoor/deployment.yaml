@@ -150,6 +150,8 @@ spec:
               value: djangouser
             - name: SOCIAL_PROVIDERS
               value: allauth.socialaccount.providers.openid_connect
+            - name: ACCOUNT_EMAIL_VERIFICATION
+              value: none
             - name: SECRET_KEY
               valueFrom:
                 secretKeyRef:
