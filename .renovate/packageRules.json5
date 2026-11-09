@@ -1,6 +1,13 @@
 {
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   packageRules: [
+    // aqua-renovate-config already handles aqua updates
+    // disable github-actions manager rules to avoid duplicate PRs
+    {
+      matchManagers: ["github-actions"],
+      matchPackageNames: ["aqua", "aquaproj/aqua"],
+      enabled: false,
+    },
     // helm chart versions don't use digests
     { matchManagers: ["flux"], pinDigests: false },
     // ...but the flux manager also finds container images inside HelmRelease
