@@ -218,7 +218,7 @@ spec:
       terminationGracePeriodSeconds: 60
       containers:
         - name: dawarich
-          image: freikin/dawarich:1.20.0@sha256:18945f609942056e55fb24988229499be7bbe4703177fac662225dad465b021f
+          image: freikin/dawarich:1.21.0@sha256:aae6cabd95c1dd5e5d4e2c920692a1b11524feec143d295a9bcc914df7ffdcdf
           stdin: true
           tty: true
           command: ["web-entrypoint.sh"]
