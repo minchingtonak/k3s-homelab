@@ -10,7 +10,8 @@ Three checks, covering the two backup pipelines:
    group includes a backup task must have a backup no older than its
    schedule (derived from the recurring job's cron) plus grace;
    volumes with no backup task scheduled are counted, not alarmed,
-   and backup records of deleted volumes are ignored as orphans.
+   PVCs listed in EXCLUDED_PVCS are skipped entirely, and backup
+   records of deleted volumes are ignored as orphans.
 3. PVC name mapping so the report reads like the cluster.
 
 Always pushes a Pushover summary; problems are priority 1, clean
@@ -26,10 +27,9 @@ import os
 import ssl
 import sys
 import time
-import urllib.error
 import urllib.parse
 import urllib.request
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
 DAGU_URL = os.environ.get("DAGU_URL", "http://dagu.dagu.svc.cluster.local")
 # Overridable for local testing (kubectl proxy); defaults to the
@@ -37,6 +37,11 @@ DAGU_URL = os.environ.get("DAGU_URL", "http://dagu.dagu.svc.cluster.local")
 K8S_API = os.environ.get("KUBERNETES_API", "https://kubernetes.default.svc")
 DAGU_MAX_AGE_HOURS = 32.0
 STALE_GRACE_HOURS = 12.0
+# PVCs that are intentionally never backed up.
+EXCLUDED_PVCS = {
+    "immich/immich-ml-cache",
+    "windmill/windmill-sync-cache",
+}
 MAX_ITEMS = 15
 USER_AGENT = "k3s-homelab-backup-verify/1.0"
 
@@ -134,6 +139,7 @@ def check_longhorn(problems):
         )
         for p in pvcs
     }
+    excluded = {vol for vol, name in friendly.items() if name in EXCLUDED_PVCS}
 
     # group -> most frequent backup-task interval (snapshots do not
     # leave the cluster, so only backup tasks count), from the cron
@@ -167,10 +173,13 @@ def check_longhorn(problems):
     live = {}
     for vol in volumes:
         name = vol["metadata"]["name"]
+        # Longhorn disables a group for a volume with the label value
+        # "disabled"; only enabled groups schedule backups.
         groups = [
             key.split("/", 1)[1]
-            for key in (vol["metadata"].get("labels") or {})
+            for key, value in (vol["metadata"].get("labels") or {}).items()
             if key.startswith("recurring-job-group.longhorn.io/")
+            and value != "disabled"
         ]
         live[name] = max(
             (group_hours[g] for g in groups if g in group_hours),
@@ -189,6 +198,8 @@ def check_longhorn(problems):
     now = datetime.now(timezone.utc)
     fresh, stale, orphaned, unscheduled = 0, [], 0, 0
     for vol, limit in sorted(live.items()):
+        if vol in excluded:
+            continue
         name = friendly.get(vol) or vol
         when = latest.get(vol)
         if limit is None:
@@ -210,7 +221,7 @@ def check_longhorn(problems):
     for entry in stale:
         problems.append(f"longhorn: {entry}")
     orphaned = len([v for v in latest if v not in live])
-    return fresh, stale, unscheduled, orphaned
+    return fresh, stale, unscheduled, orphaned, len(excluded)
 
 
 def chunk_message(message, limit=1000):
@@ -268,7 +279,7 @@ def pushover(title, message, priority=0):
 def main():
     problems = []
     finished, dagu_age = check_dagu(problems)
-    fresh, stale, unscheduled, orphans = check_longhorn(problems)
+    fresh, stale, unscheduled, orphans, excluded = check_longhorn(problems)
     log(
         f"dagu last run: {dagu_age:.0f}h ago"
         if dagu_age is not None
@@ -276,7 +287,7 @@ def main():
     )
     log(
         f"longhorn: {fresh} fresh, {len(stale)} stale, "
-        f"{unscheduled} unscheduled, {orphans} orphaned"
+        f"{unscheduled} unscheduled, {excluded} excluded, {orphans} orphaned"
     )
     for p in problems:
         log(f"  PROBLEM: {p}")
