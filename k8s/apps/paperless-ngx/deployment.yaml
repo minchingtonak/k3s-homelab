@@ -396,6 +396,8 @@ spec:
               value: paperless-ngx
             - name: PAPERLESS_URL
               value: https://paperless.item.fyi
+            - name: PAPERLESS_ALLOWED_HOSTS
+              value: paperless.item.fyi,paperless-ngx.paperless-ngx.svc.cluster.local
             - name: PAPERLESS_REDIS
               value: redis://paperless-ngx-redis:6379
             - name: PAPERLESS_DBENGINE
@@ -468,6 +470,7 @@ spec:
               protocol: TCP
           readinessProbe:
             httpGet:
+              host: localhost
               path: /
               port: http
             periodSeconds: 5
