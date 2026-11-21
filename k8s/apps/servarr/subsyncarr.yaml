@@ -22,7 +22,7 @@ spec:
         fsGroup: 100000
       containers:
         - name: subsyncarr
-          image: mrorbitman/subsyncarr:1.4.0@sha256:2bf7e0dbf0c3270b6c150f6ed6b95e104fccf977d2803edea80d7a6ff91f4df0
+          image: mrorbitman/subsyncarr:1.5.0@sha256:f3e438e484074f8f447337689df2acca391b9e1e8b74b7dc1cc53a7107b3ba00
           env:
             - name: PUID
               value: "100000"
