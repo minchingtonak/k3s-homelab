@@ -206,9 +206,6 @@ spec:
           port: 7878
     - kind: Rule
       match: Host(`radarr.item.fyi`)
-      middlewares:
-        - name: authentik
-          namespace: authentik
       services:
         - name: radarr
           port: 7878
