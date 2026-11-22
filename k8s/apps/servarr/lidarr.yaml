@@ -19,7 +19,7 @@ metadata:
   labels:
     app.kubernetes.io/name: lidarr
 spec:
-  replicas: 1
+  replicas: 0
   strategy:
     type: Recreate
   selector:
@@ -84,9 +84,7 @@ metadata:
   name: lidarr
   namespace: servarr
   annotations:
-    gatus.home-operations.com/endpoint: |
-      alerts:
-        - type: pushover
+    gatus.home-operations.com/enabled: "false"
 spec:
   selector:
     app.kubernetes.io/name: lidarr

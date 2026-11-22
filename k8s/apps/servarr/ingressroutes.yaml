@@ -216,18 +216,6 @@ kind: IngressRoute
 metadata:
   name: lidarr
   namespace: servarr
-  annotations:
-    gethomepage.dev/enabled: "true"
-    gethomepage.dev/name: "Lidarr"
-    gethomepage.dev/description: "Music manager"
-    gethomepage.dev/group: "servarr"
-    gethomepage.dev/icon: "lidarr.png"
-    gethomepage.dev/href: "https://lidarr.item.fyi"
-    gethomepage.dev/siteMonitor: "http://lidarr.servarr.svc.cluster.local:8686"
-    gethomepage.dev/pod-selector: "app.kubernetes.io/name=lidarr"
-    gethomepage.dev/widget.type: "lidarr"
-    gethomepage.dev/widget.url: "http://lidarr.servarr.svc.cluster.local:8686"
-    gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_LIDARR_API_KEY}}"
 spec:
   entryPoints:
     - websecure
