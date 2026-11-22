@@ -42,6 +42,9 @@ spec:
               value: "100000"
             - name: TZ
               value: America/New_York
+            # Trust Traefik's X-Forwarded-Proto so OIDC builds https:// redirects.
+            - name: RADARR__SERVER__TRUSTEDNETWORKS
+              value: 10.42.0.0/16
             - name: RADARR__AUTH__METHOD
               value: Oidc
             - name: RADARR__AUTH__REQUIRED
