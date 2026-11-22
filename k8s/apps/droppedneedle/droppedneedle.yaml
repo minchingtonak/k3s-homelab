@@ -93,7 +93,7 @@ spec:
         fsGroup: 100000
       containers:
         - name: droppedneedle
-          image: droppedneedle/droppedneedle:v2.15.0@sha256:6d58d829cc5aa29e5de95933ba1ce46f249ccf7ef3ed437c643231b771d711c5
+          image: droppedneedle/droppedneedle:v3.1.0@sha256:58726b681d23a9136bc09ce81592cba18cb97d7933b4b76044a444f1c879054e
           env:
             - name: PUID
               value: "100000"
@@ -107,6 +107,10 @@ spec:
               value: "8688"
             - name: SLSKD_DOWNLOADS_PATH
               value: /data/downloads/slskd/complete
+            # Trust Traefik's X-Forwarded-Proto/Host; v3 rejects web-UI writes
+            # (403 origin not allowed) when the proxy is not listed.
+            - name: TRUSTED_PROXY_IPS
+              value: "10.42.0.0/16"
           ports:
             - name: http
               containerPort: 8688
