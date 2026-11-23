@@ -59,6 +59,14 @@ spec:
         # https://docs.goauthentik.io/install-config/configuration/#authentik_web__workers
         - name: AUTHENTIK_WEB__WORKERS
           value: "1"
+      livenessProbe:
+        httpGet:
+          path: /outpost.goauthentik.io/ping
+          port: http
+      startupProbe:
+        httpGet:
+          path: /outpost.goauthentik.io/ping
+          port: http
       resources:
         requests:
           cpu: 50m
@@ -77,7 +85,7 @@ spec:
           enabled: true
           size: 8Gi
         extendedConfiguration: |
-          max_connections = 50
+          max_connections = 100
     blueprints:
       configMaps:
         - authentik-blueprints

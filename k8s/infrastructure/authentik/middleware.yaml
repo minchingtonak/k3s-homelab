@@ -1,0 +1,18 @@
+# When a proxied app's outpost cookie expires, its SPA keeps polling API
+# endpoints with XHRs. The outpost answers 302 to /application/o/authorize/,
+# but the browser refuses to follow the cross-origin redirect chain without
+# CORS headers, never reaches /outpost.goauthentik.io/callback, and the SPA
+# retries forever (slskd's /api/v0/session and /api/v0/transfers/downloads
+# polling did exactly this). This middleware is attached to the auth-flow
+# routes so XHRs from *.item.fyi can complete the redirect and pick up a fresh
+# outpost cookie.
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: authentik-auth-cors
+  namespace: authentik
+spec:
+  headers:
+    accessControlAllowCredentials: true
+    accessControlAllowOriginListRegex:
+      - '^https://[a-z0-9-]+\.item\.fyi$'

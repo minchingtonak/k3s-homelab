@@ -14,11 +14,19 @@ metadata:
     gethomepage.dev/widget.type: "authentik"
     gethomepage.dev/widget.url: "http://authentik-server.authentik.svc.cluster.local"
     gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_AUTHENTIK_TOKEN}}"
-    gethomepage.dev/widget.version: 2
+    gethomepage.dev/widget.version: "2"
 spec:
   entryPoints:
     - websecure
   routes:
+    - kind: Rule
+      match: Host(`auth.item.fyi`) && (PathPrefix(`/application/o/`) || PathPrefix(`/outpost.goauthentik.io/`))
+      priority: 100
+      middlewares:
+        - name: authentik-auth-cors
+      services:
+        - name: authentik-server
+          port: 80
     - kind: Rule
       match: Host(`auth.item.fyi`)
       services:
