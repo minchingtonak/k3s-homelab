@@ -29,6 +29,8 @@ data:
       accs:
         # https://github.com/9001/copyparty#accounts-and-volumes
         A: *  # same as rwmda (read/write/move/delete/admin/dotfiles)
+      flags:
+        nohash: ^/mnt/media/downloads/
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
