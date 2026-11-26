@@ -215,6 +215,16 @@ what the workload was doing.
 - `ansible/` — node provisioning and k3s bring-up. The only provisioning path.
 - `scratch/` — work in progress. **Never stage or commit anything here.**
 
+## DroppedNeedle plugin events
+
+Subscriber events for `download_*`, `request_*` and `import_finished` carry
+only a `release_group_mbid` — no artist or album title. The task row has
+`artist_name`/`album_title`, but the plugin host deliberately exposes the
+event struct only. The Apprise notifier resolves the MBID on MusicBrainz,
+caches the answer, and falls back to the raw ID when MusicBrainz cannot
+answer. Do the same in any new subscriber that needs a readable release
+name.
+
 ## KEDA scale-to-zero enrollment
 
 Apps idle most of the day are enrolled in the KEDA HTTP add-on: an
