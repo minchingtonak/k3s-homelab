@@ -1,11 +1,11 @@
 [plugin]
 name = "apprise-notifier"
 display_name = "Apprise Notifier"
-version = "2.0.0"
+version = "2.1.0"
 api_version = 2
 entrypoint = "plugin:AppriseNotifier"
 capabilities = ["subscriber"]
-description = "Forwards DroppedNeedle events (failed grabs, imports, fulfilled requests) to an Apprise API endpoint, which fans out to ntfy/Pushover/Discord/etc."
+description = "Forwards DroppedNeedle events (failed grabs, imports, fulfilled requests) to an Apprise API endpoint, naming the release from its MusicBrainz id. Fans out to ntfy/Pushover/Discord/etc."
 author = "k3s-homelab"
 
 [[capability]]
